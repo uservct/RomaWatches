@@ -1,0 +1,123 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using RomaWatches.Models;
+
+namespace RomaWatches.Controllers
+{
+    public class AccountController : Controller
+    {
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly ILogger<AccountController> _logger;
+
+        public AccountController(
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
+            ILogger<AccountController> logger)
+        {
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _logger = logger;
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [IgnoreAntiforgeryToken]
+        public async Task<IActionResult> Login([FromForm] string email, [FromForm] string password)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+                {
+                    return Json(new { success = false, message = "Email and password are required." });
+                }
+
+                var user = await _userManager.FindByEmailAsync(email);
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "Invalid email or password." });
+                }
+
+                var result = await _signInManager.PasswordSignInAsync(user, password, false, lockoutOnFailure: false);
+                if (result.Succeeded)
+                {
+                    return Json(new { success = true, message = "Login successful!" });
+                }
+                else if (result.IsLockedOut)
+                {
+                    return Json(new { success = false, message = "Account is locked out." });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Invalid email or password." });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during login");
+                return Json(new { success = false, message = "An error occurred. Please try again." });
+            }
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [IgnoreAntiforgeryToken]
+        public async Task<IActionResult> Register([FromForm] string firstName, [FromForm] string lastName, [FromForm] string email, [FromForm] string password, [FromForm] string confirmPassword)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+                {
+                    return Json(new { success = false, message = "All fields are required." });
+                }
+
+                if (password != confirmPassword)
+                {
+                    return Json(new { success = false, message = "Passwords do not match." });
+                }
+
+                var existingUser = await _userManager.FindByEmailAsync(email);
+                if (existingUser != null)
+                {
+                    return Json(new { success = false, message = "Email already registered." });
+                }
+
+                var user = new ApplicationUser
+                {
+                    UserName = email,
+                    Email = email,
+                    FirstName = firstName,
+                    LastName = lastName,
+                    Role = "user",
+                    EmailConfirmed = true
+                };
+
+                var result = await _userManager.CreateAsync(user, password);
+                if (result.Succeeded)
+                {
+                    return Json(new { success = true, message = "Registration successful! Please login." });
+                }
+                else
+                {
+                    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                    return Json(new { success = false, message = errors });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during registration");
+                return Json(new { success = false, message = "An error occurred. Please try again." });
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
+        }
+    }
+}
+
