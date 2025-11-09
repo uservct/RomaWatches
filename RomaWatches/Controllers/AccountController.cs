@@ -30,33 +30,34 @@ namespace RomaWatches.Controllers
             {
                 if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
                 {
-                    return Json(new { success = false, message = "Email and password are required." });
+                    return Json(new { success = false, message = "Vui lòng điền email và mật khẩu." });
                 }
 
                 var user = await _userManager.FindByEmailAsync(email);
                 if (user == null)
                 {
-                    return Json(new { success = false, message = "Invalid email or password." });
+                    return Json(new { success = false, message = "Email hoặc mật khẩu không hợp lệ." });
                 }
 
                 var result = await _signInManager.PasswordSignInAsync(user, password, false, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    return Json(new { success = true, message = "Login successful!" });
+                    var redirectUrl = user.Role == "admin" ? "/Admin/Dashboard" : "/";
+                    return Json(new { success = true, message = "Đăng nhập thành công!", redirectUrl = redirectUrl });
                 }
                 else if (result.IsLockedOut)
                 {
-                    return Json(new { success = false, message = "Account is locked out." });
+                    return Json(new { success = false, message = "Tài khoản đã bị khóa." });
                 }
                 else
                 {
-                    return Json(new { success = false, message = "Invalid email or password." });
+                    return Json(new { success = false, message = "Email hoặc mật khẩu không hợp lệ." });
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during login");
-                return Json(new { success = false, message = "An error occurred. Please try again." });
+                _logger.LogError(ex, "Lỗi trong quá trình đăng nhập");
+                return Json(new { success = false, message = "Có lỗi xảy ra. Vui lòng thử lại." });
             }
         }
 
@@ -69,18 +70,18 @@ namespace RomaWatches.Controllers
             {
                 if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
                 {
-                    return Json(new { success = false, message = "All fields are required." });
+                    return Json(new { success = false, message = "Vui lòng điền đầy đủ các ô." });
                 }
 
                 if (password != confirmPassword)
                 {
-                    return Json(new { success = false, message = "Passwords do not match." });
+                    return Json(new { success = false, message = "Mật khẩu không khớp!" });
                 }
 
                 var existingUser = await _userManager.FindByEmailAsync(email);
                 if (existingUser != null)
                 {
-                    return Json(new { success = false, message = "Email already registered." });
+                    return Json(new { success = false, message = "Email đã tồn tại." });
                 }
 
                 var user = new ApplicationUser
@@ -96,7 +97,7 @@ namespace RomaWatches.Controllers
                 var result = await _userManager.CreateAsync(user, password);
                 if (result.Succeeded)
                 {
-                    return Json(new { success = true, message = "Registration successful! Please login." });
+                    return Json(new { success = true, message = "Đăng ký thành công! Vui lòng đăng nhập." });
                 }
                 else
                 {
@@ -107,7 +108,7 @@ namespace RomaWatches.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error during registration");
-                return Json(new { success = false, message = "An error occurred. Please try again." });
+                return Json(new { success = false, message = "Có lỗi xảy ra. Vui lòng thử lại." });
             }
         }
 

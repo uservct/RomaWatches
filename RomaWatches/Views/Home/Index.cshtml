@@ -88,14 +88,14 @@
                                                     <p class="font-semibold">@user.FirstName @user.LastName</p>
                                                     <p class="text-gray-400 text-xs">@user.Email</p>
                                                 </div>
-                                                <a href="#" class="block px-4 py-2 text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors">Profile</a>
+                                                <a href="#" class="block px-4 py-2 text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors">Trang cá nhân</a>
                                                 <a href="#" class="block px-4 py-2 text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors">Orders</a>
                                                 @if (user.Role == "admin")
                                                 {
                                                     <a href="#" class="block px-4 py-2 text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors">Admin Panel</a>
                                                 }
                                                 <form asp-controller="Account" asp-action="Logout" method="post" class="border-t border-white/10 mt-2">
-                                                    <button type="submit" class="w-full text-left px-4 py-2 text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors">Logout</button>
+                                                    <button type="submit" class="w-full text-left px-4 py-2 text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors">Đăng xuất</button>
                                                 </form>
                                             </div>
                                         </div>
