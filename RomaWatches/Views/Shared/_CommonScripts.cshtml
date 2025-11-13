@@ -1,0 +1,28 @@
+<script>
+    // Open login modal function - shared across all pages
+    function openLoginModal() {
+        const modal = document.getElementById('loginModal');
+        const modalContent = document.getElementById('modalContent');
+        if (modal && modalContent) {
+            modal.classList.remove('hidden');
+            modalContent.classList.remove('translate-x-full');
+            modalContent.classList.add('translate-x-0');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    // Close login modal function
+    function closeLoginModal() {
+        const modal = document.getElementById('loginModal');
+        const modalContent = document.getElementById('modalContent');
+        if (modal && modalContent) {
+            modalContent.classList.remove('translate-x-0');
+            modalContent.classList.add('translate-x-full');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }, 300); // Wait for animation to complete
+        }
+    }
+</script>
+

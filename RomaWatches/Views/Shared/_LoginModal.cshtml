@@ -5,97 +5,126 @@
 <div id="loginModal" class="fixed inset-0 z-50 hidden overflow-hidden">
     <!-- Backdrop -->
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeLoginModal()"></div>
-    
+
     <!-- Modal Container - Slide from right -->
-    <div class="absolute right-0 top-0 h-full w-full max-w-md bg-[#1d190e] text-gray-300 shadow-2xl transform transition-transform duration-300 ease-in-out translate-x-full" id="modalContent">
-        <button class="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors z-10" onclick="closeLoginModal()">
+    <div class="absolute right-0 top-0 h-full w-full max-w-md bg-[#1d190e] text-gray-300 shadow-2xl transform transition-transform duration-300 ease-in-out translate-x-full"
+        id="modalContent">
+        <button class="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors z-10"
+            onclick="closeLoginModal()">
             <span class="material-symbols-outlined">close</span>
         </button>
-        
+
         <div class="h-full overflow-y-auto">
             <div class="px-8 pt-8">
                 <!-- Tabs -->
                 <div class="flex border-b border-white/10">
-                    <button id="loginTab" class="flex flex-1 flex-col items-center justify-center border-b-[3px] border-b-primary pb-3 pt-2" onclick="switchTab('login')">
+                    <button id="loginTab"
+                        class="flex flex-1 flex-col items-center justify-center border-b-[3px] border-b-primary pb-3 pt-2"
+                        onclick="switchTab('login')">
                         <p class="text-white text-sm font-bold leading-normal tracking-wide">Đăng nhập</p>
                     </button>
-                    <button id="registerTab" class="flex flex-1 flex-col items-center justify-center border-b-[3px] border-b-transparent pb-3 pt-2" onclick="switchTab('register')">
-                        <p class="text-gray-400 hover:text-white text-sm font-bold leading-normal tracking-wide transition-colors">Đăng ký</p>
+                    <button id="registerTab"
+                        class="flex flex-1 flex-col items-center justify-center border-b-[3px] border-b-transparent pb-3 pt-2"
+                        onclick="switchTab('register')">
+                        <p
+                            class="text-gray-400 hover:text-white text-sm font-bold leading-normal tracking-wide transition-colors">
+                            Đăng ký</p>
                     </button>
                 </div>
             </div>
-            
+
             <!-- Login Content -->
             <div id="loginContent" class="flex flex-col p-8">
-                <h1 class="text-white tracking-light text-[32px] font-bold leading-tight text-left pb-4">Roma Watches</h1>
-                
+                <h1 class="text-white tracking-light text-[32px] font-bold leading-tight text-left pb-4">Roma Watches
+                </h1>
+
                 <!-- Error/Success Messages -->
                 <div id="loginMessage" class="mb-4 hidden"></div>
-                
-                <form id="loginForm" asp-controller="Account" asp-action="Login" method="post" class="flex flex-col gap-4">
+
+                <form id="loginForm" asp-controller="Account" asp-action="Login" method="post"
+                    class="flex flex-col gap-4">
                     @Html.AntiForgeryToken()
                     <label class="flex flex-col">
                         <p class="text-white/80 text-base font-medium leading-normal pb-2">Email</p>
-                        <input name="email" type="email" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-white/20 bg-[#2b2618] h-14 placeholder:text-gray-500 p-4 text-base font-normal leading-normal transition-all" placeholder="Enter your email" required />
+                        <input name="email" type="email"
+                            class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-white/20 bg-[#2b2618] h-14 placeholder:text-gray-500 p-4 text-base font-normal leading-normal transition-all"
+                            placeholder="Enter your email" required />
                     </label>
                     <label class="flex flex-col">
                         <p class="text-white/80 text-base font-medium leading-normal pb-2">Mật khẩu</p>
                         <div class="relative flex w-full flex-1 items-stretch">
-                            <input id="loginPassword" name="password" type="password" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-white/20 bg-[#2b2618] h-14 placeholder:text-gray-500 p-4 text-base font-normal leading-normal transition-all pr-12" placeholder="Enter your password" required />
-                            <div class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500 cursor-pointer" onclick="togglePasswordVisibility('loginPassword')">
+                            <input id="loginPassword" name="password" type="password"
+                                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-white/20 bg-[#2b2618] h-14 placeholder:text-gray-500 p-4 text-base font-normal leading-normal transition-all pr-12"
+                                placeholder="Enter your password" required />
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500 cursor-pointer"
+                                onclick="togglePasswordVisibility('loginPassword')">
                                 <span class="material-symbols-outlined" id="loginPasswordIcon">visibility_off</span>
                             </div>
                         </div>
                     </label>
-                    <button type="submit" class="flex items-center justify-center w-full h-14 px-6 mt-4 rounded-lg bg-primary text-background-dark text-base font-bold leading-normal tracking-wide hover:bg-primary/90 transition-colors">Đăng nhập</button>
+                    <button type="submit"
+                        class="flex items-center justify-center w-full h-14 px-6 mt-4 rounded-lg bg-primary text-background-dark text-base font-bold leading-normal tracking-wide hover:bg-primary/90 transition-colors">Đăng
+                        nhập</button>
                 </form>
-                
-                <a class="text-gray-400 text-sm font-normal leading-normal py-3 text-left underline hover:text-primary transition-colors" href="#" onclick="showForgotPassword(); return false;">Quên mật khẩu?</a>
-                
+
+                <a class="text-gray-400 text-sm font-normal leading-normal py-3 text-left underline hover:text-primary transition-colors"
+                    href="#" onclick="showForgotPassword(); return false;">Quên mật khẩu?</a>
+
                 <div class="flex items-center gap-4 my-6">
-                    <hr class="w-full border-white/10"/>
-                    <p class="text-sm text-gray-500">OR</p>
-                    <hr class="w-full border-white/10"/>
+                    <hr class="w-full border-white/10" />
+                    <p class="text-sm text-gray-500">Hoặc</p>
+                    <hr class="w-full border-white/10" />
                 </div>
-                
+
                 <div class="flex flex-col gap-4">
-                    <button class="flex items-center justify-center w-full h-14 px-6 rounded-lg bg-white/5 border border-white/10 text-white text-base font-semibold hover:bg-white/10 transition-colors">
-                        <img alt="Google logo" class="w-6 h-6 mr-3" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxgoCOUgn6U_PW5bqnyYvPLJdd7jlv2RAXdPDPQdhiGV4gS7POMEU5gw3CnnipzOq1wA748qjw8TAI46wvGyWGMpGYVxS0gHWOYXzHtd92iAuwK3UnVtA7eyLITaKmKYT4luZatOhgiBh9golG358RRlwZqGp_EhAYML0xU3G6FmLtc-aMQPY5gZQ8k0OiqbX9FkK_L-Ph7P99pqKRzXDFq0jyW7jsaQWLc_Wj9oDW_K67V86CM8LqNEcyk9NOEPa_cR8SEoufKiw"/> Continue with Google
-                    </button>
-                    <button class="flex items-center justify-center w-full h-14 px-6 rounded-lg bg-white/5 border border-white/10 text-white text-base font-semibold hover:bg-white/10 transition-colors">
-                        <img alt="Apple logo" class="w-6 h-6 mr-3" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5kRLrGrFSO-3t_Pw1nXMbMUVp7tDJTxJq7LUovRtT8PNtOtkwa3wXoXNVnqMOI2cDwTMEeNXGSP_xYFks8XDkzfXihdUuMTyHFz9lzQNTy690lWixgfG7x02f5c1JwTgBOOwN9--j7gNoWZhk9h-idfF4etQ8q6lH6SXF7p-dmUFEtZsnArehjZBCThHAJzrg4z0ulUQLzaadMOUVtZcYi8vjxKiGBODG9Shk_yM4zCQzoPqC3iO2FPhhkVZMAKVQebW839M4fnQ"/> Continue with Apple
+                    <button
+                        class="flex items-center justify-center w-full h-14 px-6 rounded-lg bg-white/5 border border-white/10 text-white text-base font-semibold hover:bg-white/10 transition-colors">
+                        <img alt="Google logo" class="h-6 w-auto mr-3"
+                            src="https://images.seeklogo.com/logo-png/27/1/google-logo-png_seeklogo-273191.png" />
+                        Tiếp tục với Google
                     </button>
                 </div>
             </div>
-            
+
             <!-- Register Content -->
             <div id="registerContent" class="flex flex-col p-8 hidden">
-                <h1 class="text-white tracking-light text-[32px] font-bold leading-tight text-left pb-4">Đăng ký tài khoản</h1>
-                
+                <h1 class="text-white tracking-light text-[32px] font-bold leading-tight text-left pb-4">Đăng ký tài
+                    khoản</h1>
+
                 <!-- Error/Success Messages -->
                 <div id="registerMessage" class="mb-4 hidden"></div>
-                
-                <form id="registerForm" asp-controller="Account" asp-action="Register" method="post" class="flex flex-col gap-4">
+
+                <form id="registerForm" asp-controller="Account" asp-action="Register" method="post"
+                    class="flex flex-col gap-4">
                     @Html.AntiForgeryToken()
                     <div class="grid grid-cols-2 gap-4">
                         <label class="flex flex-col">
                             <p class="text-white/80 text-base font-medium leading-normal pb-2">Tên</p>
-                            <input name="firstName" type="text" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-white/20 bg-[#2b2618] h-14 placeholder:text-gray-500 p-4 text-base font-normal leading-normal transition-all" placeholder="First name" required />
+                            <input name="firstName" type="text"
+                                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-white/20 bg-[#2b2618] h-14 placeholder:text-gray-500 p-4 text-base font-normal leading-normal transition-all"
+                                placeholder="First name" required />
                         </label>
                         <label class="flex flex-col">
                             <p class="text-white/80 text-base font-medium leading-normal pb-2">Họ</p>
-                            <input name="lastName" type="text" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-white/20 bg-[#2b2618] h-14 placeholder:text-gray-500 p-4 text-base font-normal leading-normal transition-all" placeholder="Last name" required />
+                            <input name="lastName" type="text"
+                                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-white/20 bg-[#2b2618] h-14 placeholder:text-gray-500 p-4 text-base font-normal leading-normal transition-all"
+                                placeholder="Last name" required />
                         </label>
                     </div>
                     <label class="flex flex-col">
                         <p class="text-white/80 text-base font-medium leading-normal pb-2">Email</p>
-                        <input name="email" type="email" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-white/20 bg-[#2b2618] h-14 placeholder:text-gray-500 p-4 text-base font-normal leading-normal transition-all" placeholder="Enter your email" required />
+                        <input name="email" type="email"
+                            class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-white/20 bg-[#2b2618] h-14 placeholder:text-gray-500 p-4 text-base font-normal leading-normal transition-all"
+                            placeholder="Enter your email" required />
                     </label>
                     <label class="flex flex-col">
                         <p class="text-white/80 text-base font-medium leading-normal pb-2">Mật khẩu</p>
                         <div class="relative flex w-full flex-1 items-stretch">
-                            <input id="registerPassword" name="password" type="password" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-white/20 bg-[#2b2618] h-14 placeholder:text-gray-500 p-4 text-base font-normal leading-normal transition-all pr-12" placeholder="Enter your password" required />
-                            <div class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500 cursor-pointer" onclick="togglePasswordVisibility('registerPassword')">
+                            <input id="registerPassword" name="password" type="password"
+                                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-white/20 bg-[#2b2618] h-14 placeholder:text-gray-500 p-4 text-base font-normal leading-normal transition-all pr-12"
+                                placeholder="Enter your password" required />
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500 cursor-pointer"
+                                onclick="togglePasswordVisibility('registerPassword')">
                                 <span class="material-symbols-outlined" id="registerPasswordIcon">visibility_off</span>
                             </div>
                         </div>
@@ -103,13 +132,18 @@
                     <label class="flex flex-col">
                         <p class="text-white/80 text-base font-medium leading-normal pb-2">Xác nhận mật khẩu</p>
                         <div class="relative flex w-full flex-1 items-stretch">
-                            <input id="confirmPassword" name="confirmPassword" type="password" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-white/20 bg-[#2b2618] h-14 placeholder:text-gray-500 p-4 text-base font-normal leading-normal transition-all pr-12" placeholder="Confirm password" required />
-                            <div class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500 cursor-pointer" onclick="togglePasswordVisibility('confirmPassword')">
+                            <input id="confirmPassword" name="confirmPassword" type="password"
+                                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-white/20 bg-[#2b2618] h-14 placeholder:text-gray-500 p-4 text-base font-normal leading-normal transition-all pr-12"
+                                placeholder="Confirm password" required />
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500 cursor-pointer"
+                                onclick="togglePasswordVisibility('confirmPassword')">
                                 <span class="material-symbols-outlined" id="confirmPasswordIcon">visibility_off</span>
                             </div>
                         </div>
                     </label>
-                    <button type="submit" class="flex items-center justify-center w-full h-14 px-6 mt-4 rounded-lg bg-primary text-background-dark text-base font-bold leading-normal tracking-wide hover:bg-primary/90 transition-colors">Đăng ký</button>
+                    <button type="submit"
+                        class="flex items-center justify-center w-full h-14 px-6 mt-4 rounded-lg bg-primary text-background-dark text-base font-bold leading-normal tracking-wide hover:bg-primary/90 transition-colors">Đăng
+                        ký</button>
                 </form>
             </div>
         </div>
@@ -117,41 +151,23 @@
 </div>
 
 <script>
-    function openLoginModal() {
-        const modal = document.getElementById('loginModal');
-        const modalContent = document.getElementById('modalContent');
-        modal.classList.remove('hidden');
-        setTimeout(() => {
-            modalContent.classList.remove('translate-x-full');
-        }, 10);
-    }
-
-    function closeLoginModal() {
-        const modal = document.getElementById('loginModal');
-        const modalContent = document.getElementById('modalContent');
-        modalContent.classList.add('translate-x-full');
-        setTimeout(() => {
-            modal.classList.add('hidden');
-        }, 300);
-    }
-
     function switchTab(tab) {
         const loginTab = document.getElementById('loginTab');
         const registerTab = document.getElementById('registerTab');
         const loginContent = document.getElementById('loginContent');
         const registerContent = document.getElementById('registerContent');
-        
+
         if (tab === 'login') {
             loginTab.classList.add('border-b-primary');
             loginTab.classList.remove('border-b-transparent');
             loginTab.querySelector('p').classList.remove('text-gray-400');
             loginTab.querySelector('p').classList.add('text-white');
-            
+
             registerTab.classList.remove('border-b-primary');
             registerTab.classList.add('border-b-transparent');
             registerTab.querySelector('p').classList.add('text-gray-400');
             registerTab.querySelector('p').classList.remove('text-white');
-            
+
             loginContent.classList.remove('hidden');
             registerContent.classList.add('hidden');
         } else {
@@ -159,12 +175,12 @@
             registerTab.classList.remove('border-b-transparent');
             registerTab.querySelector('p').classList.remove('text-gray-400');
             registerTab.querySelector('p').classList.add('text-white');
-            
+
             loginTab.classList.remove('border-b-primary');
             loginTab.classList.add('border-b-transparent');
             loginTab.querySelector('p').classList.add('text-gray-400');
             loginTab.querySelector('p').classList.remove('text-white');
-            
+
             registerContent.classList.remove('hidden');
             loginContent.classList.add('hidden');
         }
@@ -185,8 +201,8 @@
     function showMessage(elementId, message, isError) {
         const messageDiv = document.getElementById(elementId);
         messageDiv.textContent = message;
-        messageDiv.className = isError 
-            ? 'mb-4 p-4 rounded-lg bg-red-500/20 border border-red-500 text-red-300' 
+        messageDiv.className = isError
+            ? 'mb-4 p-4 rounded-lg bg-red-500/20 border border-red-500 text-red-300'
             : 'mb-4 p-4 rounded-lg bg-green-500/20 border border-green-500 text-green-300';
         messageDiv.classList.remove('hidden');
         setTimeout(() => {
@@ -199,13 +215,13 @@
     }
 
     // Handle form submissions
-    document.getElementById('loginForm')?.addEventListener('submit', async function(e) {
+    document.getElementById('loginForm')?.addEventListener('submit', async function (e) {
         e.preventDefault();
         const submitButton = this.querySelector('button[type="submit"]');
         const originalText = submitButton.textContent;
         submitButton.disabled = true;
         submitButton.textContent = 'Logging in...';
-        
+
         try {
             const formData = new FormData(this);
             const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
@@ -216,11 +232,11 @@
                 method: 'POST',
                 body: formData
             });
-            
+
             if (!response.ok) {
                 throw new Error('Mạng không ổn định');
             }
-            
+
             const result = await response.json();
             if (result.success) {
                 showMessage('loginMessage', result.message || 'Đăng nhập thành công!', false);
@@ -244,25 +260,25 @@
         }
     });
 
-    document.getElementById('registerForm')?.addEventListener('submit', async function(e) {
+    document.getElementById('registerForm')?.addEventListener('submit', async function (e) {
         e.preventDefault();
         const submitButton = this.querySelector('button[type="submit"]');
         const originalText = submitButton.textContent;
         submitButton.disabled = true;
         submitButton.textContent = 'Registering...';
-        
+
         try {
             const formData = new FormData(this);
             const password = formData.get('password');
             const confirmPassword = formData.get('confirmPassword');
-            
+
             if (password !== confirmPassword) {
                 showMessage('registerMessage', 'Mật khẩu không khớp!', true);
                 submitButton.disabled = false;
                 submitButton.textContent = originalText;
                 return;
             }
-            
+
             const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
             if (token) {
                 formData.append('__RequestVerificationToken', token);
@@ -271,11 +287,11 @@
                 method: 'POST',
                 body: formData
             });
-            
+
             if (!response.ok) {
                 throw new Error('Mạng không ổn định');
             }
-            
+
             const result = await response.json();
             if (result.success) {
                 showMessage('registerMessage', result.message || 'Đăng ký thành công!', false);
@@ -297,4 +313,3 @@
         }
     });
 </script>
-
