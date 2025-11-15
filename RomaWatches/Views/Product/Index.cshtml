@@ -1,3 +1,4 @@
+@model List<RomaWatches.Models.Product>
 @{
     ViewData["Title"] = "ROMA WATCHES - Cửa Hàng";
     Layout = null;
@@ -73,11 +74,11 @@
                                             <span class="text-neutral-800 dark:text-white text-sm">Omega</span>
                                         </label>
                                         <label class="flex items-center gap-2 cursor-pointer">
-                                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" name="brand" value="patek-philippe">
+                                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" name="brand" value="patek philippe">
                                             <span class="text-neutral-800 dark:text-white text-sm">Patek Philippe</span>
                                         </label>
                                         <label class="flex items-center gap-2 cursor-pointer">
-                                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" name="brand" value="audemars-piguet">
+                                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" name="brand" value="audemars piguet">
                                             <span class="text-neutral-800 dark:text-white text-sm">Audemars Piguet</span>
                                         </label>
                                         <label class="flex items-center gap-2 cursor-pointer">
@@ -139,11 +140,11 @@
                                             <span class="text-neutral-800 dark:text-white text-sm">Nam</span>
                                         </label>
                                         <label class="flex items-center gap-2 cursor-pointer">
-                                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" name="gender" value="nu">
+                                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" name="gender" value="nữ">
                                             <span class="text-neutral-800 dark:text-white text-sm">Nữ</span>
                                         </label>
                                         <label class="flex items-center gap-2 cursor-pointer">
-                                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" name="gender" value="doi">
+                                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" name="gender" value="đôi">
                                             <span class="text-neutral-800 dark:text-white text-sm">Đồng hồ đôi</span>
                                         </label>
                                     </div>
@@ -160,11 +161,11 @@
                                     </button>
                                     <div class="filter-content mt-2 px-3 space-y-2 hidden">
                                         <label class="flex items-center gap-2 cursor-pointer">
-                                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" name="movement" value="co">
+                                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" name="movement" value="đồng hồ cơ">
                                             <span class="text-neutral-800 dark:text-white text-sm">Đồng hồ cơ</span>
                                         </label>
                                         <label class="flex items-center gap-2 cursor-pointer">
-                                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" name="movement" value="dientu">
+                                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" name="movement" value="đồng hồ điện tử">
                                             <span class="text-neutral-800 dark:text-white text-sm">Đồng hồ điện tử</span>
                                         </label>
                                     </div>
@@ -181,19 +182,19 @@
                                     </button>
                                     <div class="filter-content mt-2 px-3 space-y-2 hidden">
                                         <label class="flex items-center gap-2 cursor-pointer">
-                                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" name="strap" value="da">
+                                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" name="strap" value="dây da">
                                             <span class="text-neutral-800 dark:text-white text-sm">Dây da</span>
                                         </label>
                                         <label class="flex items-center gap-2 cursor-pointer">
-                                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" name="strap" value="du">
+                                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" name="strap" value="dây dù">
                                             <span class="text-neutral-800 dark:text-white text-sm">Dây dù</span>
                                         </label>
                                         <label class="flex items-center gap-2 cursor-pointer">
-                                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" name="strap" value="silicone">
+                                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" name="strap" value="dây silicone">
                                             <span class="text-neutral-800 dark:text-white text-sm">Dây silicone</span>
                                         </label>
                                         <label class="flex items-center gap-2 cursor-pointer">
-                                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" name="strap" value="thep">
+                                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" name="strap" value="thép không rỉ">
                                             <span class="text-neutral-800 dark:text-white text-sm">Thép không rỉ</span>
                                         </label>
                                     </div>
@@ -230,10 +231,7 @@
                             </div>
                         </div>
                         <div class="flex flex-col gap-4 mt-8">
-                            <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-neutral-900 text-sm font-bold leading-normal tracking-[0.015em]">
-                                <span class="truncate">Áp dụng bộ lọc</span>
-                            </button>
-                            <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 gap-2">
+                            <button id="clearAllFilters" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 gap-2 hover:bg-primary/10 transition-colors">
                                 <span class="material-symbols-outlined text-neutral-600 dark:text-white text-xl">close</span>
                                 <p class="text-neutral-800 dark:text-white text-sm font-medium leading-normal">Xóa tất cả</p>
                             </button>
@@ -260,67 +258,37 @@
                             </button>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-                        <div class="flex flex-col group">
-                            <div class="overflow-hidden rounded-lg bg-neutral-200/50 dark:bg-[#393528]/50">
-                                <img alt="A classic silver and black diving watch." class="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-300" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2ViSgHC7A9NF9q6e-2xHDnYfEiO5WFaGo0FW9A_Iu0SvfUWx_1GuXRfnZC6jNk7pHWLEpZeeT-szB-PLifCWyHgvgnIRQJWMwQRbhOMKqkTLmzgnJwJ12oYXZXtbSkHOoSL9LbGpJMZiSBggrIPpyFtJHVRIuqJ0_rzRw22ApWhi9a5X4LU3iz2yKP7G_TMjBbF65ZBbtQb435t4NpTJ313AJW8aj1iQieCmSyUyMnCi6tW9YkBeObad8rtpj1wrE4j_hZ3cx13A" />
+                    <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+                        @if (Model != null && Model.Any())
+                        {
+                            @foreach (var product in Model)
+                            {
+                                <div class="flex flex-col group">
+                                    <a href="@Url.Action("Details", "Product", new { id = product.Id })" class="flex flex-col">
+                                        <div class="overflow-hidden rounded-lg bg-neutral-200/50 dark:bg-[#393528]/50">
+                                            <img alt="@product.Name" 
+                                                 class="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-300" 
+                                                 src="@(string.IsNullOrEmpty(product.ImageUrl) ? "https://images.unsplash.com/photo-1523275335684-37898b6baf30" : product.ImageUrl)" />
+                                        </div>
+                                        <div class="flex flex-col gap-1 mt-4">
+                                            <h3 class="text-neutral-800 dark:text-white text-lg font-bold">@product.Brand.ToUpper()</h3>
+                                            <p class="text-neutral-600 dark:text-[#b9b29d] text-sm">@product.Name</p>
+                                            <p class="text-neutral-800 dark:text-white font-semibold mt-1">@product.Price.ToString("N0") ₫</p>
+                                        </div>
+                                    </a>
+                                    <button onclick="addToCart(@product.Id, event)" class="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-neutral-900 font-medium transition-colors">
+                                        <span class="material-symbols-outlined text-lg">shopping_cart</span>
+                                        <span>Thêm vào giỏ hàng</span>
+                                    </button>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="col-span-full text-center py-12">
+                                <p class="text-neutral-600 dark:text-[#b9b29d] text-lg">Không tìm thấy sản phẩm nào</p>
                             </div>
-                            <div class="flex flex-col gap-1 mt-4">
-                                <h3 class="text-neutral-800 dark:text-white text-lg font-bold">OMEGA</h3>
-                                <p class="text-neutral-600 dark:text-[#b9b29d] text-sm">Seamaster Diver 300M</p>
-                                <p class="text-neutral-800 dark:text-white font-semibold mt-1">138.000.000 ₫</p>
-                            </div>
-                        </div>
-                        <div class="flex flex-col group">
-                            <div class="overflow-hidden rounded-lg bg-neutral-200/50 dark:bg-[#393528]/50">
-                                <img alt="A gold watch with a green dial and bezel." class="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-300" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBP2cG7rezHt0Li-2Vkggjh57bmwRwegr31-gMvjL5va8716gZ8hDDfDmoTck67DHC58O1DI6eatvBGQydOG-1ZuaolDX6cnwmumebKpeTjSzBidC6wDpCLL9pe4OEaNLpffNrC7BE924h8oyoMEEHLuRIuWM1cqm93DZxIh6KJlVWfNyL6GN-WudOebsfIa49HfFSWjg-1lWet_oYiFk4pyZ5mIcZgzNXHMIjLYD8b-iy7DuOoFF75UjkeJD2JLR_MNqHEv60zjYw" />
-                            </div>
-                            <div class="flex flex-col gap-1 mt-4">
-                                <h3 class="text-neutral-800 dark:text-white text-lg font-bold">ROLEX</h3>
-                                <p class="text-neutral-600 dark:text-[#b9b29d] text-sm">Submariner Date</p>
-                                <p class="text-neutral-800 dark:text-white font-semibold mt-1">268.000.000 ₫</p>
-                            </div>
-                        </div>
-                        <div class="flex flex-col group">
-                            <div class="overflow-hidden rounded-lg bg-neutral-200/50 dark:bg-[#393528]/50">
-                                <img alt="A stainless steel watch with a blue dial." class="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-300" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCudSEP9wA0FgImF7dlvGqO3Fkdw6mOZeO7VDcwXgcP_p4uX2WnSP5-sQhq1Fbc9-JcC4-iEton3ne56Q4GgHScHv97MWW4zU4islVYBhK2gn8KDwZxvODBYNcD8x3kYE4uMJw513qjyA-R40UIJqtXeScmAuTVzIb-oy67I_a-4m1GPm4ZnrypUU_bQkrXDZ1ShqZct6sED2YC-WK0Ib75tjSEVJ-OcWJ-KzbDDZsI_JfaTHlmMQzw0wAnACHL8TOyfl8KLScrLKY" />
-                            </div>
-                            <div class="flex flex-col gap-1 mt-4">
-                                <h3 class="text-neutral-800 dark:text-white text-lg font-bold">PATEK PHILIPPE</h3>
-                                <p class="text-neutral-600 dark:text-[#b9b29d] text-sm">Nautilus</p>
-                                <p class="text-neutral-800 dark:text-white font-semibold mt-1">3.450.000.000 ₫</p>
-                            </div>
-                        </div>
-                        <div class="flex flex-col group">
-                            <div class="overflow-hidden rounded-lg bg-neutral-200/50 dark:bg-[#393528]/50">
-                                <img alt="A luxury watch with a leather strap and complex dial." class="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-300" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBsS63r73o57T2n37aXly0ium2wzazTY7qpDEhiKlrP0eVj1sfYoSfH9hhCIKAbr1O1JsndvVGAcEfvu-Vf-hdpQZ5qe4_fMH5i7c6DCLM6uKfFl2rz6IdoHF_e0cdE7C3eeYRqUJBkgRIoDDBed_tFNu2sWRRtl9Kc1NgwWG9W1Eoh99my84VM36bQ3jV_u2Q2u1_ipoVmS37fYRuZo_jiONANeagziPoFyoA406pKVRrb296NTLWJz37npaIJaRPov3biLRqXC-E" />
-                            </div>
-                            <div class="flex flex-col gap-1 mt-4">
-                                <h3 class="text-neutral-800 dark:text-white text-lg font-bold">AUDEMARS PIGUET</h3>
-                                <p class="text-neutral-600 dark:text-[#b9b29d] text-sm">Royal Oak</p>
-                                <p class="text-neutral-800 dark:text-white font-semibold mt-1">1.225.000.000 ₫</p>
-                            </div>
-                        </div>
-                        <div class="flex flex-col group">
-                            <div class="overflow-hidden rounded-lg bg-neutral-200/50 dark:bg-[#393528]/50">
-                                <img alt="A sleek pilot watch with a large crown and black dial." class="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-300" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlPeHpQ0ePvJBrhC8I6rsSKrqXGzwGvzkU0Otrb8irRrUAce-XhOUpBVKghwzp_90vYztRZd3wbvNA7s_OSAqVuk_9JoWPR1ujj477xFUHCyfJul27tw8oU7qfExAEYPd8ACMrI2LQA2OpHPtU25f8CdqbFeDjYOrdQH22q_kzqaqskOHX8bb9pmASeHBRjknBcrTxPski_uedoCTZHLOAFKGC7VstjCmMGbdF_NUYbecA6D9n3WL-Ozbhse_D2kUreVlaG24GLsc" />
-                            </div>
-                            <div class="flex flex-col gap-1 mt-4">
-                                <h3 class="text-neutral-800 dark:text-white text-lg font-bold">IWC SCHAFFHAUSEN</h3>
-                                <p class="text-neutral-600 dark:text-[#b9b29d] text-sm">Big Pilot's Watch</p>
-                                <p class="text-neutral-800 dark:text-white font-semibold mt-1">330.000.000 ₫</p>
-                            </div>
-                        </div>
-                        <div class="flex flex-col group">
-                            <div class="overflow-hidden rounded-lg bg-neutral-200/50 dark:bg-[#393528]/50">
-                                <img alt="An elegant dress watch with a minimal white dial and leather strap." class="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-300" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCsylQGtfo-upPZgsUZ1j_qGCoypCruvStelMzDZV_V96uIUEQe0LKK5-44V04eyP2kLw20957pAI7U5G54eqm5pClaskZZZN4UD3vMNjo6KTUS5rKxLynik_p8r5bFOsQprakO2G_jTw2vvnyxBaAe9yOKPt8Be9P3dca0usOT9WpqHX7QX37NS1ycGcwLk-CQwtYReGZRSPQTiyEa0-NP2mbhGjUq7z1aAv_Kf5sSuYxW1htm3i4xKvpfCUllHceBPzDS8DYFM2U" />
-                            </div>
-                            <div class="flex flex-col gap-1 mt-4">
-                                <h3 class="text-neutral-800 dark:text-white text-lg font-bold">JAEGER-LECOULTRE</h3>
-                                <p class="text-neutral-600 dark:text-[#b9b29d] text-sm">Reverso Classic</p>
-                                <p class="text-neutral-800 dark:text-white font-semibold mt-1">172.000.000 ₫</p>
-                            </div>
-                        </div>
+                        }
                     </div>
                     <nav aria-label="Pagination" class="flex items-center justify-center mt-12">
                         <a class="relative inline-flex items-center rounded-l-md px-2 py-2 text-neutral-500 dark:text-neutral-400 ring-1 ring-inset ring-neutral-300 dark:ring-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 focus:z-20 focus:outline-offset-0" href="#">
@@ -384,6 +352,128 @@
                 });
             });
         });
+
+        // Filter logic
+        const filterCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+        let filterTimeout;
+
+        filterCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                // Debounce filter requests
+                clearTimeout(filterTimeout);
+                filterTimeout = setTimeout(() => {
+                    applyFilters();
+                }, 300);
+            });
+        });
+
+        async function applyFilters() {
+            // Collect selected filters
+            const brands = Array.from(document.querySelectorAll('input[name="brand"]:checked'))
+                .map(cb => cb.value).join(',');
+            
+            const priceRanges = Array.from(document.querySelectorAll('input[name="price"]:checked'))
+                .map(cb => cb.value).join(',');
+            
+            const genders = Array.from(document.querySelectorAll('input[name="gender"]:checked'))
+                .map(cb => cb.value).join(',');
+            
+            const movements = Array.from(document.querySelectorAll('input[name="movement"]:checked'))
+                .map(cb => cb.value).join(',');
+            
+            const strapTypes = Array.from(document.querySelectorAll('input[name="strap"]:checked'))
+                .map(cb => cb.value).join(',');
+            
+            const waterResistanceAtms = Array.from(document.querySelectorAll('input[name="waterproof"]:checked'))
+                .map(cb => cb.value).join(',');
+
+            // Build query string
+            const params = new URLSearchParams();
+            if (brands) params.append('brands', brands);
+            if (priceRanges) params.append('priceRanges', priceRanges);
+            if (genders) params.append('genders', genders);
+            if (movements) params.append('movements', movements);
+            if (strapTypes) params.append('strapTypes', strapTypes);
+            if (waterResistanceAtms) params.append('waterResistanceAtms', waterResistanceAtms);
+
+            try {
+                // Show loading state
+                const grid = document.getElementById('productsGrid');
+                grid.innerHTML = '<div class="col-span-full text-center py-12"><p class="text-neutral-600 dark:text-[#b9b29d] text-lg">Đang tải...</p></div>';
+
+                // Fetch filtered products
+                const response = await fetch(`/Product/GetProducts?${params.toString()}`);
+                const products = await response.json();
+
+                // Update grid
+                if (products && products.length > 0) {
+                    grid.innerHTML = products.map(product => `
+                        <div class="flex flex-col group">
+                            <a href="/Product/Details/${product.id}" class="flex flex-col">
+                                <div class="overflow-hidden rounded-lg bg-neutral-200/50 dark:bg-[#393528]/50">
+                                    <img alt="${product.name}" 
+                                         class="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-300" 
+                                         src="${product.imageUrl || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30'}" />
+                                </div>
+                                <div class="flex flex-col gap-1 mt-4">
+                                    <h3 class="text-neutral-800 dark:text-white text-lg font-bold">${product.brand.toUpperCase()}</h3>
+                                    <p class="text-neutral-600 dark:text-[#b9b29d] text-sm">${product.name}</p>
+                                    <p class="text-neutral-800 dark:text-white font-semibold mt-1">${product.price.toLocaleString('vi-VN')} ₫</p>
+                                </div>
+                            </a>
+                            <button onclick="addToCart(${product.id}, event)" class="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-neutral-900 font-medium transition-colors">
+                                <span class="material-symbols-outlined text-lg">shopping_cart</span>
+                                <span>Thêm vào giỏ hàng</span>
+                            </button>
+                        </div>
+                    `).join('');
+                } else {
+                    grid.innerHTML = '<div class="col-span-full text-center py-12"><p class="text-neutral-600 dark:text-[#b9b29d] text-lg">Không tìm thấy sản phẩm nào</p></div>';
+                }
+            } catch (error) {
+                console.error('Error fetching products:', error);
+                const grid = document.getElementById('productsGrid');
+                grid.innerHTML = '<div class="col-span-full text-center py-12"><p class="text-red-600 dark:text-red-400 text-lg">Có lỗi xảy ra khi tải sản phẩm</p></div>';
+            }
+        }
+
+        // Clear all filters
+        document.getElementById('clearAllFilters').addEventListener('click', function() {
+            // Uncheck all checkboxes
+            const allCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+            allCheckboxes.forEach(cb => cb.checked = false);
+            
+            // Reload page to show all products
+            window.location.href = '/Product';
+        });
+
+        // Add to cart function
+        function addToCart(productId, event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            // TODO: Implement add to cart logic
+            // This can be an AJAX call to add the product to cart
+            // For now, just show a notification
+            const button = event.target.closest('button');
+            const originalText = button.innerHTML;
+            
+            button.disabled = true;
+            button.innerHTML = '<span class="material-symbols-outlined text-lg">check</span><span>Đã thêm</span>';
+            button.classList.remove('bg-primary', 'hover:bg-primary/90');
+            button.classList.add('bg-green-500', 'hover:bg-green-600');
+            
+            // Reset button after 2 seconds
+            setTimeout(() => {
+                button.disabled = false;
+                button.innerHTML = originalText;
+                button.classList.remove('bg-green-500', 'hover:bg-green-600');
+                button.classList.add('bg-primary', 'hover:bg-primary/90');
+            }, 2000);
+            
+            // You can add actual cart functionality here:
+            // fetch('/Cart/Add', { method: 'POST', body: JSON.stringify({ productId: productId }), ... })
+        }
     </script>
 </body>
 </html>

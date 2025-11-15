@@ -77,7 +77,11 @@
                 </div>
 
                 <div class="flex flex-col gap-4">
-                    <button
+                    <!-- Google Sign-In Button will be rendered here -->
+                    <div id="googleSignInButton" class="flex justify-center"></div>
+                    
+                    <!-- Fallback custom button if Google button doesn't render -->
+                    <button id="btnGoogleLoginFallback" style="display: none;"
                         class="flex items-center justify-center w-full h-14 px-6 rounded-lg bg-white/5 border border-white/10 text-white text-base font-semibold hover:bg-white/10 transition-colors">
                         <img alt="Google logo" class="h-6 w-auto mr-3"
                             src="https://images.seeklogo.com/logo-png/27/1/google-logo-png_seeklogo-273191.png" />
@@ -312,4 +316,96 @@
             submitButton.textContent = originalText;
         }
     });
+</script>
+
+<!-- Google Identity Services script -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+  function handleCredentialResponse(response) {
+      console.log("Đang xử lý đăng nhập Google...");
+      
+      // Show loading on the button area
+      const buttonDiv = document.getElementById('googleSignInButton');
+      if (buttonDiv) {
+          buttonDiv.innerHTML = '<div class="flex items-center justify-center h-14 text-white/70">Đang đăng nhập...</div>';
+      }
+
+      // Gửi token lên server để verify và đăng nhập
+      fetch('/api/auth/google', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id_token: response.credential })
+      })
+      .then(r => {
+          if (!r.ok) {
+              throw new Error('Đăng nhập thất bại');
+          }
+          return r.json();
+      })
+      .then(data => {
+          console.log('Server response:', data);
+          if (data.ok) {
+              // Hiển thị thông báo thành công
+              showMessage('loginMessage', `Chào mừng ${data.name || 'user'}! Đăng nhập thành công.`, false);
+              // Reload trang sau 1 giây
+              setTimeout(() => {
+                  window.location.reload();
+              }, 1000);
+          } else {
+              showMessage('loginMessage', data.message || 'Đăng nhập Google thất bại.', true);
+              // Re-render button on error
+              initializeGoogleSignIn();
+          }
+      })
+      .catch(err => {
+          console.error('Google login error:', err);
+          showMessage('loginMessage', 'Có lỗi xảy ra khi đăng nhập với Google. Vui lòng thử lại.', true);
+          // Re-render button on error
+          initializeGoogleSignIn();
+      });
+  }
+
+  function initializeGoogleSignIn() {
+      try {
+          // Khởi tạo Google Identity Services
+          google.accounts.id.initialize({
+              client_id: '106868822898-9ltmbs2ona27tvtqrk09c7pqea87ge1m.apps.googleusercontent.com',
+              callback: handleCredentialResponse,
+              ux_mode: 'popup', // Use popup instead of redirect
+              auto_select: false
+          });
+
+          // Render the Google Sign-In button
+          google.accounts.id.renderButton(
+              document.getElementById('googleSignInButton'),
+              {
+                  theme: 'filled_black',
+                  size: 'large',
+                  width: '100%',
+                  text: 'continue_with',
+                  shape: 'rectangular',
+                  logo_alignment: 'left'
+              }
+          );
+          
+          console.log('Google Sign-In button rendered successfully');
+      } catch (error) {
+          console.error('Error initializing Google Sign-In:', error);
+          // Show fallback button if Google button fails
+          document.getElementById('btnGoogleLoginFallback').style.display = 'flex';
+      }
+  }
+
+  // Initialize when window loads and Google script is ready
+  window.addEventListener('load', function() {
+      // Wait a bit for Google script to be fully loaded
+      setTimeout(function() {
+          if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+              initializeGoogleSignIn();
+          } else {
+              console.error('Google Identity Services not loaded');
+              document.getElementById('btnGoogleLoginFallback').style.display = 'flex';
+          }
+      }, 500);
+  });
 </script>
