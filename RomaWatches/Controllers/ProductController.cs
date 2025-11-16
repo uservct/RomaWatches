@@ -23,9 +23,20 @@ namespace RomaWatches.Controllers
             string? genders,
             string? strapTypes,
             string? waterResistanceAtms,
-            string? sortBy = "newest")
+            string? sortBy = "newest",
+            string? searchQuery = null)
         {
             var query = _context.Products.AsQueryable();
+
+            // Search by name or brand
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                var searchTerm = searchQuery.Trim().ToLower();
+                query = query.Where(p => 
+                    (p.Name != null && p.Name.ToLower().Contains(searchTerm)) ||
+                    (p.Brand != null && p.Brand.ToLower().Contains(searchTerm))
+                );
+            }
 
             // Filter by brands
             if (!string.IsNullOrEmpty(brands))
@@ -129,9 +140,20 @@ namespace RomaWatches.Controllers
             string? genders,
             string? strapTypes,
             string? waterResistanceAtms,
-            string? sortBy = "newest")
+            string? sortBy = "newest",
+            string? searchQuery = null)
         {
             var query = _context.Products.AsQueryable();
+
+            // Search by name or brand
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                var searchTerm = searchQuery.Trim().ToLower();
+                query = query.Where(p => 
+                    (p.Name != null && p.Name.ToLower().Contains(searchTerm)) ||
+                    (p.Brand != null && p.Brand.ToLower().Contains(searchTerm))
+                );
+            }
 
             // Filter by brands
             if (!string.IsNullOrEmpty(brands))

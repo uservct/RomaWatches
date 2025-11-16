@@ -25,10 +25,31 @@
         </nav>
     </div>
     <div class="flex flex-1 justify-end gap-4 md:gap-6">
-        <div class="flex gap-4">
-            <button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 text-white hover:text-white/70 transition-colors gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
+        <div class="relative flex items-center gap-4">
+            <!-- Search Bar -->
+            <div id="searchContainer" class="hidden absolute right-0 top-full mt-2 w-80 md:w-96 z-50">
+                <form id="searchForm" onsubmit="handleSearch(event)" class="flex items-center gap-2 bg-background-dark border border-white/20 rounded-lg px-4 py-2 shadow-lg">
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        name="searchQuery"
+                        placeholder="Tìm kiếm tên hoặc hãng đồng hồ" 
+                        class="flex-1 bg-transparent text-white placeholder:text-white/50 outline-none text-sm"
+                        autocomplete="off"
+                    />
+                    <button type="submit" class="text-white hover:text-white/70 transition-colors">
+                        <span class="material-symbols-outlined text-xl">search</span>
+                    </button>
+                    <button type="button" onclick="toggleSearch()" class="text-white hover:text-white/70 transition-colors">
+                        <span class="material-symbols-outlined text-xl">close</span>
+                    </button>
+                </form>
+            </div>
+            <button onclick="toggleSearch()" class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 text-white hover:text-white/70 transition-colors gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
                 <span class="material-symbols-outlined text-2xl">search</span>
             </button>
+        </div>
+        <div class="flex gap-4">
             @if (SignInManager.IsSignedIn(User) && user != null)
             {
                 <div class="relative group">

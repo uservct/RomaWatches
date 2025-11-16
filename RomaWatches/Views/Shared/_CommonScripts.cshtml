@@ -24,5 +24,52 @@
             }, 300); // Wait for animation to complete
         }
     }
+
+    // Toggle search bar
+    function toggleSearch() {
+        const searchContainer = document.getElementById('searchContainer');
+        const searchInput = document.getElementById('searchInput');
+        
+        if (searchContainer && searchInput) {
+            if (searchContainer.classList.contains('hidden')) {
+                searchContainer.classList.remove('hidden');
+                searchInput.focus();
+            } else {
+                searchContainer.classList.add('hidden');
+                searchInput.value = '';
+            }
+        }
+    }
+
+    // Handle search form submission
+    function handleSearch(event) {
+        event.preventDefault();
+        const searchInput = document.getElementById('searchInput');
+        
+        if (searchInput && searchInput.value.trim()) {
+            const searchQuery = encodeURIComponent(searchInput.value.trim());
+            // Redirect to Product page with search query
+            window.location.href = `/Product?searchQuery=${searchQuery}`;
+        }
+    }
+
+    // Close search when clicking outside
+    document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('click', function(event) {
+            const searchContainer = document.getElementById('searchContainer');
+            const searchButton = event.target.closest('button[onclick="toggleSearch()"]');
+            const searchForm = event.target.closest('#searchForm');
+            
+            if (searchContainer && !searchContainer.classList.contains('hidden')) {
+                if (!searchButton && !searchForm && !searchContainer.contains(event.target)) {
+                    searchContainer.classList.add('hidden');
+                    const searchInput = document.getElementById('searchInput');
+                    if (searchInput) {
+                        searchInput.value = '';
+                    }
+                }
+            }
+        });
+    });
 </script>
 
