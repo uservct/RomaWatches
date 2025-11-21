@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using RomaWatches.Data;
 using RomaWatches.Models;
 
 namespace RomaWatches.Controllers
@@ -7,15 +9,22 @@ namespace RomaWatches.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly ApplicationDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
         {
             _logger = logger;
+            _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var latestProducts = await _context.Products
+                .OrderByDescending(p => p.Id)
+                .Take(4)
+                .ToListAsync();
+            
+            return View(latestProducts);
         }
 
         public IActionResult Privacy()

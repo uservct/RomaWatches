@@ -1,4 +1,5 @@
-﻿@{
+﻿@model List<RomaWatches.Models.Product>
+@{
     ViewData["Title"] = "ROMA WATCHES - Nghệ Thuật Của Sự Chính Xác";
     Layout = null;
 }
@@ -60,77 +61,62 @@
                                             Bộ Sưu Tập Mới Nhất
                                         </h1>
                                     </div>
-                                    <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-md h-10 sm:h-12 md:h-14 px-6 sm:px-8 md:px-10 bg-transparent text-white hover:bg-white/10 transition-colors border border-white/80 text-sm sm:text-base md:text-lg font-bold leading-normal tracking-widest uppercase mt-2">
+                                    <a href="@Url.Action("Index", "Product")" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-md h-10 sm:h-12 md:h-14 px-6 sm:px-8 md:px-10 bg-transparent text-white hover:bg-white/10 transition-colors border border-white/80 text-sm sm:text-base md:text-lg font-bold leading-normal tracking-widest uppercase mt-2">
                                         <span class="truncate">Khám Phá Ngay</span>
-                                    </button>
+                                    </a>
                                 </div>
                             </div>
                         </div>
-                        <section class="w-full">
-                            <h2 class="text-white text-[22px] sm:text-2xl md:text-3xl font-bold leading-tight tracking-[-0.015em] px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 pb-4 sm:pb-6 pt-5">Hàng Mới Về</h2>
-                            <div id="productScrollContainer" class="flex overflow-x-auto [-ms-scrollbar-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden w-full snap-x snap-mandatory cursor-grab select-none">
-                                <div class="flex items-stretch px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 pb-4 gap-6 sm:gap-8 md:gap-10">
-                                    <div class="flex flex-col gap-4 rounded-xl bg-black/20 dark:bg-black/20 min-w-[280px] sm:min-w-[320px] md:min-w-[360px] lg:min-w-[400px] flex-shrink-0 snap-start">
-                                        <div class="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-t-xl flex flex-col" data-alt="Aurelian Chrono watch with a silver case and blue dial." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD9lsjGZitFAJhpIMRw2xYjBosSKxuIWLgzSgTzKIPx2Xdno0rq4e2kJ4AQr2XDNQTcGq7lUL2ff8pztQDtD0ZF4nxwRRJ9LalHculS_18_pf09PUQUUHaPG5P0MxuH4AtERh8dS75Ri2smAZ0rX4Mn_p6tIHFAynjSng-bZia1otnd5DNyUqLEFQdvjAn-PvYygDJ7GkfdHcVcGQNZEkKCt_weTPjJAoFS16rHsQ3oqVvnBnuotShKPlP0TkzCfI_WYSopZV5fXIY");'></div>
-                                        <div class="flex flex-col justify-between p-4 sm:p-5 md:p-6 pt-0 gap-4">
-                                            <div>
-                                                <p class="text-white text-base sm:text-lg md:text-xl font-medium leading-normal">Aurelian Chrono</p>
-                                                <p class="text-white/70 text-sm sm:text-base font-normal leading-normal">Valerius</p>
+                        <section class="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+                            <h2 class="text-white text-[22px] sm:text-2xl md:text-3xl font-bold leading-tight tracking-[-0.015em] pb-4 sm:pb-6 pt-5">Hàng Mới Về</h2>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 pb-4">
+                                @if (Model != null && Model.Any())
+                                {
+                                    @foreach (var product in Model)
+                                    {
+                                        <div class="flex flex-col gap-3 rounded-xl bg-black/20 dark:bg-black/20 group">
+                                            <a href="@Url.Action("Details", "Product", new { id = product.Id })" class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-t-xl overflow-hidden">
+                                                <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "https://images.unsplash.com/photo-1523275335684-37898b6baf30" : product.ImageUrl)" 
+                                                     alt="@product.Name" 
+                                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                                            </a>
+                                            <div class="flex flex-col justify-between p-3 sm:p-4 pt-0 gap-3">
+                                                <a href="@Url.Action("Details", "Product", new { id = product.Id })">
+                                                    <p class="text-white text-base sm:text-lg font-bold leading-normal hover:text-primary transition-colors">@product.Brand.ToUpper()</p>
+                                                    <p class="text-white/70 text-sm font-normal leading-normal mt-1">@product.Name</p>
+                                                </a>
+                                                <div class="flex gap-2 mt-2">
+                                                    <button onclick="addToCart(@product.Id, event)" class="flex-1 flex items-center justify-center gap-1 px-2 py-2 rounded-lg bg-neutral-700 dark:bg-neutral-600 hover:bg-neutral-800 dark:hover:bg-neutral-700 text-white font-medium transition-colors">
+                                                        <span class="material-symbols-outlined text-base">add_shopping_cart</span>
+                                                        <span class="text-xs sm:text-sm">Giỏ hàng</span>
+                                                    </button>
+                                                    <button onclick="buyNow(@product.Id, event)" class="flex-1 flex items-center justify-center gap-1 px-2 py-2 rounded-lg bg-primary hover:bg-primary/90 text-neutral-900 font-semibold transition-colors shadow-sm">
+                                                        <span class="material-symbols-outlined text-base">shopping_bag</span>
+                                                        <span class="text-xs sm:text-sm">Mua ngay</span>
+                                                    </button>
+                                                </div>
                                             </div>
-                                            <button class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 sm:h-12 px-4 sm:px-6 bg-white/10 hover:bg-white/20 transition-colors text-white text-sm sm:text-base font-bold leading-normal tracking-[0.015em]">
-                                                <span class="truncate">Thêm vào giỏ</span>
-                                            </button>
                                         </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="col-span-2 md:col-span-4 text-center py-12 text-white/70">
+                                        <p>Chưa có sản phẩm nào</p>
                                     </div>
-                                    <div class="flex flex-col gap-4 rounded-xl bg-black/20 dark:bg-black/20 min-w-[280px] sm:min-w-[320px] md:min-w-[360px] lg:min-w-[400px] flex-shrink-0 snap-start">
-                                        <div class="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-t-xl flex flex-col" data-alt="Neptune Diver watch with a black case and green accents." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCmhNpNeyV1qWHVGECwxfV3MH1djqJQknkI9mD4pekdKrYB-uPiYfrtZDghRL1gejeeJVzUVEnC1mA0XWPRfWR22FEyXedpvF9LLxuqLbImYgXbq59-peIoETCdc8-kh74stOG3htlB6MlkSBPIwCCVvAQQ0gbQwCeIetgw3l96drM4CvXsn86kYNJg-lTiFtY8R8AKcHUpQQEpXTHXD1igcASooBjPNDIP0fDX4RiH5S1b__4HmAu43mCIeeeoXVGyrPAd7Gz83iI");'></div>
-                                        <div class="flex flex-col justify-between p-4 sm:p-5 md:p-6 pt-0 gap-4">
-                                            <div>
-                                                <p class="text-white text-base sm:text-lg md:text-xl font-medium leading-normal">Neptune Diver</p>
-                                                <p class="text-white/70 text-sm sm:text-base font-normal leading-normal">Aethel</p>
-                                            </div>
-                                            <button class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 sm:h-12 px-4 sm:px-6 bg-white/10 hover:bg-white/20 transition-colors text-white text-sm sm:text-base font-bold leading-normal tracking-[0.015em]">
-                                                <span class="truncate">Thêm vào giỏ</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="flex flex-col gap-4 rounded-xl bg-black/20 dark:bg-black/20 min-w-[280px] sm:min-w-[320px] md:min-w-[360px] lg:min-w-[400px] flex-shrink-0 snap-start">
-                                        <div class="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-t-xl flex flex-col" data-alt="Heritage Classic watch with a brown leather strap and white dial." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB02SPlCuuYSnC2uzdpgsicHC71Th05KtNnA7iR94xqaXQvP0IVF4ra8aE3OaA4OI3JoANJSuErYFIhftfSMZFm7Y7VHxp8Fy8fpbXssbPtjpXzrEBamLs5V8nBcghBfNnsgrc2Z-KA-HMhEMWlKtne_JsH7qKDEQ1zHp-aJkUU4DBHd2WTKN3ZJrkTzLnRfhqTDlbSIdwUSsGd0dWSQxnmGUqWUvcpIFxxwLTW_SnyYVip5jl9LQY8-LCVmc95wKzq74L3zMP-orE");'></div>
-                                        <div class="flex flex-col justify-between p-4 sm:p-5 md:p-6 pt-0 gap-4">
-                                            <div>
-                                                <p class="text-white text-base sm:text-lg md:text-xl font-medium leading-normal">Heritage Classic</p>
-                                                <p class="text-white/70 text-sm sm:text-base font-normal leading-normal">Creston</p>
-                                            </div>
-                                            <button class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 sm:h-12 px-4 sm:px-6 bg-white/10 hover:bg-white/20 transition-colors text-white text-sm sm:text-base font-bold leading-normal tracking-[0.015em]">
-                                                <span class="truncate">Thêm vào giỏ</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="flex flex-col gap-4 rounded-xl bg-black/20 dark:bg-black/20 min-w-[280px] sm:min-w-[320px] md:min-w-[360px] lg:min-w-[400px] flex-shrink-0 snap-start">
-                                        <div class="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-t-xl flex flex-col" data-alt="Stealth Edition watch with an all-black design and red hands." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCr4XL58hnhxgob610gbTOc41bTP6m7awbk2t68TL7MuX41_fQQV9WUypj-T264xKBO22Kfpd9QYlM1CRxQ0mIgt2jLJ3xA1enTSl87YuUHJ4ss1qBi4Mo8URz7V0d_-xFK6kTuTlB0lt6scpg7Dq1z8ScaeGEPL3c612OineOp3T_GAeDgA0dw4_BdgRPSCvcseBGdhSuiGGcqOcV8ufytFavz4ZT--4xuKl9cdX8i7PARkDmIS2gm_NHMihr97dgcmoOs3hw_9_0");'></div>
-                                        <div class="flex flex-col justify-between p-4 sm:p-5 md:p-6 pt-0 gap-4">
-                                            <div>
-                                                <p class="text-white text-base sm:text-lg md:text-xl font-medium leading-normal">Stealth Edition</p>
-                                                <p class="text-white/70 text-sm sm:text-base font-normal leading-normal">Montre</p>
-                                            </div>
-                                            <button class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 sm:h-12 px-4 sm:px-6 bg-white/10 hover:bg-white/20 transition-colors text-white text-sm sm:text-base font-bold leading-normal tracking-[0.015em]">
-                                                <span class="truncate">Thêm vào giỏ</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
+                                }
                             </div>
                         </section>
                         <section class="w-full">
                             <h2 class="text-white text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 pb-3 pt-5">Bộ Sưu Tập Nổi Bật</h2>
                             <div class="p-4 sm:p-6 md:p-8 lg:p-12 xl:p-16 grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <a class="group relative flex min-h-80 flex-col justify-end overflow-hidden rounded-xl p-6 text-white bg-cover bg-center" data-alt="A man in a sharp suit adjusting his cuff, revealing a classic men's watch." href="#" style="background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.7)), url(https://m.media-amazon.com/images/S/aplus-media-library-service-media/32cc0bad-3da3-48a9-aacb-c4f8fecba307.__CR0,216,4500,2784_PT0_SX970_V1___.jpeg);">
+                                <a class="group relative flex min-h-80 flex-col justify-end overflow-hidden rounded-xl p-6 text-white bg-cover bg-center" data-alt="A man in a sharp suit adjusting his cuff, revealing a classic men's watch." href="@Url.Action("Index", "Product", new { genders = "nam" })" style="background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.7)), url(https://m.media-amazon.com/images/S/aplus-media-library-service-media/32cc0bad-3da3-48a9-aacb-c4f8fecba307.__CR0,216,4500,2784_PT0_SX970_V1___.jpeg);">
                                     <div class="z-10 transform transition-transform duration-300 group-hover:-translate-y-2">
                                         <h3 class="text-2xl font-bold">Đồng Hồ Nam</h3>
                                         <p class="text-sm font-medium">Khám phá bộ sưu tập</p>
                                     </div>
                                 </a>
-                                <a class="group relative flex min-h-80 flex-col justify-end overflow-hidden rounded-xl p-6 text-white bg-cover bg-center" data-alt="A woman's wrist with an elegant gold watch, resting on a silk cloth." href="#" style="background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.7)), url(https://m.media-amazon.com/images/I/51uVL400pjL.jpg);">
+                                <a class="group relative flex min-h-80 flex-col justify-end overflow-hidden rounded-xl p-6 text-white bg-cover bg-center" data-alt="A woman's wrist with an elegant gold watch, resting on a silk cloth." href="@Url.Action("Index", "Product", new { genders = "nữ" })" style="background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.7)), url(https://m.media-amazon.com/images/I/51uVL400pjL.jpg);">
                                     <div class="z-10 transform transition-transform duration-300 group-hover:-translate-y-2">
                                         <h3 class="text-2xl font-bold">Đồng Hồ Nữ</h3>
                                         <p class="text-sm font-medium">Khám phá bộ sưu tập</p>
@@ -184,12 +170,24 @@
                             <h2 class="text-white text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 pb-3 pt-5">Mua Sắm Theo Thương Hiệu</h2>
                             <div class="mx-4 sm:mx-6 md:mx-8 lg:mx-12 xl:mx-16 p-4 sm:p-6 bg-black/20 dark:bg-black/20 rounded-xl">
                                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-8 gap-y-10 items-center justify-items-center">
-                                    <img class="h-12 object-contain filter invert brightness-0 grayscale opacity-70 hover:opacity-100 transition-opacity" data-alt="Rolex logo" src="https://cdn.freebiesupply.com/logos/large/2x/rolex-logo-png-transparent.png" />
-                                    <img class="h-12 object-contain filter invert brightness-0 grayscale opacity-70 hover:opacity-100 transition-opacity" data-alt="Omega logo" src="https://1000logos.net/wp-content/uploads/2018/10/Omega-logo.png" />
-                                    <img class="h-12 object-contain filter invert brightness-0 grayscale opacity-70 hover:opacity-100 transition-opacity" data-alt="Patek Philippe logo" src="https://1000logos.net/wp-content/uploads/2018/11/Patek-Philippe-Logo.png" />
-                                    <img class="h-14 object-contain filter invert brightness-0 grayscale opacity-70 hover:opacity-100 transition-opacity" data-alt="Audemars Piguet logo" src="https://cdn.freebiesupply.com/logos/large/2x/audemars-piguet-logo-png-transparent.png" />
-                                    <img class="h-12 object-contain filter invert brightness-0 grayscale opacity-70 hover:opacity-100 transition-opacity" data-alt="Cartier logo" src="https://file.hstatic.net/200000685107/article/cartier-symbol_59d03bf3073d41608520d1f59dbd7629.png" />
-                                    <img class="h-12 object-contain filter invert brightness-0 grayscale opacity-70 hover:opacity-100 transition-opacity" data-alt="Hublot logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Hublot_logo.svg/2560px-Hublot_logo.svg.png" />
+                                    <a href="@Url.Action("Index", "Product", new { brands = "rolex" })" class="cursor-pointer">
+                                        <img class="h-12 object-contain filter invert brightness-0 grayscale opacity-70 hover:opacity-100 transition-opacity" data-alt="Rolex logo" src="https://cdn.freebiesupply.com/logos/large/2x/rolex-logo-png-transparent.png" />
+                                    </a>
+                                    <a href="@Url.Action("Index", "Product", new { brands = "omega" })" class="cursor-pointer">
+                                        <img class="h-12 object-contain filter invert brightness-0 grayscale opacity-70 hover:opacity-100 transition-opacity" data-alt="Omega logo" src="https://1000logos.net/wp-content/uploads/2018/10/Omega-logo.png" />
+                                    </a>
+                                    <a href="@Url.Action("Index", "Product", new { brands = "patek philippe" })" class="cursor-pointer">
+                                        <img class="h-12 object-contain filter invert brightness-0 grayscale opacity-70 hover:opacity-100 transition-opacity" data-alt="Patek Philippe logo" src="https://1000logos.net/wp-content/uploads/2018/11/Patek-Philippe-Logo.png" />
+                                    </a>
+                                    <a href="@Url.Action("Index", "Product", new { brands = "audemars piguet" })" class="cursor-pointer">
+                                        <img class="h-14 object-contain filter invert brightness-0 grayscale opacity-70 hover:opacity-100 transition-opacity" data-alt="Audemars Piguet logo" src="https://cdn.freebiesupply.com/logos/large/2x/audemars-piguet-logo-png-transparent.png" />
+                                    </a>
+                                    <a href="@Url.Action("Index", "Product", new { brands = "cartier" })" class="cursor-pointer">
+                                        <img class="h-12 object-contain filter invert brightness-0 grayscale opacity-70 hover:opacity-100 transition-opacity" data-alt="Cartier logo" src="https://file.hstatic.net/200000685107/article/cartier-symbol_59d03bf3073d41608520d1f59dbd7629.png" />
+                                    </a>
+                                    <a href="@Url.Action("Index", "Product", new { brands = "hublot" })" class="cursor-pointer">
+                                        <img class="h-12 object-contain filter invert brightness-0 grayscale opacity-70 hover:opacity-100 transition-opacity" data-alt="Hublot logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Hublot_logo.svg/2560px-Hublot_logo.svg.png" />
+                                    </a>
                                 </div>
                             </div>
                         </section>
@@ -284,6 +282,49 @@
             }
         }
     });
+
+    // Buy now function
+    function buyNow(productId, event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const button = event.target.closest('button');
+        const originalText = button.innerHTML;
+        
+        button.disabled = true;
+        button.innerHTML = '<span class="material-symbols-outlined text-base">hourglass_empty</span><span class="text-sm">Đang xử lý...</span>';
+        
+        // Simulate processing
+        setTimeout(() => {
+            // Redirect to product details or checkout
+            window.location.href = `/Product/Details/${productId}`;
+        }, 1000);
+    }
+
+    // Add to cart function
+    function addToCart(productId, event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const button = event.target.closest('button');
+        const originalText = button.innerHTML;
+        
+        button.disabled = true;
+        button.innerHTML = '<span class="material-symbols-outlined text-base">check</span><span class="text-sm">Đã thêm</span>';
+        button.classList.remove('bg-neutral-700', 'dark:bg-neutral-600', 'hover:bg-neutral-800', 'dark:hover:bg-neutral-700');
+        button.classList.add('bg-green-500', 'hover:bg-green-600');
+        
+        // Reset button after 2 seconds
+        setTimeout(() => {
+            button.disabled = false;
+            button.innerHTML = originalText;
+            button.classList.remove('bg-green-500', 'hover:bg-green-600');
+            button.classList.add('bg-neutral-700', 'dark:bg-neutral-600', 'hover:bg-neutral-800', 'dark:hover:bg-neutral-700');
+        }, 2000);
+        
+        // TODO: Implement actual cart functionality
+        // fetch('/Cart/Add', { method: 'POST', body: JSON.stringify({ productId: productId }), ... })
+    }
 </script>
 </body>
 </html>

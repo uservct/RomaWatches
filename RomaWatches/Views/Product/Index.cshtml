@@ -291,10 +291,16 @@
                                             <p class="text-neutral-800 dark:text-white font-semibold mt-1">@product.Price.ToString("N0") ₫</p>
                                         </div>
                                     </a>
-                                    <button onclick="addToCart(@product.Id, event)" class="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-neutral-900 font-medium transition-colors">
-                                        <span class="material-symbols-outlined text-lg">shopping_cart</span>
-                                        <span>Thêm vào giỏ hàng</span>
-                                    </button>
+                                    <div class="flex gap-2 mt-3">
+                                        <button onclick="addToCart(@product.Id, event)" class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-neutral-700 dark:bg-neutral-600 hover:bg-neutral-800 dark:hover:bg-neutral-700 text-white font-medium transition-colors">
+                                            <span class="material-symbols-outlined text-base">add_shopping_cart</span>
+                                            <span class="text-sm">Giỏ hàng</span>
+                                        </button>
+                                        <button onclick="buyNow(@product.Id, event)" class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-primary hover:bg-primary/90 text-neutral-900 font-semibold transition-colors shadow-sm">
+                                            <span class="material-symbols-outlined text-base">shopping_bag</span>
+                                            <span class="text-sm">Mua ngay</span>
+                                        </button>
+                                    </div>
                                 </div>
                             }
                         }
@@ -446,10 +452,16 @@
                                     <p class="text-neutral-800 dark:text-white font-semibold mt-1">${product.price.toLocaleString('vi-VN')} ₫</p>
                                 </div>
                             </a>
-                            <button onclick="addToCart(${product.id}, event)" class="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-neutral-900 font-medium transition-colors">
-                                <span class="material-symbols-outlined text-lg">shopping_cart</span>
-                                <span>Thêm vào giỏ hàng</span>
-                            </button>
+                            <div class="flex gap-2 mt-3">
+                                <button onclick="buyNow(${product.id}, event)" class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-primary hover:bg-primary/90 text-neutral-900 font-semibold transition-colors shadow-sm">
+                                    <span class="material-symbols-outlined text-base">shopping_bag</span>
+                                    <span class="text-sm">Mua ngay</span>
+                                </button>
+                                <button onclick="addToCart(${product.id}, event)" class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-neutral-700 dark:bg-neutral-600 hover:bg-neutral-800 dark:hover:bg-neutral-700 text-white font-medium transition-colors">
+                                    <span class="material-symbols-outlined text-base">shopping_cart</span>
+                                    <span class="text-sm">Giỏ hàng</span>
+                                </button>
+                            </div>
                         </div>
                     `).join('');
                 } else {
@@ -493,6 +505,77 @@
                 button.classList.remove('bg-primary/20', 'dark:bg-[#393528]');
             }
         }
+
+        // Initialize filters from URL params on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // Check brands from URL
+            const brandsParam = urlParams.get('brands');
+            if (brandsParam) {
+                const brandValues = brandsParam.toLowerCase().split(',');
+                brandValues.forEach(brand => {
+                    const checkbox = document.querySelector(`input[name="brand"][value="${brand.trim()}"]`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        // Open the brand filter section
+                        const brandSection = checkbox.closest('.filter-section');
+                        if (brandSection) {
+                            const content = brandSection.querySelector('.filter-content');
+                            const button = brandSection.querySelector('button');
+                            const icon = button.querySelector('.filter-icon');
+                            content.classList.remove('hidden');
+                            icon.textContent = 'expand_less';
+                            button.classList.add('bg-primary/20', 'dark:bg-[#393528]');
+                        }
+                    }
+                });
+            }
+            
+            // Check genders from URL
+            const gendersParam = urlParams.get('genders');
+            if (gendersParam) {
+                const genderValues = gendersParam.toLowerCase().split(',');
+                genderValues.forEach(gender => {
+                    const checkbox = document.querySelector(`input[name="gender"][value="${gender.trim()}"]`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        // Open the gender filter section
+                        const genderSection = checkbox.closest('.filter-section');
+                        if (genderSection) {
+                            const content = genderSection.querySelector('.filter-content');
+                            const button = genderSection.querySelector('button');
+                            const icon = button.querySelector('.filter-icon');
+                            content.classList.remove('hidden');
+                            icon.textContent = 'expand_less';
+                            button.classList.add('bg-primary/20', 'dark:bg-[#393528]');
+                        }
+                    }
+                });
+            }
+            
+            // Check price ranges from URL
+            const priceRangesParam = urlParams.get('priceRanges');
+            if (priceRangesParam) {
+                const priceValues = priceRangesParam.split(',');
+                priceValues.forEach(price => {
+                    const checkbox = document.querySelector(`input[name="price"][value="${price.trim()}"]`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        // Open the price filter section
+                        const priceSection = checkbox.closest('.filter-section');
+                        if (priceSection) {
+                            const content = priceSection.querySelector('.filter-content');
+                            const button = priceSection.querySelector('button');
+                            const icon = button.querySelector('.filter-icon');
+                            content.classList.remove('hidden');
+                            icon.textContent = 'expand_less';
+                            button.classList.add('bg-primary/20', 'dark:bg-[#393528]');
+                        }
+                    }
+                });
+            }
+        });
 
         // Handle checkbox single selection per filter group
         document.addEventListener('DOMContentLoaded', function() {
@@ -593,10 +676,16 @@
                                     <p class="text-neutral-800 dark:text-white font-semibold mt-1">${product.price.toLocaleString('vi-VN')} ₫</p>
                                 </div>
                             </a>
-                            <button onclick="addToCart(${product.id}, event)" class="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-neutral-900 font-medium transition-colors">
-                                <span class="material-symbols-outlined text-lg">shopping_cart</span>
-                                <span>Thêm vào giỏ hàng</span>
-                            </button>
+                            <div class="flex gap-2 mt-3">
+                                <button onclick="buyNow(${product.id}, event)" class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-primary hover:bg-primary/90 text-neutral-900 font-semibold transition-colors shadow-sm">
+                                    <span class="material-symbols-outlined text-base">shopping_bag</span>
+                                    <span class="text-sm">Mua ngay</span>
+                                </button>
+                                <button onclick="addToCart(${product.id}, event)" class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-neutral-700 dark:bg-neutral-600 hover:bg-neutral-800 dark:hover:bg-neutral-700 text-white font-medium transition-colors">
+                                    <span class="material-symbols-outlined text-base">shopping_cart</span>
+                                    <span class="text-sm">Giỏ hàng</span>
+                                </button>
+                            </div>
                         </div>
                     `).join('');
                 } else {
@@ -619,6 +708,29 @@
             window.location.href = '/Product';
         });
 
+        // Buy now function
+        function buyNow(productId, event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            // TODO: Implement buy now logic
+            // This should add to cart and redirect to checkout
+            const button = event.target.closest('button');
+            const originalText = button.innerHTML;
+            
+            button.disabled = true;
+            button.innerHTML = '<span class="material-symbols-outlined text-base">check</span><span class="text-sm">Đang xử lý...</span>';
+            
+            // Simulate processing
+            setTimeout(() => {
+                // Redirect to cart or checkout page
+                // window.location.href = '/Cart/Checkout';
+                
+                button.disabled = false;
+                button.innerHTML = originalText;
+            }, 1000);
+        }
+
         // Add to cart function
         function addToCart(productId, event) {
             event.preventDefault();
@@ -631,8 +743,8 @@
             const originalText = button.innerHTML;
             
             button.disabled = true;
-            button.innerHTML = '<span class="material-symbols-outlined text-lg">check</span><span>Đã thêm</span>';
-            button.classList.remove('bg-primary', 'hover:bg-primary/90');
+            button.innerHTML = '<span class="material-symbols-outlined text-base">check</span><span class="text-sm">Đã thêm</span>';
+            button.classList.remove('bg-neutral-700', 'dark:bg-neutral-600', 'hover:bg-neutral-800', 'dark:hover:bg-neutral-700');
             button.classList.add('bg-green-500', 'hover:bg-green-600');
             
             // Reset button after 2 seconds
@@ -640,7 +752,7 @@
                 button.disabled = false;
                 button.innerHTML = originalText;
                 button.classList.remove('bg-green-500', 'hover:bg-green-600');
-                button.classList.add('bg-primary', 'hover:bg-primary/90');
+                button.classList.add('bg-neutral-700', 'dark:bg-neutral-600', 'hover:bg-neutral-800', 'dark:hover:bg-neutral-700');
             }, 2000);
             
             // You can add actual cart functionality here:

@@ -118,13 +118,13 @@
                         <p class="text-neutral-600 dark:text-[#b9b29d] text-base font-normal leading-relaxed font-sans">@Model.Description</p>
                     }
                     <div class="flex flex-col sm:flex-row gap-4 pt-4">
-                        <button onclick="addToCart(@Model.Id, event)" class="flex-1 flex max-w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 bg-primary text-background-dark gap-2 text-base font-bold leading-normal tracking-[0.015em] px-6 hover:opacity-90 transition-colors">
-                            <span class="material-symbols-outlined">shopping_cart</span>
+                        <button onclick="addToCart(@Model.Id, event)" class="flex-1 flex max-w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 bg-neutral-700 dark:bg-neutral-600 hover:bg-neutral-800 dark:hover:bg-neutral-700 text-white gap-2 text-base font-semibold leading-normal tracking-[0.015em] px-6 transition-colors">
+                            <span class="material-symbols-outlined text-xl">add_shopping_cart</span>
                             Thêm vào giỏ hàng
                         </button>
-                        <button onclick="buyNow(@Model.Id, event)" class="flex-1 sm:flex-initial flex max-w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 gap-2 text-base font-bold leading-normal px-6 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
-                            <span class="material-symbols-outlined">shopping_bag</span>
-                            Mua hàng
+                        <button onclick="buyNow(@Model.Id, event)" class="flex-1 flex max-w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 bg-primary hover:bg-primary/90 text-neutral-900 gap-2 text-base font-bold leading-normal px-6 transition-colors shadow-sm">
+                            <span class="material-symbols-outlined text-xl">shopping_bag</span>
+                            Mua ngay
                         </button>
                     </div>
                     <div class="pt-6 flex flex-col gap-4 text-sm font-sans border-t border-neutral-200 dark:border-neutral-800">
@@ -335,15 +335,15 @@
             const originalText = button.innerHTML;
             
             button.disabled = true;
-            button.innerHTML = '<span class="material-symbols-outlined">check</span><span>Đã thêm</span>';
-            button.classList.remove('bg-primary', 'hover:opacity-90');
+            button.innerHTML = '<span class="material-symbols-outlined text-xl">check</span><span>Đã thêm</span>';
+            button.classList.remove('bg-neutral-700', 'dark:bg-neutral-600', 'hover:bg-neutral-800', 'dark:hover:bg-neutral-700');
             button.classList.add('bg-green-500', 'hover:bg-green-600');
             
             setTimeout(() => {
                 button.disabled = false;
                 button.innerHTML = originalText;
                 button.classList.remove('bg-green-500', 'hover:bg-green-600');
-                button.classList.add('bg-primary', 'hover:opacity-90');
+                button.classList.add('bg-neutral-700', 'dark:bg-neutral-600', 'hover:bg-neutral-800', 'dark:hover:bg-neutral-700');
             }, 2000);
             
             // TODO: Implement actual cart functionality
@@ -357,13 +357,21 @@
                 event.stopPropagation();
             }
             
-            // TODO: Implement buy now functionality
-            // This should add to cart and redirect to checkout
-            // For now, just add to cart and show message
-            addToCart(productId, event);
+            const button = event.target.closest('button');
+            const originalText = button.innerHTML;
             
-            // In the future, redirect to checkout:
-            // window.location.href = '/Checkout';
+            button.disabled = true;
+            button.innerHTML = '<span class="material-symbols-outlined text-xl">hourglass_empty</span><span>Đang xử lý...</span>';
+            
+            // TODO: Implement buy now functionality
+            // Simulate processing time
+            setTimeout(() => {
+                // In the future, add to cart and redirect to checkout:
+                // window.location.href = '/Checkout';
+                
+                button.disabled = false;
+                button.innerHTML = originalText;
+            }, 1500);
         }
     </script>
 </body>
