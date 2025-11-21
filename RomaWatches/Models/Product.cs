@@ -11,25 +11,32 @@ namespace RomaWatches.Models
         [Required(ErrorMessage = "Tên sản phẩm là bắt buộc")]
         [StringLength(200)]
         public string Name { get; set; } = string.Empty;
-
+        
+        //chất liệu vỏ
         [StringLength(100)]
         public string? CaseMaterial { get; set; }
 
+
+        // Đường kính vỏ
         [StringLength(50)]
         public string? CaseDiameter { get; set; }
 
+        //mặt số
         [StringLength(100)]
         public string? Dial { get; set; }
 
+        // Loại máy: cơ, điện tử
         [StringLength(100)]
         public string? Movement { get; set; }
-
+        // Dự trữ năng lượng
         [StringLength(50)]
         public string? PowerReserve { get; set; }
-
+        
+        // Chống nước
         [StringLength(50)]
         public string? WaterResistance { get; set; }
-
+        
+        //mặt kính
         [StringLength(100)]
         public string? Crystal { get; set; }
 

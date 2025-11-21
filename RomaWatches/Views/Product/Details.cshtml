@@ -1,0 +1,371 @@
+@model RomaWatches.Models.Product
+@{
+    ViewData["Title"] = $"ROMA WATCHES - {Model.Name}";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html class="dark" lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>@ViewData["Title"]</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700;900&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ecb613",
+                        "background-light": "#f8f8f6",
+                        "background-dark": "#221d10",
+                    },
+                    fontFamily: {
+                        "display": ["Noto Serif", "Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+    <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+        @await Html.PartialAsync("_Header")
+        <div class="h-[72px]"></div>
+        <main class="w-full max-w-screen-2xl mx-auto px-4 sm:px-8 lg:px-10 py-8">
+            <div class="flex flex-wrap gap-2 mb-8">
+                <a class="text-neutral-500 dark:text-[#b9b29d] text-sm font-medium leading-normal hover:text-primary" asp-controller="Home" asp-action="Index">Trang chủ</a>
+                <span class="text-neutral-500 dark:text-[#b9b29d] text-sm font-medium leading-normal">/</span>
+                <a class="text-neutral-500 dark:text-[#b9b29d] text-sm font-medium leading-normal hover:text-primary" asp-controller="Product" asp-action="Index">Cửa hàng</a>
+                @if (!string.IsNullOrEmpty(Model.Gender))
+                {
+                    <span class="text-neutral-500 dark:text-[#b9b29d] text-sm font-medium leading-normal">/</span>
+                    <a class="text-neutral-500 dark:text-[#b9b29d] text-sm font-medium leading-normal hover:text-primary" asp-controller="Product" asp-action="Index">@Model.Gender</a>
+                }
+                <span class="text-neutral-500 dark:text-[#b9b29d] text-sm font-medium leading-normal">/</span>
+                <a class="text-neutral-500 dark:text-[#b9b29d] text-sm font-medium leading-normal hover:text-primary" asp-controller="Product" asp-action="Index">@Model.Brand</a>
+                <span class="text-neutral-500 dark:text-[#b9b29d] text-sm font-medium leading-normal">/</span>
+                <span class="text-neutral-800 dark:text-white text-sm font-medium leading-normal">@Model.Name</span>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+                <!-- Product Images -->
+                <div class="flex flex-col-reverse md:flex-row gap-4">
+                    <div class="flex md:flex-col gap-3 justify-center md:justify-start">
+                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <div class="w-20 bg-center bg-no-repeat aspect-square bg-cover rounded-lg ring-2 ring-primary cursor-pointer thumbnail-image" data-main-image="@Model.ImageUrl">
+                                <img src="@Model.ImageUrl" alt="@Model.Name" class="w-full h-full object-cover rounded-lg" />
+                            </div>
+                            <div class="w-20 bg-center bg-no-repeat aspect-square bg-cover rounded-lg border border-neutral-200 dark:border-neutral-800 cursor-pointer thumbnail-image" data-main-image="@Model.ImageUrl">
+                                <img src="@Model.ImageUrl" alt="@Model.Name" class="w-full h-full object-cover rounded-lg" />
+                            </div>
+                            <div class="w-20 bg-center bg-no-repeat aspect-square bg-cover rounded-lg border border-neutral-200 dark:border-neutral-800 cursor-pointer thumbnail-image" data-main-image="@Model.ImageUrl">
+                                <img src="@Model.ImageUrl" alt="@Model.Name" class="w-full h-full object-cover rounded-lg" />
+                            </div>
+                            <div class="w-20 bg-center bg-no-repeat aspect-square bg-cover rounded-lg border border-neutral-200 dark:border-neutral-800 cursor-pointer thumbnail-image" data-main-image="@Model.ImageUrl">
+                                <img src="@Model.ImageUrl" alt="@Model.Name" class="w-full h-full object-cover rounded-lg" />
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="w-20 bg-center bg-no-repeat aspect-square bg-cover rounded-lg ring-2 ring-primary cursor-pointer thumbnail-image" data-main-image="https://images.unsplash.com/photo-1523275335684-37898b6baf30">
+                                <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30" alt="@Model.Name" class="w-full h-full object-cover rounded-lg" />
+                            </div>
+                        }
+                    </div>
+                    <div class="flex-1">
+                        <div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl overflow-hidden" id="mainProductImage">
+                            <img src="@(string.IsNullOrEmpty(Model.ImageUrl) ? "https://images.unsplash.com/photo-1523275335684-37898b6baf30" : Model.ImageUrl)" 
+                                 alt="@Model.Name" 
+                                 class="w-full h-full object-cover" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Info -->
+                <div class="flex flex-col gap-6 pt-4">
+                    <div>
+                        <p class="text-primary text-sm font-bold uppercase tracking-wider font-sans">@Model.Brand</p>
+                        <h1 class="text-neutral-800 dark:text-white text-4xl lg:text-5xl font-black leading-tight tracking-[-0.033em] font-display mt-1">@Model.Name</h1>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-1 text-primary">
+                            <span class="material-symbols-outlined text-xl">star</span>
+                            <span class="material-symbols-outlined text-xl">star</span>
+                            <span class="material-symbols-outlined text-xl">star</span>
+                            <span class="material-symbols-outlined text-xl">star</span>
+                            <span class="material-symbols-outlined text-xl fill-transparent" style="-webkit-text-stroke: 1px;">star</span>
+                        </div>
+                        <a class="text-sm font-medium text-neutral-600 dark:text-[#b9b29d] hover:text-primary" href="#reviews">(0 Đánh giá)</a>
+                    </div>
+                    <p class="text-4xl font-bold font-display text-neutral-800 dark:text-white">@Model.Price.ToString("N0") ₫</p>
+                    @if (!string.IsNullOrEmpty(Model.Description))
+                    {
+                        <p class="text-neutral-600 dark:text-[#b9b29d] text-base font-normal leading-relaxed font-sans">@Model.Description</p>
+                    }
+                    <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                        <button onclick="addToCart(@Model.Id, event)" class="flex-1 flex max-w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 bg-primary text-background-dark gap-2 text-base font-bold leading-normal tracking-[0.015em] px-6 hover:opacity-90 transition-colors">
+                            <span class="material-symbols-outlined">shopping_cart</span>
+                            Thêm vào giỏ hàng
+                        </button>
+                        <button onclick="buyNow(@Model.Id, event)" class="flex-1 sm:flex-initial flex max-w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 gap-2 text-base font-bold leading-normal px-6 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
+                            <span class="material-symbols-outlined">shopping_bag</span>
+                            Mua hàng
+                        </button>
+                    </div>
+                    <div class="pt-6 flex flex-col gap-4 text-sm font-sans border-t border-neutral-200 dark:border-neutral-800">
+                        <div class="flex items-center gap-3 text-neutral-600 dark:text-[#b9b29d]">
+                            <span class="material-symbols-outlined text-primary text-2xl">local_shipping</span>
+                            <span>Miễn phí, Giao hàng toàn cầu có bảo hiểm</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-neutral-600 dark:text-[#b9b29d]">
+                            <span class="material-symbols-outlined text-primary text-2xl">verified</span>
+                            <span>Đảm bảo tính xác thực & Bảo hành</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-neutral-600 dark:text-[#b9b29d]">
+                            <span class="material-symbols-outlined text-primary text-2xl">credit_card</span>
+                            <span>Thanh toán an toàn & được mã hóa</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Specifications -->
+            <div class="mt-16 lg:mt-24">
+                <div class="border-b border-neutral-200 dark:border-neutral-800">
+                    <nav aria-label="Tabs" class="flex gap-8 -mb-px font-sans">
+                        <a aria-current="page" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-base text-primary border-primary" href="#specs">
+                            Thông số kỹ thuật chi tiết
+                        </a>
+                        <a class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-base text-neutral-500 dark:text-neutral-400 border-transparent hover:text-neutral-700 dark:hover:text-neutral-200 hover:border-neutral-300 dark:hover:border-neutral-600" href="#description">
+                            Mô tả
+                        </a>
+                        <a class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-base text-neutral-500 dark:text-neutral-400 border-transparent hover:text-neutral-700 dark:hover:text-neutral-200 hover:border-neutral-300 dark:hover:border-neutral-600" href="#reviews" id="reviews">
+                            Đánh giá của khách hàng
+                        </a>
+                    </nav>
+                </div>
+                <div class="py-10 font-sans" id="specs">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 text-base leading-relaxed">
+                        @if (!string.IsNullOrEmpty(Model.Name))
+                        {
+                            <div class="flex justify-between border-b border-neutral-200 dark:border-neutral-800 py-3">
+                                <span class="text-neutral-600 dark:text-[#b9b29d]">Mẫu</span>
+                                <span class="font-medium text-neutral-800 dark:text-white">@Model.Name</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Movement))
+                        {
+                            <div class="flex justify-between border-b border-neutral-200 dark:border-neutral-800 py-3">
+                                <span class="text-neutral-600 dark:text-[#b9b29d]">Bộ máy</span>
+                                <span class="font-medium text-neutral-800 dark:text-white">@Model.Movement</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.CaseMaterial))
+                        {
+                            <div class="flex justify-between border-b border-neutral-200 dark:border-neutral-800 py-3">
+                                <span class="text-neutral-600 dark:text-[#b9b29d]">Chất liệu vỏ</span>
+                                <span class="font-medium text-neutral-800 dark:text-white">@Model.CaseMaterial</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.PowerReserve))
+                        {
+                            <div class="flex justify-between border-b border-neutral-200 dark:border-neutral-800 py-3">
+                                <span class="text-neutral-600 dark:text-[#b9b29d]">Dự trữ năng lượng</span>
+                                <span class="font-medium text-neutral-800 dark:text-white">@Model.PowerReserve</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.CaseDiameter))
+                        {
+                            <div class="flex justify-between border-b border-neutral-200 dark:border-neutral-800 py-3">
+                                <span class="text-neutral-600 dark:text-[#b9b29d]">Đường kính vỏ</span>
+                                <span class="font-medium text-neutral-800 dark:text-white">@Model.CaseDiameter</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.WaterResistance) || Model.WaterResistanceAtm.HasValue)
+                        {
+                            <div class="flex justify-between border-b border-neutral-200 dark:border-neutral-800 py-3">
+                                <span class="text-neutral-600 dark:text-[#b9b29d]">Khả năng chống nước</span>
+                                <span class="font-medium text-neutral-800 dark:text-white">
+                                    @if (!string.IsNullOrEmpty(Model.WaterResistance))
+                                    {
+                                        @Model.WaterResistance
+                                    }
+                                    @if (Model.WaterResistanceAtm.HasValue)
+                                    {
+                                        <text> (@Model.WaterResistanceAtm.Value ATM)</text>
+                                    }
+                                </span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Dial))
+                        {
+                            <div class="flex justify-between border-b border-neutral-200 dark:border-neutral-800 py-3">
+                                <span class="text-neutral-600 dark:text-[#b9b29d]">Mặt số</span>
+                                <span class="font-medium text-neutral-800 dark:text-white">@Model.Dial</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Crystal))
+                        {
+                            <div class="flex justify-between border-b border-neutral-200 dark:border-neutral-800 py-3">
+                                <span class="text-neutral-600 dark:text-[#b9b29d]">Mặt kính</span>
+                                <span class="font-medium text-neutral-800 dark:text-white">@Model.Crystal</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Gender))
+                        {
+                            <div class="flex justify-between border-b border-neutral-200 dark:border-neutral-800 py-3">
+                                <span class="text-neutral-600 dark:text-[#b9b29d]">Giới tính</span>
+                                <span class="font-medium text-neutral-800 dark:text-white">@Model.Gender</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.StrapType))
+                        {
+                            <div class="flex justify-between border-b border-neutral-200 dark:border-neutral-800 py-3">
+                                <span class="text-neutral-600 dark:text-[#b9b29d]">Loại dây</span>
+                                <span class="font-medium text-neutral-800 dark:text-white">@Model.StrapType</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="py-10 font-sans hidden" id="description">
+                    @if (!string.IsNullOrEmpty(Model.Description))
+                    {
+                        <p class="text-neutral-600 dark:text-[#b9b29d] text-base leading-relaxed">@Model.Description</p>
+                    }
+                    else
+                    {
+                        <p class="text-neutral-600 dark:text-[#b9b29d] text-base leading-relaxed">Chưa có mô tả chi tiết cho sản phẩm này.</p>
+                    }
+                </div>
+                <div class="py-10 font-sans hidden" id="reviews">
+                    <p class="text-neutral-600 dark:text-[#b9b29d] text-base">Chưa có đánh giá nào cho sản phẩm này.</p>
+                </div>
+            </div>
+        </main>
+        @await Html.PartialAsync("_Footer")
+    </div>
+    @await Html.PartialAsync("_LoginModal")
+    @await Html.PartialAsync("_CommonScripts")
+    <script>
+        // Thumbnail image click handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const thumbnails = document.querySelectorAll('.thumbnail-image');
+            const mainImage = document.getElementById('mainProductImage');
+            const mainImageImg = mainImage.querySelector('img');
+
+            thumbnails.forEach(thumbnail => {
+                thumbnail.addEventListener('click', function() {
+                    const imageUrl = this.getAttribute('data-main-image');
+                    if (imageUrl && mainImageImg) {
+                        mainImageImg.src = imageUrl;
+                        // Update active thumbnail
+                        thumbnails.forEach(t => {
+                            t.classList.remove('ring-2', 'ring-primary');
+                            t.classList.add('border', 'border-neutral-200', 'dark:border-neutral-800');
+                        });
+                        this.classList.add('ring-2', 'ring-primary');
+                        this.classList.remove('border', 'border-neutral-200', 'dark:border-neutral-800');
+                    }
+                });
+            });
+        });
+
+        // Tab navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('nav[aria-label="Tabs"] a');
+            const sections = {
+                'specs': document.getElementById('specs'),
+                'description': document.getElementById('description'),
+                'reviews': document.getElementById('reviews')
+            };
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const href = this.getAttribute('href');
+                    const sectionId = href.replace('#', '');
+
+                    // Update tab styles
+                    tabs.forEach(t => {
+                        t.classList.remove('text-primary', 'border-primary');
+                        t.classList.add('text-neutral-500', 'dark:text-neutral-400', 'border-transparent');
+                        t.removeAttribute('aria-current');
+                    });
+                    this.classList.add('text-primary', 'border-primary');
+                    this.classList.remove('text-neutral-500', 'dark:text-neutral-400', 'border-transparent');
+                    this.setAttribute('aria-current', 'page');
+
+                    // Show/hide sections
+                    Object.keys(sections).forEach(key => {
+                        if (sections[key]) {
+                            if (key === sectionId) {
+                                sections[key].classList.remove('hidden');
+                            } else {
+                                sections[key].classList.add('hidden');
+                            }
+                        }
+                    });
+                });
+            });
+        });
+
+        // Add to cart function
+        function addToCart(productId, event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
+            const button = event.target.closest('button');
+            const originalText = button.innerHTML;
+            
+            button.disabled = true;
+            button.innerHTML = '<span class="material-symbols-outlined">check</span><span>Đã thêm</span>';
+            button.classList.remove('bg-primary', 'hover:opacity-90');
+            button.classList.add('bg-green-500', 'hover:bg-green-600');
+            
+            setTimeout(() => {
+                button.disabled = false;
+                button.innerHTML = originalText;
+                button.classList.remove('bg-green-500', 'hover:bg-green-600');
+                button.classList.add('bg-primary', 'hover:opacity-90');
+            }, 2000);
+            
+            // TODO: Implement actual cart functionality
+            // fetch('/Cart/Add', { method: 'POST', body: JSON.stringify({ productId: productId }), ... })
+        }
+
+        // Buy now function
+        function buyNow(productId, event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
+            // TODO: Implement buy now functionality
+            // This should add to cart and redirect to checkout
+            // For now, just add to cart and show message
+            addToCart(productId, event);
+            
+            // In the future, redirect to checkout:
+            // window.location.href = '/Checkout';
+        }
+    </script>
+</body>
+</html>
+
