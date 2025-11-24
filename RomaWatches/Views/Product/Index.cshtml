@@ -1,4 +1,7 @@
 @model List<RomaWatches.Models.Product>
+@using Microsoft.AspNetCore.Identity
+@using RomaWatches.Models
+@inject SignInManager<ApplicationUser> SignInManager
 @{
     ViewData["Title"] = "ROMA WATCHES - Cửa Hàng";
     Layout = null;
@@ -708,10 +711,65 @@
             window.location.href = '/Product';
         });
 
+        // Check if user is logged in
+        function isUserLoggedIn() {
+            // Check if user info exists in header (sign out button indicates logged in)
+            return document.querySelector('form[asp-controller="Account"][asp-action="Logout"]') !== null ||
+                   document.querySelector('a[asp-controller="Admin"]') !== null ||
+                   @(SignInManager.IsSignedIn(User) ? "true" : "false");
+        }
+
+        // Show notification message
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `fixed top-24 right-4 z-50 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full ${
+                type === 'error' ? 'bg-red-500' : 
+                type === 'success' ? 'bg-green-500' : 
+                'bg-primary'
+            } text-white font-medium`;
+            notification.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined">${
+                        type === 'error' ? 'error' : 
+                        type === 'success' ? 'check_circle' : 
+                        'info'
+                    }</span>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Animate in
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+                notification.classList.add('translate-x-0');
+            }, 10);
+            
+            // Animate out and remove
+            setTimeout(() => {
+                notification.classList.remove('translate-x-0');
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 3000);
+        }
+
         // Buy now function
         function buyNow(productId, event) {
             event.preventDefault();
             event.stopPropagation();
+            
+            // Check if user is logged in
+            if (!isUserLoggedIn()) {
+                showNotification('Vui lòng đăng nhập để mua sản phẩm', 'error');
+                setTimeout(() => {
+                    openLoginModal();
+                }, 500);
+                return;
+            }
             
             // TODO: Implement buy now logic
             // This should add to cart and redirect to checkout
@@ -735,6 +793,15 @@
         function addToCart(productId, event) {
             event.preventDefault();
             event.stopPropagation();
+            
+            // Check if user is logged in
+            if (!isUserLoggedIn()) {
+                showNotification('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng', 'error');
+                setTimeout(() => {
+                    openLoginModal();
+                }, 500);
+                return;
+            }
             
             // TODO: Implement add to cart logic
             // This can be an AJAX call to add the product to cart
