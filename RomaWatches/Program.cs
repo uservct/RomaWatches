@@ -28,7 +28,8 @@ namespace RomaWatches
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequiredLength = 6;
             })
-            .AddEntityFrameworkStores<ApplicationDbContext>();
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddErrorDescriber<Data.VietnameseIdentityErrorDescriber>();
 
             builder.Services.AddControllersWithViews();
 

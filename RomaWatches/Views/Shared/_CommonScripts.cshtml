@@ -1,4 +1,10 @@
+@using Microsoft.AspNetCore.Identity
+@using RomaWatches.Models
+@inject SignInManager<ApplicationUser> SignInManager
 <script>
+    // Store login status from server
+    const userIsLoggedIn = @(SignInManager.IsSignedIn(User) ? "true" : "false");
+    
     // Open login modal function - shared across all pages
     function openLoginModal() {
         const modal = document.getElementById('loginModal');
@@ -70,6 +76,99 @@
                 }
             }
         });
+
+        // Load cart count on page load
+        loadCartCount();
     });
+
+    // Function to load cart count from server
+    function loadCartCount() {
+        fetch('/Cart/GetCartCount')
+            .then(response => response.json())
+            .then(data => {
+                updateCartCountInHeader(data.count || 0);
+            })
+            .catch(error => {
+                console.error('Error loading cart count:', error);
+            });
+    }
+
+    // Function to update cart count in header
+    function updateCartCountInHeader(count) {
+        const cartBadge = document.querySelector('header .shopping-bag-badge');
+        if (cartBadge) {
+            cartBadge.textContent = count;
+            if (count === 0) {
+                cartBadge.style.display = 'none';
+            } else {
+                cartBadge.style.display = 'flex';
+            }
+        }
+    }
+
+    // Check if user is logged in
+    function isUserLoggedIn() {
+        // First check server-side value (most reliable)
+        if (typeof userIsLoggedIn !== 'undefined' && userIsLoggedIn === true) {
+            return true;
+        }
+        // Fallback: Check if user info exists in header (sign out button indicates logged in)
+        return document.querySelector('form[asp-controller="Account"][asp-action="Logout"]') !== null ||
+               document.querySelector('a[asp-controller="Admin"]') !== null;
+    }
+
+    // Show notification message
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-24 right-4 z-50 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full ${
+            type === 'error' ? 'bg-red-500' : 
+            type === 'success' ? 'bg-green-500' : 
+            'bg-primary'
+        } text-white font-medium`;
+        notification.innerHTML = `
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined">${
+                    type === 'error' ? 'error' : 
+                    type === 'success' ? 'check_circle' : 
+                    'info'
+                }</span>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.classList.remove('translate-x-full');
+            notification.classList.add('translate-x-0');
+        }, 10);
+        
+        setTimeout(() => {
+            notification.classList.remove('translate-x-0');
+            notification.classList.add('translate-x-full');
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }, 3000);
+    }
+
+    // Handle cart click - check login before navigating
+    function handleCartClick(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        if (!isUserLoggedIn()) {
+            showNotification('Vui lòng đăng nhập để xem giỏ hàng', 'error');
+            setTimeout(() => {
+                if (typeof openLoginModal === 'function') {
+                    openLoginModal();
+                }
+            }, 500);
+            return;
+        }
+        
+        // If logged in, navigate to cart page
+        window.location.href = '/Cart';
+    }
 </script>
 

@@ -85,9 +85,9 @@
                     <span class="material-symbols-outlined text-2xl">person</span>
                 </button>
             }
-            <button class="relative flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 text-white hover:text-white/70 transition-colors gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
+            <button onclick="handleCartClick(event)" class="relative flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 text-white hover:text-white/70 transition-colors gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
                 <span class="material-symbols-outlined text-2xl">shopping_bag</span>
-                <span class="absolute top-1 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white">0</span>
+                <span class="shopping-bag-badge absolute top-1 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white" style="display: none;">0</span>
             </button>
         </div>
     </div>

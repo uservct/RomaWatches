@@ -1,0 +1,397 @@
+@model RomaWatches.Models.Cart
+@using Microsoft.AspNetCore.Identity
+@using RomaWatches.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@{
+    ViewData["Title"] = "ROMA WATCHES - Giỏ hàng";
+    Layout = null;
+    
+    var subtotal = Model.CartItems?.Sum(ci => ci.Quantity * ci.Product.Price) ?? 0;
+    var total = subtotal; // Shipping will be calculated later
+}
+<!DOCTYPE html>
+<html class="dark" lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>@ViewData["Title"]</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700;900&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ecb613",
+                        "background-light": "#f8f8f6",
+                        "background-dark": "#221d10",
+                    },
+                    fontFamily: {
+                        "display": ["Noto Serif", "Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+    <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+        @await Html.PartialAsync("_Header")
+        <div class="h-[72px]"></div>
+        <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            <div class="flex flex-wrap gap-2 p-4">
+                <a class="text-gray-500 dark:text-[#b9b29d] text-sm font-medium leading-normal hover:text-primary" asp-controller="Home" asp-action="Index">Trang chủ</a>
+                <span class="text-gray-500 dark:text-[#b9b29d] text-sm font-medium leading-normal">/</span>
+                <span class="text-black dark:text-white text-sm font-medium leading-normal">Giỏ hàng</span>
+            </div>
+            <div class="flex flex-wrap justify-between gap-3 p-4">
+                <p class="text-black dark:text-white text-4xl font-black leading-tight tracking-[-0.033em] min-w-72">Giỏ hàng của bạn</p>
+            </div>
+            
+            @if (!SignInManager.IsSignedIn(User))
+            {
+                <div class="mt-8 text-center py-16" id="loginRequiredMessage">
+                    <span class="material-symbols-outlined text-6xl text-gray-400 dark:text-gray-600 mb-4">lock</span>
+                    <p class="text-xl font-medium text-gray-600 dark:text-gray-400 mb-4">Vui lòng đăng nhập để xem giỏ hàng</p>
+                    <button onclick="openLoginModal()" class="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline">
+                        <span class="material-symbols-outlined">login</span>
+                        Đăng nhập ngay
+                    </button>
+                </div>
+            }
+            else if (Model.CartItems == null || !Model.CartItems.Any())
+            {
+                <div class="mt-8 text-center py-16">
+                    <span class="material-symbols-outlined text-6xl text-gray-400 dark:text-gray-600 mb-4">shopping_bag</span>
+                    <p class="text-xl font-medium text-gray-600 dark:text-gray-400 mb-4">Giỏ hàng của bạn đang trống</p>
+                    <a asp-controller="Product" asp-action="Index" class="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline">
+                        <span class="material-symbols-outlined">arrow_back</span>
+                        Tiếp tục mua sắm
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-12">
+                    <div class="lg:col-span-2">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="border-b border-gray-200 dark:border-[#393528]">
+                                        <th class="px-4 py-3 text-left text-gray-600 dark:text-gray-400 w-2/5 text-sm font-medium uppercase tracking-wider">Sản phẩm</th>
+                                        <th class="px-4 py-3 text-left text-gray-600 dark:text-gray-400 w-1/5 text-sm font-medium uppercase tracking-wider">Giá</th>
+                                        <th class="px-4 py-3 text-left text-gray-600 dark:text-gray-400 w-1/5 text-sm font-medium uppercase tracking-wider">Số lượng</th>
+                                        <th class="px-4 py-3 text-right text-gray-600 dark:text-gray-400 w-1/5 text-sm font-medium uppercase tracking-wider">Tổng cộng</th>
+                                        <th class="px-4 py-3 text-left text-gray-600 dark:text-gray-400 w-auto"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.CartItems)
+                                    {
+                                        var itemTotal = item.Quantity * item.Product.Price;
+                                        <tr class="border-b border-gray-200 dark:border-[#393528]" data-cart-item-id="@item.Id">
+                                            <td class="h-[120px] px-4 py-4">
+                                                <div class="flex items-center gap-4">
+                                                    <a href="@Url.Action("Details", "Product", new { id = item.Product.Id })" class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg w-20 h-20 overflow-hidden">
+                                                        <img src="@(string.IsNullOrEmpty(item.Product.ImageUrl) ? "https://images.unsplash.com/photo-1523275335684-37898b6baf30" : item.Product.ImageUrl)" 
+                                                             alt="@item.Product.Name" 
+                                                             class="w-full h-full object-cover" />
+                                                    </a>
+                                                    <div>
+                                                        <a href="@Url.Action("Details", "Product", new { id = item.Product.Id })" class="font-bold text-black dark:text-white hover:text-primary transition-colors">@item.Product.Name</a>
+                                                        <p class="text-sm text-gray-500 dark:text-gray-400">@item.Product.Brand</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="h-[120px] px-4 py-4 text-gray-700 dark:text-gray-300">@item.Product.Price.ToString("N0") ₫</td>
+                                            <td class="h-[120px] px-4 py-4">
+                                                <div class="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg w-28">
+                                                    <button onclick="decreaseQuantity(@item.Id)" class="px-3 py-1.5 text-lg leading-none text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">-</button>
+                                                    <input type="text" 
+                                                           value="@item.Quantity" 
+                                                           data-cart-item-id="@item.Id"
+                                                           class="w-full text-center bg-transparent border-0 p-0 focus:ring-0 quantity-input text-black dark:text-white" 
+                                                           readonly />
+                                                    <button onclick="increaseQuantity(@item.Id)" class="px-3 py-1.5 text-lg leading-none text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">+</button>
+                                                </div>
+                                            </td>
+                                            <td class="h-[120px] px-4 py-4 text-right font-bold text-black dark:text-white item-total" data-item-total="@itemTotal">@itemTotal.ToString("N0") ₫</td>
+                                            <td class="h-[120px] px-4 py-4 text-right">
+                                                <button onclick="removeItem(@item.Id)" class="text-gray-400 hover:text-red-500 transition-colors">
+                                                    <span class="material-symbols-outlined">close</span>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-6 flex justify-between items-center">
+                            <a asp-controller="Product" asp-action="Index" class="inline-flex items-center gap-2 text-sm font-medium text-black dark:text-white hover:text-primary dark:hover:text-primary">
+                                <span class="material-symbols-outlined">arrow_back</span>
+                                Tiếp tục mua sắm
+                            </a>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-1">
+                        <div class="bg-gray-50 dark:bg-[#221d10] p-6 rounded-xl">
+                            <h2 class="text-black dark:text-white text-xl font-bold leading-tight tracking-[-0.015em] pb-4 border-b border-gray-200 dark:border-gray-700">Tóm tắt đơn hàng</h2>
+                            <div class="mt-4 space-y-4">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600 dark:text-gray-400">Tạm tính</span>
+                                    <span class="font-medium text-black dark:text-white" id="subtotal">@subtotal.ToString("N0") ₫</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600 dark:text-gray-400">Vận chuyển</span>
+                                    <span class="font-medium text-black dark:text-white">Tính ở bước sau</span>
+                                </div>
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600 dark:text-gray-400">Mã khuyến mãi</span>
+                                    <a class="text-primary font-medium hover:underline" href="#">Thêm mã</a>
+                                </div>
+                            </div>
+                            <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                                <div class="flex justify-between text-lg font-bold">
+                                    <span class="text-black dark:text-white">Tổng cộng</span>
+                                    <span class="text-black dark:text-white" id="total">@total.ToString("N0") ₫</span>
+                                </div>
+                            </div>
+                            <button onclick="proceedToCheckout()" class="mt-6 w-full bg-primary text-black font-bold py-3 px-4 rounded-lg hover:bg-opacity-90 transition-colors">
+                                Tiến hành thanh toán
+                            </button>
+                            <div class="mt-4 text-center">
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Thanh toán an toàn</p>
+                                <div class="flex justify-center gap-3 mt-2 text-gray-400 dark:text-gray-500">
+                                    <svg aria-hidden="true" class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M22.42 6.01c-.2-.46-.53-.86-.92-1.18a3.1 3.1 0 00-1.22-.67C19.64 4 18.23 4 16.27 4H7.73c-1.96 0-3.37 0-4 .16a3.1 3.1 0 00-1.22.67c-.4.32-.72.72-.92 1.18C1.4 6.52 1.4 7.5 1.4 9.46v5.08c0 1.96 0 2.94.19 3.45.2.46.53.86.92 1.18.39.31.8.5 1.22.67 1.29.32 2.7.32 4.66.32h7.22c1.96 0 3.37 0 4-.16a3.1 3.1 0 001.22-.67c.4-.32.72-.72.92-1.18.19-.51.19-1.5.19-3.45V9.46c0-1.96 0-2.94-.19-3.45zM15.5 16H8.5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h7c.28 0 .5.22.5.5s-.22.5-.5.5zm1-4H7.5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h9c.28 0 .5.22.5.5s-.22.5-.5.5z"></path></svg>
+                                    <svg aria-hidden="true" class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path clip-rule="evenodd" d="M12 4c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm2.46 11.45c.29.29.29.77 0 1.06-.15.15-.34.22-.53.22s-.38-.07-.53-.22L12 15.06l-1.45 1.45c-.15.15-.34.22-.53.22s-.38-.07-.53-.22a.75.75 0 010-1.06L10.94 14l-1.45-1.45a.75.75 0 010-1.06c.29-.29.77-.29 1.06 0L12 12.94l1.45-1.45c.29-.29.77-.29 1.06 0 .29.29.29.77 0 1.06L13.06 14l1.4 1.45z" fill-rule="evenodd"></path></svg>
+                                    <svg aria-hidden="true" class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path clip-rule="evenodd" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.87 15.86l-3.2-3.19a.49.49 0 010-.7l.7-.7c.2-.2.51-.2.71 0l2.14 2.14 4.96-4.96c.2-.2.51-.2.71 0l.7.7c.2.2.2.51 0 .71l-5.99 5.99a.5.5 0 01-.7 0z" fill-rule="evenodd"></path></svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </main>
+        @await Html.PartialAsync("_Footer")
+    </div>
+    @await Html.PartialAsync("_CommonScripts")
+    @await Html.PartialAsync("_LoginModal")
+    <script>
+        // Check if user is logged in
+        function isUserLoggedIn() {
+            // Check if user info exists in header (sign out button indicates logged in)
+            return document.querySelector('form[asp-controller="Account"][asp-action="Logout"]') !== null ||
+                   document.querySelector('a[asp-controller="Admin"]') !== null ||
+                   @(SignInManager.IsSignedIn(User) ? "true" : "false");
+        }
+
+        // Check login on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!isUserLoggedIn()) {
+                // Hide cart content if exists
+                const cartContent = document.querySelector('.mt-8.grid');
+                if (cartContent) {
+                    cartContent.style.display = 'none';
+                }
+                
+                showNotification('Vui lòng đăng nhập để xem giỏ hàng', 'error');
+                setTimeout(() => {
+                    if (typeof openLoginModal === 'function') {
+                        openLoginModal();
+                    }
+                }, 500);
+            }
+        });
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-24 right-4 z-50 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full ${
+                type === 'error' ? 'bg-red-500' : 
+                type === 'success' ? 'bg-green-500' : 
+                'bg-primary'
+            } text-white font-medium`;
+            notification.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined">${
+                        type === 'error' ? 'error' : 
+                        type === 'success' ? 'check_circle' : 
+                        'info'
+                    }</span>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+                notification.classList.add('translate-x-0');
+            }, 10);
+            
+            setTimeout(() => {
+                notification.classList.remove('translate-x-0');
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        function updateTotals() {
+            let subtotal = 0;
+            document.querySelectorAll('.item-total').forEach(el => {
+                const total = parseFloat(el.getAttribute('data-item-total')) || 0;
+                subtotal += total;
+            });
+            
+            document.getElementById('subtotal').textContent = subtotal.toLocaleString('vi-VN') + ' ₫';
+            document.getElementById('total').textContent = subtotal.toLocaleString('vi-VN') + ' ₫';
+        }
+
+        function increaseQuantity(cartItemId) {
+            const input = document.querySelector(`input[data-cart-item-id="${cartItemId}"]`);
+            if (!input) return;
+            
+            const currentQuantity = parseInt(input.value) || 1;
+            const newQuantity = currentQuantity + 1;
+            updateQuantity(cartItemId, newQuantity);
+        }
+
+        function decreaseQuantity(cartItemId) {
+            const input = document.querySelector(`input[data-cart-item-id="${cartItemId}"]`);
+            if (!input) return;
+            
+            const currentQuantity = parseInt(input.value) || 1;
+            if (currentQuantity <= 1) {
+                showNotification('Số lượng phải lớn hơn 0', 'error');
+                return;
+            }
+            const newQuantity = currentQuantity - 1;
+            updateQuantity(cartItemId, newQuantity);
+        }
+
+        function updateQuantity(cartItemId, quantity) {
+            fetch('/Cart/Update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                },
+                body: JSON.stringify({ cartItemId: cartItemId, quantity: quantity })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update the quantity input
+                    const input = document.querySelector(`input[data-cart-item-id="${cartItemId}"]`);
+                    if (input) {
+                        input.value = quantity;
+                    }
+                    
+                    // Update item total
+                    const row = document.querySelector(`tr[data-cart-item-id="${cartItemId}"]`);
+                    if (row) {
+                        const itemTotalEl = row.querySelector('.item-total');
+                        if (itemTotalEl) {
+                            const itemTotal = data.subtotal || 0;
+                            itemTotalEl.setAttribute('data-item-total', itemTotal);
+                            itemTotalEl.textContent = itemTotal.toLocaleString('vi-VN') + ' ₫';
+                        }
+                    }
+                    
+                    // Update totals
+                    document.getElementById('subtotal').textContent = data.total.toLocaleString('vi-VN') + ' ₫';
+                    document.getElementById('total').textContent = data.total.toLocaleString('vi-VN') + ' ₫';
+                    
+                    showNotification(data.message || 'Đã cập nhật số lượng', 'success');
+                } else {
+                    showNotification(data.message || 'Có lỗi xảy ra', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Có lỗi xảy ra khi cập nhật số lượng', 'error');
+            });
+        }
+
+        function removeItem(cartItemId) {
+            if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?')) {
+                return;
+            }
+
+            fetch('/Cart/Remove', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                },
+                body: JSON.stringify({ cartItemId: cartItemId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Remove the row
+                    const row = document.querySelector(`tr[data-cart-item-id="${cartItemId}"]`);
+                    if (row) {
+                        row.remove();
+                    }
+                    
+                    // Update totals
+                    document.getElementById('subtotal').textContent = data.total.toLocaleString('vi-VN') + ' ₫';
+                    document.getElementById('total').textContent = data.total.toLocaleString('vi-VN') + ' ₫';
+                    
+                    // Update cart count in header
+                    if (data.cartCount !== undefined) {
+                        updateCartCountInHeader(data.cartCount);
+                    }
+                    
+                    // Check if cart is empty
+                    const remainingItems = document.querySelectorAll('tbody tr[data-cart-item-id]').length;
+                    if (remainingItems === 0) {
+                        location.reload();
+                    }
+                    
+                    showNotification(data.message || 'Đã xóa sản phẩm', 'success');
+                } else {
+                    showNotification(data.message || 'Có lỗi xảy ra', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Có lỗi xảy ra khi xóa sản phẩm', 'error');
+            });
+        }
+
+        function updateCartCountInHeader(count) {
+            const cartBadge = document.querySelector('header .shopping-bag-badge');
+            if (cartBadge) {
+                cartBadge.textContent = count;
+                if (count === 0) {
+                    cartBadge.style.display = 'none';
+                } else {
+                    cartBadge.style.display = 'flex';
+                }
+            }
+        }
+
+        function proceedToCheckout() {
+            // TODO: Implement checkout functionality
+            showNotification('Chức năng thanh toán đang được phát triển', 'info');
+        }
+    </script>
+</body>
+</html>
+

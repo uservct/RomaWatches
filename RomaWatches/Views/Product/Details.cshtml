@@ -393,19 +393,63 @@
             const originalText = button.innerHTML;
             
             button.disabled = true;
-            button.innerHTML = '<span class="material-symbols-outlined text-xl">check</span><span>Đã thêm</span>';
-            button.classList.remove('bg-neutral-700', 'dark:bg-neutral-600', 'hover:bg-neutral-800', 'dark:hover:bg-neutral-700');
-            button.classList.add('bg-green-500', 'hover:bg-green-600');
+            button.innerHTML = '<span class="material-symbols-outlined text-xl">hourglass_empty</span><span>Đang thêm...</span>';
             
-            setTimeout(() => {
+            // Get anti-forgery token
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+            
+            fetch('/Cart/Add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify({ productId: productId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    button.innerHTML = '<span class="material-symbols-outlined text-xl">check</span><span>Đã thêm</span>';
+                    button.classList.remove('bg-neutral-700', 'dark:bg-neutral-600', 'hover:bg-neutral-800', 'dark:hover:bg-neutral-700');
+                    button.classList.add('bg-green-500', 'hover:bg-green-600');
+                    
+                    // Update cart count in header
+                    if (data.cartCount !== undefined) {
+                        updateCartCountInHeader(data.cartCount);
+                    }
+                    
+                    showNotification(data.message || 'Đã thêm sản phẩm vào giỏ hàng', 'success');
+                    
+                    setTimeout(() => {
+                        button.disabled = false;
+                        button.innerHTML = originalText;
+                        button.classList.remove('bg-green-500', 'hover:bg-green-600');
+                        button.classList.add('bg-neutral-700', 'dark:bg-neutral-600', 'hover:bg-neutral-800', 'dark:hover:bg-neutral-700');
+                    }, 2000);
+                } else {
+                    button.disabled = false;
+                    button.innerHTML = originalText;
+                    showNotification(data.message || 'Có lỗi xảy ra khi thêm sản phẩm', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
                 button.disabled = false;
                 button.innerHTML = originalText;
-                button.classList.remove('bg-green-500', 'hover:bg-green-600');
-                button.classList.add('bg-neutral-700', 'dark:bg-neutral-600', 'hover:bg-neutral-800', 'dark:hover:bg-neutral-700');
-            }, 2000);
-            
-            // TODO: Implement actual cart functionality
-            // fetch('/Cart/Add', { method: 'POST', body: JSON.stringify({ productId: productId }), ... })
+                showNotification('Có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng', 'error');
+            });
+        }
+
+        function updateCartCountInHeader(count) {
+            const cartBadge = document.querySelector('header .shopping-bag-badge');
+            if (cartBadge) {
+                cartBadge.textContent = count;
+                if (count === 0) {
+                    cartBadge.style.display = 'none';
+                } else {
+                    cartBadge.style.display = 'flex';
+                }
+            }
         }
 
         // Buy now function
