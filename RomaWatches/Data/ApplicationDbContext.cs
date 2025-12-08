@@ -14,6 +14,8 @@ namespace RomaWatches.Data
         public DbSet<Product> Products { get; set; }
         public DbSet<Cart> Carts { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -49,6 +51,33 @@ namespace RomaWatches.Data
                 entity.HasOne(ci => ci.Product)
                     .WithMany()
                     .HasForeignKey(ci => ci.ProductId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Configure Order entity
+            modelBuilder.Entity<Order>(entity =>
+            {
+                entity.HasIndex(e => e.UserId);
+                entity.HasIndex(e => e.CreatedAt);
+                entity.HasIndex(e => e.Status);
+                entity.HasOne(o => o.User)
+                    .WithMany()
+                    .HasForeignKey(o => o.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure OrderItem entity
+            modelBuilder.Entity<OrderItem>(entity =>
+            {
+                entity.HasIndex(e => e.OrderId);
+                entity.HasIndex(e => e.ProductId);
+                entity.HasOne(oi => oi.Order)
+                    .WithMany(o => o.OrderItems)
+                    .HasForeignKey(oi => oi.OrderId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(oi => oi.Product)
+                    .WithMany()
+                    .HasForeignKey(oi => oi.ProductId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
         }

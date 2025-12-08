@@ -380,8 +380,15 @@
         }
 
         function proceedToCheckout() {
-            // TODO: Implement checkout functionality
-            showNotification('Chức năng thanh toán đang được phát triển', 'info');
+            // Check if cart has items
+            const cartItems = document.querySelectorAll('tbody tr[data-cart-item-id]').length;
+            if (cartItems === 0) {
+                showNotification('Giỏ hàng của bạn đang trống', 'error');
+                return;
+            }
+            
+            // Redirect to checkout page
+            window.location.href = '/Checkout';
         }
     </script>
 </body>

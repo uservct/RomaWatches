@@ -1,0 +1,315 @@
+@model RomaWatches.Models.Cart
+@using Microsoft.AspNetCore.Identity
+@using RomaWatches.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@{
+    ViewData["Title"] = "ROMA WATCHES - Thanh toán";
+    Layout = null;
+    
+    var subtotal = Model.CartItems?.Sum(ci => ci.Quantity * ci.Product.Price) ?? 0;
+    var shippingFee = 0m; // Có thể tính sau
+    var total = subtotal + shippingFee;
+}
+<!DOCTYPE html>
+<html class="dark" lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>@ViewData["Title"]</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700;900&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ecb613",
+                        "background-light": "#f8f8f6",
+                        "background-dark": "#221d10",
+                    },
+                    fontFamily: {
+                        "display": ["Noto Serif", "Noto Sans", "sans-serif"],
+                        "sans": ["Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-sans">
+    <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+        @await Html.PartialAsync("_Header")
+        <div class="h-[72px]"></div>
+        <main class="flex-1 px-4 sm:px-8 md:px-10 py-8 lg:py-12">
+            <div class="mx-auto max-w-7xl">
+                <div class="flex flex-col lg:flex-row gap-12 xl:gap-16">
+                    <div class="w-full lg:w-3/5 xl:w-2/3">
+                        <div class="flex flex-wrap justify-between gap-4 items-baseline">
+                            <p class="text-neutral-800 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em] min-w-72 font-display">Thanh toán</p>
+                        </div>
+                        
+                        <div class="mt-6">
+                            <h2 class="text-neutral-800 dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em] pb-3 pt-5 font-display">Thông tin giao hàng</h2>
+                            <form id="checkoutForm" class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 mt-4 font-sans">
+                                @Html.AntiForgeryToken()
+                                <label class="flex flex-col col-span-2" id="fullNameField">
+                                    <p class="text-neutral-700 dark:text-white text-base font-medium leading-normal pb-2">Họ và tên <span class="text-red-500">*</span></p>
+                                    <input name="fullName" type="text" required
+                                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 border border-neutral-300 dark:border-[#544d3b] bg-background-light dark:bg-[#27241c] h-12 placeholder:text-neutral-500 dark:placeholder:text-[#b9b29d] p-3 text-base font-normal leading-normal" 
+                                        placeholder="Nhập họ và tên của bạn" />
+                                </label>
+                                <label class="flex flex-col">
+                                    <p class="text-neutral-700 dark:text-white text-base font-medium leading-normal pb-2">Tỉnh/Thành phố <span class="text-red-500">*</span></p>
+                                    <input name="province" type="text" required
+                                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 border border-neutral-300 dark:border-[#544d3b] bg-background-light dark:bg-[#27241c] h-12 placeholder:text-neutral-500 dark:placeholder:text-[#b9b29d] p-3 text-base font-normal leading-normal" 
+                                        placeholder="Hà Nội" />
+                                </label>
+                                <label class="flex flex-col">
+                                    <p class="text-neutral-700 dark:text-white text-base font-medium leading-normal pb-2">Phường/Xã <span class="text-red-500">*</span></p>
+                                    <input name="ward" type="text" required
+                                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 border border-neutral-300 dark:border-[#544d3b] bg-background-light dark:bg-[#27241c] h-12 placeholder:text-neutral-500 dark:placeholder:text-[#b9b29d] p-3 text-base font-normal leading-normal" 
+                                        placeholder="Phường/Xã" />
+                                </label>
+                                <label class="flex flex-col col-span-2">
+                                    <p class="text-neutral-700 dark:text-white text-base font-medium leading-normal pb-2">Địa chỉ cụ thể <span class="text-red-500">*</span></p>
+                                    <input name="address" type="text" required
+                                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 border border-neutral-300 dark:border-[#544d3b] bg-background-light dark:bg-[#27241c] h-12 placeholder:text-neutral-500 dark:placeholder:text-[#b9b29d] p-3 text-base font-normal leading-normal" 
+                                        placeholder="Số nhà, tên đường" />
+                                </label>
+                                <label class="flex flex-col col-span-2">
+                                    <p class="text-neutral-700 dark:text-white text-base font-medium leading-normal pb-2">Số điện thoại <span class="text-red-500">*</span></p>
+                                    <input name="phoneNumber" type="tel" required
+                                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 border border-neutral-300 dark:border-[#544d3b] bg-background-light dark:bg-[#27241c] h-12 placeholder:text-neutral-500 dark:placeholder:text-[#b9b29d] p-3 text-base font-normal leading-normal" 
+                                        placeholder="+84 123 456 789" />
+                                </label>
+                            </form>
+                            <h2 class="text-neutral-800 dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em] pb-3 pt-10 font-display">Phương thức thanh toán</h2>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4 font-sans">
+                                <label class="flex items-center gap-4 p-4 rounded-lg border-2 border-primary bg-primary/10 dark:bg-primary/20 cursor-pointer payment-method-option" data-method="COD">
+                                    <input checked class="form-radio h-5 w-5 text-primary bg-transparent border-primary/50 focus:ring-primary/50" name="paymentMethod" type="radio" value="COD" />
+                                    <div class="flex-1">
+                                        <p class="font-bold text-neutral-800 dark:text-white">Thanh toán khi nhận hàng</p>
+                                        <p class="text-sm text-neutral-600 dark:text-neutral-300">COD</p>
+                                    </div>
+                                </label>
+                                <label class="flex items-center gap-4 p-4 rounded-lg border-2 border-neutral-300 dark:border-[#544d3b] hover:border-primary/50 cursor-pointer transition-colors payment-method-option" data-method="InStore">
+                                    <input class="form-radio h-5 w-5 text-primary bg-transparent border-neutral-400 dark:border-neutral-500 focus:ring-primary/50" name="paymentMethod" type="radio" value="InStore" />
+                                    <div class="flex-1">
+                                        <p class="font-bold text-neutral-800 dark:text-white">Thanh toán tại cửa hàng</p>
+                                        <p class="text-sm text-neutral-600 dark:text-neutral-300">Trực tiếp</p>
+                                    </div>
+                                </label>
+                                <label class="flex items-center gap-4 p-4 rounded-lg border-2 border-neutral-300 dark:border-[#544d3b] hover:border-primary/50 cursor-pointer transition-colors payment-method-option" data-method="BankTransfer">
+                                    <input class="form-radio h-5 w-5 text-primary bg-transparent border-neutral-400 dark:border-neutral-500 focus:ring-primary/50" name="paymentMethod" type="radio" value="BankTransfer" />
+                                    <div class="flex-1">
+                                        <p class="font-bold text-neutral-800 dark:text-white">Chuyển khoản ngân hàng</p>
+                                        <p class="text-sm text-neutral-600 dark:text-neutral-300">QR Code</p>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="mt-10 flex justify-end">
+                                <button type="button" onclick="processCheckout(event)" class="flex min-w-[180px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-12 px-6 bg-primary text-background-dark text-base font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
+                                    <span>Tiếp tục thanh toán</span>
+                                    <span class="material-symbols-outlined">arrow_forward</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <aside class="w-full lg:w-2/5 xl:w-1/3 lg:sticky lg:top-12 self-start lg:pt-20">
+                        <div class="border border-neutral-200 dark:border-[#393528] rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-neutral-800 dark:text-white font-display mb-6">Tóm tắt đơn hàng</h3>
+                            <div class="space-y-5">
+                                @if (Model.CartItems != null)
+                                {
+                                    @foreach (var item in Model.CartItems)
+                                    {
+                                    <div class="flex items-start gap-4">
+                                        <img class="h-24 w-24 rounded-lg object-cover bg-neutral-200 dark:bg-neutral-700" 
+                                             src="@(string.IsNullOrEmpty(item.Product.ImageUrl) ? "https://images.unsplash.com/photo-1523275335684-37898b6baf30" : item.Product.ImageUrl)" 
+                                             alt="@item.Product.Name" />
+                                        <div class="flex-1">
+                                            <p class="font-bold text-neutral-800 dark:text-white leading-tight">@item.Product.Name</p>
+                                            <p class="text-sm text-neutral-600 dark:text-neutral-400 mt-1">@item.Product.Brand</p>
+                                            <p class="text-sm text-neutral-600 dark:text-neutral-400 mt-1">Số lượng: @item.Quantity</p>
+                                        </div>
+                                        <p class="font-bold text-neutral-800 dark:text-white">@((item.Quantity * item.Product.Price).ToString("N0")) ₫</p>
+                                    </div>
+                                    }
+                                }
+                            </div>
+                            <div class="border-t border-neutral-200 dark:border-[#393528] my-6"></div>
+                            <div class="space-y-3 text-base font-sans">
+                                <div class="flex justify-between text-neutral-600 dark:text-neutral-300">
+                                    <span>Tạm tính</span>
+                                    <span>@subtotal.ToString("N0") ₫</span>
+                                </div>
+                                <div class="flex justify-between text-neutral-600 dark:text-neutral-300">
+                                    <span>Vận chuyển</span>
+                                    <span>@shippingFee.ToString("N0") ₫</span>
+                                </div>
+                            </div>
+                            <div class="border-t border-neutral-200 dark:border-[#393528] my-6"></div>
+                            <div class="flex justify-between items-baseline">
+                                <span class="text-lg font-bold text-neutral-800 dark:text-white font-display">Tổng cộng</span>
+                                <span class="text-2xl font-bold text-neutral-800 dark:text-white font-display">@total.ToString("N0") ₫</span>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </main>
+        @await Html.PartialAsync("_Footer")
+    </div>
+    @await Html.PartialAsync("_CommonScripts")
+    @await Html.PartialAsync("_LoginModal")
+    <script>
+        // Payment method selection styling
+        document.addEventListener('DOMContentLoaded', function() {
+            const paymentOptions = document.querySelectorAll('.payment-method-option');
+            paymentOptions.forEach(option => {
+                const radio = option.querySelector('input[type="radio"]');
+                radio.addEventListener('change', function() {
+                    paymentOptions.forEach(opt => {
+                        opt.classList.remove('border-primary', 'bg-primary/10', 'dark:bg-primary/20');
+                        opt.classList.add('border-neutral-300', 'dark:border-[#544d3b]');
+                    });
+                    if (this.checked) {
+                        option.classList.add('border-primary', 'bg-primary/10', 'dark:bg-primary/20');
+                        option.classList.remove('border-neutral-300', 'dark:border-[#544d3b]');
+                    }
+                });
+            });
+        });
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-24 right-4 z-50 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full ${
+                type === 'error' ? 'bg-red-500' : 
+                type === 'success' ? 'bg-green-500' : 
+                'bg-primary'
+            } text-white font-medium`;
+            notification.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined">${
+                        type === 'error' ? 'error' : 
+                        type === 'success' ? 'check_circle' : 
+                        'info'
+                    }</span>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+                notification.classList.add('translate-x-0');
+            }, 10);
+            
+            setTimeout(() => {
+                notification.classList.remove('translate-x-0');
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        function processCheckout(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            const form = document.getElementById('checkoutForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const paymentMethodRadio = document.querySelector('input[name="paymentMethod"]:checked');
+            if (!paymentMethodRadio) {
+                showNotification('Vui lòng chọn phương thức thanh toán', 'error');
+                return;
+            }
+
+            const formData = {
+                FullName: document.querySelector('input[name="fullName"]').value.trim(),
+                PhoneNumber: document.querySelector('input[name="phoneNumber"]').value.trim(),
+                Province: document.querySelector('input[name="province"]').value.trim(),
+                Ward: document.querySelector('input[name="ward"]').value.trim(),
+                Address: document.querySelector('input[name="address"]').value.trim(),
+                PaymentMethod: paymentMethodRadio.value
+            };
+
+            // Validate
+            if (!formData.FullName || !formData.PhoneNumber || !formData.Province || !formData.Ward || !formData.Address) {
+                showNotification('Vui lòng điền đầy đủ thông tin giao hàng', 'error');
+                return;
+            }
+
+            const button = event ? event.target.closest('button') : document.querySelector('button[onclick*="processCheckout"]');
+            const originalText = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = '<span class="material-symbols-outlined">hourglass_empty</span><span>Đang xử lý...</span>';
+
+            fetch('/Checkout/Process', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    
+                    // Update cart count in header
+                    if (typeof updateCartCountInHeader === 'function') {
+                        updateCartCountInHeader(0);
+                    }
+                    
+                    setTimeout(() => {
+                        if (data.redirectUrl) {
+                            window.location.href = data.redirectUrl;
+                        } else {
+                            window.location.href = '/';
+                        }
+                    }, 2000);
+                } else {
+                    button.disabled = false;
+                    button.innerHTML = originalText;
+                    showNotification(data.message || 'Có lỗi xảy ra khi xử lý đơn hàng', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                button.disabled = false;
+                button.innerHTML = originalText;
+                showNotification('Có lỗi xảy ra khi xử lý đơn hàng: ' + error.message, 'error');
+            });
+        }
+    </script>
+</body>
+</html>
+
