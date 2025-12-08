@@ -1,0 +1,176 @@
+@model List<RomaWatches.Models.Order>
+@using Microsoft.AspNetCore.Identity
+@using RomaWatches.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@{
+    ViewData["Title"] = "ROMA WATCHES - Lịch sử Đơn hàng";
+    Layout = null;
+    
+    var currentStatus = ViewBag.CurrentStatus as string;
+    
+    string GetStatusText(OrderStatus status)
+    {
+        return status switch
+        {
+            OrderStatus.Pending => "Đang xử lý",
+            OrderStatus.Approved => "Đang xử lý",
+            OrderStatus.Completed => "Đã giao hàng",
+            OrderStatus.Cancelled => "Đã hủy",
+            _ => status.ToString()
+        };
+    }
+    
+    (string dotColor, string textColor) GetStatusColor(OrderStatus status)
+    {
+        return status switch
+        {
+            OrderStatus.Pending => ("bg-orange-500", "text-orange-700 dark:text-orange-400"),
+            OrderStatus.Approved => ("bg-orange-500", "text-orange-700 dark:text-orange-400"),
+            OrderStatus.Completed => ("bg-green-500", "text-green-700 dark:text-green-400"),
+            OrderStatus.Cancelled => ("bg-red-500", "text-red-700 dark:text-red-400"),
+            _ => ("bg-gray-500", "text-gray-700 dark:text-gray-400")
+        };
+    }
+}
+<!DOCTYPE html>
+<html class="dark" lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>@ViewData["Title"]</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700;900&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ecb613",
+                        "background-light": "#f8f8f6",
+                        "background-dark": "#221d10",
+                    },
+                    fontFamily: {
+                        "display": ["Noto Serif", "Noto Sans", "sans-serif"],
+                        "sans": ["Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
+    <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+        @await Html.PartialAsync("_Header")
+        <div class="h-[72px]"></div>
+        <main class="flex-1 px-4 sm:px-8 md:px-10 py-8 lg:py-12">
+            <div class="mx-auto max-w-7xl">
+                <!-- Breadcrumbs -->
+                <div class="flex flex-wrap gap-2 px-4 mb-4">
+                    <a class="text-gray-500 dark:text-gray-400 text-base font-medium leading-normal hover:text-primary transition-colors" asp-controller="Home" asp-action="Index">Trang chủ</a>
+                    <span class="text-gray-500 dark:text-gray-400 text-base font-medium leading-normal">/</span>
+                    <a class="text-gray-500 dark:text-gray-400 text-base font-medium leading-normal hover:text-primary transition-colors" href="#">Tài khoản của tôi</a>
+                    <span class="text-gray-500 dark:text-gray-400 text-base font-medium leading-normal">/</span>
+                    <span class="text-gray-800 dark:text-white text-base font-medium leading-normal">Lịch sử Đơn hàng</span>
+                </div>
+                
+                <!-- PageHeading -->
+                <div class="flex flex-wrap justify-between gap-3 p-4 mt-4">
+                    <div class="flex min-w-72 flex-col gap-3">
+                        <p class="text-gray-900 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em] font-display">Lịch sử Đơn hàng của tôi</p>
+                        <p class="text-gray-600 dark:text-gray-300 text-base font-normal leading-normal">Dưới đây là danh sách tất cả các đơn hàng bạn đã đặt tại ROMA WATCHES.</p>
+                    </div>
+                </div>
+                
+                @if (Model != null && Model.Any())
+                {
+                    <!-- Chips / Filters -->
+                    <div class="flex gap-3 p-3 flex-wrap pr-4 mt-4">
+                        <a asp-controller="Order" asp-action="Index" class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg pl-4 pr-4 transition-colors @(currentStatus == null ? "bg-primary text-background-dark" : "bg-gray-200/80 dark:bg-white/10 hover:bg-gray-300 dark:hover:bg-white/20 text-gray-800 dark:text-white")">
+                            <p class="text-sm font-medium leading-normal">Tất cả</p>
+                        </a>
+                        <a asp-controller="Order" asp-action="Index" asp-route-status="processing" class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg pl-4 pr-4 transition-colors @(currentStatus == "processing" ? "bg-primary text-background-dark" : "bg-gray-200/80 dark:bg-white/10 hover:bg-gray-300 dark:hover:bg-white/20 text-gray-800 dark:text-white")">
+                            <p class="text-sm font-medium leading-normal">Đang xử lý</p>
+                        </a>
+                        <a asp-controller="Order" asp-action="Index" asp-route-status="completed" class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg pl-4 pr-4 transition-colors @(currentStatus == "completed" ? "bg-primary text-background-dark" : "bg-gray-200/80 dark:bg-white/10 hover:bg-gray-300 dark:hover:bg-white/20 text-gray-800 dark:text-white")">
+                            <p class="text-sm font-medium leading-normal">Đã giao hàng</p>
+                        </a>
+                        <a asp-controller="Order" asp-action="Index" asp-route-status="cancelled" class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg pl-4 pr-4 transition-colors @(currentStatus == "cancelled" ? "bg-primary text-background-dark" : "bg-gray-200/80 dark:bg-white/10 hover:bg-gray-300 dark:hover:bg-white/20 text-gray-800 dark:text-white")">
+                            <p class="text-sm font-medium leading-normal">Đã hủy</p>
+                        </a>
+                    </div>
+                    
+                    <!-- Table -->
+                    <div class="px-4 py-3 mt-4">
+                        <div class="flex overflow-hidden rounded-xl border border-primary/20 bg-background-light dark:bg-background-dark">
+                            <div class="overflow-x-auto w-full">
+                                <table class="flex-1 w-full">
+                                    <thead>
+                                        <tr class="bg-gray-100/50 dark:bg-white/5">
+                                            <th class="px-4 py-3 text-left text-gray-700 dark:text-gray-300 w-[20%] text-sm font-medium leading-normal">Mã đơn hàng</th>
+                                            <th class="px-4 py-3 text-left text-gray-700 dark:text-gray-300 w-[20%] text-sm font-medium leading-normal">Ngày đặt</th>
+                                            <th class="px-4 py-3 text-left text-gray-700 dark:text-gray-300 w-[25%] text-sm font-medium leading-normal">Tổng cộng</th>
+                                            <th class="px-4 py-3 text-left text-gray-700 dark:text-gray-300 w-[20%] text-sm font-medium leading-normal">Trạng thái</th>
+                                            <th class="px-4 py-3 text-left text-gray-700 dark:text-gray-300 w-[15%] text-sm font-medium leading-normal">Hành động</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var order in Model)
+                                        {
+                                            var (dotColor, textColor) = GetStatusColor(order.Status);
+                                            var statusText = GetStatusText(order.Status);
+                                            <tr class="border-t border-t-primary/20">
+                                                <td class="h-[72px] px-4 py-2 w-[20%] text-gray-600 dark:text-gray-300 text-sm font-normal leading-normal">#RW@order.Id</td>
+                                                <td class="h-[72px] px-4 py-2 w-[20%] text-gray-600 dark:text-gray-300 text-sm font-normal leading-normal">@order.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                                <td class="h-[72px] px-4 py-2 w-[25%] text-gray-600 dark:text-gray-300 text-sm font-normal leading-normal">@order.TotalAmount.ToString("N0") VNĐ</td>
+                                                <td class="h-[72px] px-4 py-2 w-[20%] text-sm font-normal leading-normal">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="inline-block h-2 w-2 rounded-full @dotColor"></span>
+                                                        <span class="truncate @textColor">@statusText</span>
+                                                    </div>
+                                                </td>
+                                                <td class="h-[72px] px-4 py-2 w-[15%] text-primary text-sm font-bold leading-normal tracking-[0.015em] cursor-pointer hover:underline">
+                                                    <a href="#">Xem chi tiết</a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <!-- Empty State -->
+                    <div class="flex flex-col items-center justify-center py-20 text-center">
+                        <span class="material-symbols-outlined text-6xl text-gray-400 dark:text-gray-600 mb-4">shopping_bag</span>
+                        <p class="text-xl font-semibold text-gray-800 dark:text-white mb-2">Bạn chưa có đơn hàng nào</p>
+                        <p class="text-base text-gray-600 dark:text-gray-400 mb-6">Hãy bắt đầu mua sắm tại ROMA WATCHES ngay hôm nay!</p>
+                        <a asp-controller="Product" asp-action="Index" class="flex min-w-[180px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-12 px-6 bg-primary text-background-dark text-base font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
+                            <span>Mua sắm ngay</span>
+                            <span class="material-symbols-outlined">arrow_forward</span>
+                        </a>
+                    </div>
+                }
+            </div>
+        </main>
+        @await Html.PartialAsync("_Footer")
+    </div>
+    @await Html.PartialAsync("_CommonScripts")
+    @await Html.PartialAsync("_LoginModal")
+</body>
+</html>
+
