@@ -6,10 +6,11 @@ namespace RomaWatches.Models
 {
     public enum OrderStatus
     {
-        Pending,    // Chờ duyệt (cho BankTransfer)
-        Approved,   // Đã duyệt (COD, InStore hoặc BankTransfer đã duyệt)
-        Completed,  // Hoàn thành
-        Cancelled   // Đã hủy
+        Unconfirmed, // Chưa xác nhận thanh toán (BankTransfer chưa ấn "Đã chuyển khoản")
+        Pending,     // Chờ duyệt (cho BankTransfer đã xác nhận)
+        Approved,    // Đã duyệt (COD, InStore hoặc BankTransfer đã duyệt)
+        Completed,   // Hoàn thành
+        Cancelled    // Đã hủy
     }
 
     public enum PaymentMethod

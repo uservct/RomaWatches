@@ -34,6 +34,7 @@ namespace RomaWatches.Controllers
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
                 .Where(o => o.UserId == user.Id)
+                .Where(o => o.Status != OrderStatus.Unconfirmed) // Không hiển thị đơn hàng chưa xác nhận thanh toán
                 .AsQueryable();
 
             // Filter by status
@@ -63,4 +64,5 @@ namespace RomaWatches.Controllers
         }
     }
 }
+
 
