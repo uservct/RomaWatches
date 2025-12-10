@@ -237,74 +237,41 @@
                     
                     // Hiển thị/ẩn QR code khi chọn BankTransfer
                     if (this.value === 'BankTransfer' && this.checked) {
-                        // Tạo đơn hàng tạm thời để lấy orderId
-                        createDraftOrder();
+                        // Hiển thị QR code với nội dung cố định
+                        showBankTransferQR();
                     } else {
-                        // Xóa đơn hàng tạm thời nếu chuyển sang phương thức khác
-                        deleteDraftOrder();
                         qrSection.classList.add('hidden');
                     }
                 });
             });
         });
         
-        // Hàm tạo đơn hàng tạm thời để lấy orderId
-        function createDraftOrder() {
-            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+        // Lưu tổng tiền từ server-side để sử dụng trong JavaScript
+        const orderTotal = @total;
+        
+        // Hàm hiển thị QR code chuyển khoản với nội dung cố định
+        function showBankTransferQR() {
             const qrSection = document.getElementById('bankTransferQR');
             
-            fetch('/Checkout/CreateDraftOrder', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': token
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Cập nhật QR code với orderId thực tế
-                    document.getElementById('qrCodeImage').src = data.qrCodeUrl;
-                    document.getElementById('accountNumber').textContent = data.accountNumber;
-                    document.getElementById('accountHolder').textContent = data.accountHolder;
-                    document.getElementById('paymentAmount').textContent = new Intl.NumberFormat('vi-VN').format(data.amount) + ' ₫';
-                    document.getElementById('paymentDescription').textContent = `Thanh toan don hang #RW${data.orderId}`;
-                    
-                    // Lưu orderId để dùng khi đặt hàng
-                    window.draftOrderId = data.orderId;
-                    
-                    // Hiển thị QR code section
-                    qrSection.classList.remove('hidden');
-                } else {
-                    showNotification(data.message || 'Có lỗi xảy ra khi tạo đơn hàng tạm thời', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error creating draft order:', error);
-                showNotification('Có lỗi xảy ra khi tạo đơn hàng tạm thời', 'error');
-            });
-        }
-
-        // Hàm xóa đơn hàng tạm thời
-        function deleteDraftOrder() {
-            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+            // Sử dụng tổng tiền đã tính sẵn từ server-side
+            const total = orderTotal;
             
-            fetch('/Checkout/DeleteDraftOrder', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': token
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    window.draftOrderId = null;
-                }
-            })
-            .catch(error => {
-                console.error('Error deleting draft order:', error);
-            });
+            // Tạo QR code URL với nội dung cố định
+            const accountNumber = "62688888888686";
+            const bank = "MB";
+            const amount = Math.round(total).toString();
+            const description = "thanh toan don hang RomaWatches";
+            const qrCodeUrl = `https://qr.sepay.vn/img?acc=${accountNumber}&bank=${bank}&amount=${amount}&des=${encodeURIComponent(description)}`;
+            
+            // Cập nhật thông tin hiển thị
+            document.getElementById('qrCodeImage').src = qrCodeUrl;
+            document.getElementById('accountNumber').textContent = "626 8888 8888 686";
+            document.getElementById('accountHolder').textContent = "VU CHI THANH";
+            document.getElementById('paymentAmount').textContent = new Intl.NumberFormat('vi-VN').format(total) + ' ₫';
+            document.getElementById('paymentDescription').textContent = description;
+            
+            // Hiển thị QR code section
+            qrSection.classList.remove('hidden');
         }
 
         // Hàm hiển thị thông báo
@@ -397,14 +364,14 @@
             })
             .then(data => {
                 if (data.success) {
-                    // Nếu là chuyển khoản ngân hàng, cập nhật QR code với thông tin đơn hàng chính xác
+                    // Nếu là chuyển khoản ngân hàng, cập nhật QR code với thông tin đơn hàng
                     if (data.paymentMethod === 'BankTransfer' && data.qrCodeUrl) {
-                        // Cập nhật QR code với thông tin đơn hàng (có orderId)
+                        // Cập nhật QR code với nội dung cố định
                         document.getElementById('qrCodeImage').src = data.qrCodeUrl;
                         document.getElementById('accountNumber').textContent = data.accountNumber;
                         document.getElementById('accountHolder').textContent = data.accountHolder;
                         document.getElementById('paymentAmount').textContent = new Intl.NumberFormat('vi-VN').format(data.amount) + ' ₫';
-                        document.getElementById('paymentDescription').textContent = `Thanh toan don hang #RW${data.orderId}`;
+                        document.getElementById('paymentDescription').textContent = 'thanh toan don hang RomaWatches';
                         
                         // Đảm bảo QR code section đang hiển thị
                         document.getElementById('bankTransferQR').classList.remove('hidden');

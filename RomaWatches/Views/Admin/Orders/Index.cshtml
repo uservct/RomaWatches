@@ -1,0 +1,401 @@
+@model List<RomaWatches.Models.Order>
+@using Microsoft.AspNetCore.Identity
+@using RomaWatches.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@{
+    ViewData["Title"] = "ROMA WATCHES - Quản lý Đơn hàng";
+    Layout = null;
+    
+    var user = await UserManager.GetUserAsync(User);
+    if (user == null || user.Role != "admin")
+    {
+        Context.Response.Redirect("/");
+        return;
+    }
+    
+    var search = ViewBag.Search as string ?? "";
+    
+    // Helper functions
+    string GetOrderStatusText(OrderStatus status)
+    {
+        return status switch
+        {
+            OrderStatus.Unconfirmed => "Đang chờ xác nhận",
+            OrderStatus.Pending => "Đã xác nhận",
+            OrderStatus.Approved => "Đang giao hàng",
+            OrderStatus.Completed => "Đã giao hàng",
+            OrderStatus.Cancelled => "Đã hủy",
+            _ => status.ToString()
+        };
+    }
+    
+    string GetOrderStatusColor(OrderStatus status)
+    {
+        return status switch
+        {
+            OrderStatus.Unconfirmed => "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
+            OrderStatus.Pending => "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+            OrderStatus.Approved => "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
+            OrderStatus.Completed => "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+            OrderStatus.Cancelled => "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
+            _ => "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300"
+        };
+    }
+}
+<!DOCTYPE html>
+<html class="light" lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>@ViewData["Title"]</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Bỏ mũi tên dropdown */
+        .status-select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: none;
+            padding-right: 0.75rem;
+        }
+        .status-select::-ms-expand {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-900 dark:text-white">
+    <div class="flex h-screen w-full">
+        <!-- SideNavBar -->
+        <aside class="flex w-64 flex-col bg-white dark:bg-gray-900/50 p-4 border-r border-gray-200 dark:border-gray-800">
+            <div class="flex flex-col gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="ROMA WATCHES brand logo" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAxamz8lB6XbwoLkt1FKYVjvKYWT11Ax5yrp284ZeLs59dCdZTCHOtiH3Fc2N7twBeBliLe1ZC6V9F5tzJ6S8i3cyP1GyDJclakY7h83mg7jv33a5geNSqTRrMRCaS3UKr4BwwGxDraibBjNFFnN7YbAN3cjrQqp1y_4Hp5La2NluKgUhq0OzujLGUO5qK7ogabgYRECwMNI46yUxfJFj8C6MddWct8iir45nIJPCBG3xm-Z-dzM-ziKh4XN9Oph_kepr1VUykTHVE");'></div>
+                    <div class="flex flex-col">
+                        <h1 class="text-gray-900 dark:text-white text-base font-medium leading-normal">ROMA WATCHES</h1>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm font-normal leading-normal">Admin Panel</p>
+                    </div>
+                </div>
+                <nav class="flex flex-col gap-2 mt-4">
+                    <a class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg" asp-controller="Admin" asp-action="Dashboard">
+                        <span class="material-symbols-outlined text-gray-800 dark:text-gray-200">dashboard</span>
+                        <p class="text-sm font-medium leading-normal">Bảng điều khiển</p>
+                    </a>
+                    <a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/20 text-primary" asp-controller="Admin" asp-action="Orders">
+                        <span class="material-symbols-outlined font-bold" style="font-variation-settings: 'FILL' 1;">shopping_cart</span>
+                        <p class="text-sm font-bold leading-normal">Đơn hàng</p>
+                    </a>
+                    <a class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg" href="#">
+                        <span class="material-symbols-outlined text-gray-800 dark:text-gray-200">inventory_2</span>
+                        <p class="text-sm font-medium leading-normal">Sản phẩm</p>
+                    </a>
+                    <a class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg" href="#">
+                        <span class="material-symbols-outlined text-gray-800 dark:text-gray-200">group</span>
+                        <p class="text-sm font-medium leading-normal">Khách hàng</p>
+                    </a>
+                </nav>
+            </div>
+            <div class="mt-auto flex flex-col gap-1">
+                <a class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg" href="#">
+                    <span class="material-symbols-outlined text-gray-800 dark:text-gray-200">settings</span>
+                    <p class="text-sm font-medium leading-normal">Cài đặt</p>
+                </a>
+                <form asp-controller="Account" asp-action="Logout" method="post" class="w-full">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg w-full text-left">
+                        <span class="material-symbols-outlined text-gray-800 dark:text-gray-200">logout</span>
+                        <p class="text-sm font-medium leading-normal">Đăng xuất</p>
+                    </button>
+                </form>
+            </div>
+        </aside>
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto p-8">
+            <div class="max-w-7xl mx-auto">
+                <!-- PageHeading -->
+                <div class="flex flex-wrap justify-between items-start gap-4 mb-6">
+                    <div class="flex flex-col gap-2">
+                        <h1 class="text-gray-900 dark:text-white text-3xl font-bold leading-tight">Quản lý Đơn hàng</h1>
+                        <p class="text-gray-500 dark:text-gray-400 text-base font-normal leading-normal">Xem, tìm kiếm, lọc và quản lý tất cả các đơn hàng.</p>
+                    </div>
+                </div>
+                <!-- Toolbar & Filters -->
+                <div class="bg-white dark:bg-gray-900/50 rounded-xl p-4 mb-6 shadow-sm border border-gray-200 dark:border-gray-800">
+                    <!-- SearchBar -->
+                    <form method="get" action="/Admin/Orders" class="mb-4">
+                        <label class="flex flex-col min-w-40 w-full">
+                            <div class="flex w-full flex-1 items-stretch rounded-lg h-12">
+                                <div class="text-gray-500 dark:text-gray-400 flex bg-gray-100 dark:bg-gray-800 items-center justify-center pl-4 rounded-l-lg">
+                                    <span class="material-symbols-outlined">search</span>
+                                </div>
+                                <input name="search" type="text" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary border-none bg-gray-100 dark:bg-gray-800 h-full placeholder:text-gray-500 dark:placeholder:text-gray-400 px-4 pl-2 text-base font-normal leading-normal" placeholder="Tìm kiếm theo Mã đơn hàng, Tên khách hàng..." value="@search" />
+                            </div>
+                        </label>
+                    </form>
+                </div>
+                <!-- Orders Table -->
+                <div class="bg-white dark:bg-gray-900/50 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                            <thead class="text-xs text-gray-700 dark:text-gray-300 uppercase bg-gray-50 dark:bg-gray-800">
+                                <tr>
+                                    <th class="px-6 py-3 font-semibold" scope="col">Mã Đơn hàng</th>
+                                    <th class="px-6 py-3 font-semibold" scope="col">Tên Khách hàng</th>
+                                    <th class="px-6 py-3 font-semibold" scope="col">Ngày Đặt</th>
+                                    <th class="px-6 py-3 font-semibold" scope="col">Tổng tiền</th>
+                                    <th class="px-6 py-3 font-semibold" scope="col">Trạng thái Đơn hàng</th>
+                                    <th class="px-6 py-3 font-semibold text-right" scope="col">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model != null && Model.Any())
+                                {
+                                    @foreach (var order in Model)
+                                    {
+                                        var orderStatusText = GetOrderStatusText(order.Status);
+                                        var orderStatusColor = GetOrderStatusColor(order.Status);
+                                        var canChangeStatus = order.Status != OrderStatus.Completed && order.Status != OrderStatus.Cancelled;
+                                        
+                                        <tr class="bg-white dark:bg-gray-900/50 border-b dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50" data-order-id="@order.Id">
+                                            <td class="px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap">
+                                                <a asp-controller="Admin" asp-action="OrderDetails" asp-route-id="@order.Id" class="text-primary hover:underline font-semibold">@($"#RW{order.Id}")</a>
+                                            </td>
+                                            <td class="px-6 py-4">@order.FullName</td>
+                                            <td class="px-6 py-4">@order.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                            <td class="px-6 py-4">@order.TotalAmount.ToString("N0") ₫</td>
+                                            <td class="px-6 py-4">
+                                                @if (canChangeStatus)
+                                                {
+                                                    <select class="status-select text-xs border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary" onchange="updateOrderStatus(@order.Id, this.value)" data-current-status="@order.Status">
+                                                        @* Hiển thị trạng thái hiện tại *@
+                                                        @if (order.Status == OrderStatus.Unconfirmed)
+                                                        {
+                                                            <option value="Unconfirmed" selected>Đang chờ xác nhận</option>
+                                                        }
+                                                        @if (order.Status == OrderStatus.Pending)
+                                                        {
+                                                            <option value="Pending" selected>Đã xác nhận</option>
+                                                        }
+                                                        @if (order.Status == OrderStatus.Approved)
+                                                        {
+                                                            <option value="Approved" selected>Đang giao hàng</option>
+                                                        }
+                                                        
+                                                        @* Hiển thị các trạng thái có thể chuyển đổi dựa trên trạng thái hiện tại *@
+                                                        @if (order.Status == OrderStatus.Unconfirmed)
+                                                        {
+                                                            @* Unconfirmed -> chỉ có thể chuyển sang Pending hoặc Cancelled *@
+                                                            <option value="Pending">Đã xác nhận</option>
+                                                            <option value="Cancelled">Đã hủy</option>
+                                                        }
+                                                        else if (order.Status == OrderStatus.Pending)
+                                                        {
+                                                            @* Pending -> chỉ có thể chuyển sang Approved hoặc Cancelled *@
+                                                            <option value="Approved">Đang giao hàng</option>
+                                                            <option value="Cancelled">Đã hủy</option>
+                                                        }
+                                                        else if (order.Status == OrderStatus.Approved)
+                                                        {
+                                                            @* Approved -> chỉ có thể chuyển sang Completed hoặc Cancelled *@
+                                                            <option value="Completed">Đã giao hàng</option>
+                                                            <option value="Cancelled">Đã hủy</option>
+                                                        }
+                                                    </select>
+                                                }
+                                                else
+                                                {
+                                                    <span class="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-medium @orderStatusColor">@orderStatusText</span>
+                                                }
+                                            </td>
+                                            <td class="px-6 py-4 text-right">
+                                                <a class="font-medium text-primary hover:underline" asp-controller="Admin" asp-action="OrderDetails" asp-route-id="@order.Id">Xem chi tiết</a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="6" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">Không có đơn hàng nào</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    @Html.AntiForgeryToken()
+    
+    <script>
+        // Hàm hiển thị thông báo
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-24 right-4 z-50 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full ${
+                type === 'error' ? 'bg-red-500' : 
+                type === 'success' ? 'bg-green-500' : 
+                'bg-primary'
+            } text-white font-medium`;
+            notification.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined">${
+                        type === 'error' ? 'error' : 
+                        type === 'success' ? 'check_circle' : 
+                        'info'
+                    }</span>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+                notification.classList.add('translate-x-0');
+            }, 10);
+            
+            setTimeout(() => {
+                notification.classList.remove('translate-x-0');
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        // Hàm cập nhật trạng thái đơn hàng
+        function updateOrderStatus(orderId, newStatus) {
+            const select = event.target;
+            const currentStatus = select.getAttribute('data-current-status');
+            
+            if (newStatus === currentStatus) {
+                return;
+            }
+            
+            // Map status value to display text
+            const statusTexts = {
+                'Unconfirmed': 'Đang chờ xác nhận',
+                'Pending': 'Đã xác nhận',
+                'Approved': 'Đang giao hàng',
+                'Completed': 'Đã giao hàng',
+                'Cancelled': 'Đã hủy'
+            };
+            
+            const statusText = statusTexts[newStatus] || newStatus;
+            const currentStatusText = statusTexts[currentStatus] || currentStatus;
+            
+            if (!confirm(`Bạn có chắc chắn muốn chuyển trạng thái đơn hàng từ "${currentStatusText}" sang "${statusText}"?`)) {
+                // Reset về trạng thái cũ
+                select.value = currentStatus;
+                return;
+            }
+            
+            // Disable select và hiển thị loading
+            select.disabled = true;
+            const originalBg = select.style.backgroundColor;
+            select.style.backgroundColor = '#f3f4f6';
+            select.style.opacity = '0.6';
+            
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+            
+            // Gửi với PascalCase để match với DTO
+            const requestBody = {
+                OrderId: orderId,
+                NewStatusString: newStatus // Gửi string để backend parse
+            };
+            
+            console.log('Updating order status:', requestBody);
+            
+            fetch('/Admin/UpdateOrderStatus', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify(requestBody)
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        console.error('Error response:', text);
+                        throw new Error(`HTTP ${response.status}: ${text}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+                if (data.success) {
+                    showNotification(data.message || 'Cập nhật trạng thái thành công', 'success');
+                    // Cập nhật data-current-status để phản ánh trạng thái mới
+                    select.setAttribute('data-current-status', newStatus);
+                    // Reload page để hiển thị dropdown với các option mới
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    showNotification(data.message || 'Có lỗi xảy ra khi cập nhật trạng thái', 'error');
+                    // Reset về trạng thái cũ
+                    select.value = currentStatus;
+                    select.disabled = false;
+                    select.style.backgroundColor = originalBg;
+                    select.style.opacity = '1';
+                }
+            })
+            .catch(error => {
+                console.error('Error updating order status:', error);
+                showNotification('Có lỗi xảy ra khi cập nhật trạng thái: ' + error.message, 'error');
+                // Reset về trạng thái cũ
+                select.value = currentStatus;
+                select.disabled = false;
+                select.style.backgroundColor = originalBg;
+                select.style.opacity = '1';
+            });
+        }
+
+        // Auto-submit search form on Enter
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.querySelector('input[name="search"]');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        this.form.submit();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+

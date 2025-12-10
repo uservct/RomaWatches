@@ -14,8 +14,9 @@
     {
         return order.Status switch
         {
-            OrderStatus.Pending => "Đang chờ xác nhận", // BankTransfer đã xác nhận thanh toán, chờ admin duyệt
-            OrderStatus.Approved => "Đã xác nhận", // COD/InStore đã được xác nhận
+            OrderStatus.Unconfirmed => "Đang chờ xác nhận", // BankTransfer chưa xác nhận thanh toán
+            OrderStatus.Pending => "Đã xác nhận", // Đã được admin xác nhận
+            OrderStatus.Approved => "Đang giao hàng", // Đang trong quá trình giao hàng
             OrderStatus.Completed => "Đã giao hàng",
             OrderStatus.Cancelled => "Đã hủy",
             _ => order.Status.ToString()
@@ -27,8 +28,9 @@
     {
         return order.Status switch
         {
-            OrderStatus.Pending => ("bg-yellow-500", "text-yellow-700 dark:text-yellow-400"), // Màu vàng cho đang chờ xác nhận
-            OrderStatus.Approved => ("bg-green-500", "text-green-700 dark:text-green-400"), // Màu xanh lá cho đã xác nhận
+            OrderStatus.Unconfirmed => ("bg-yellow-500", "text-yellow-700 dark:text-yellow-400"), // Màu vàng cho đang chờ xác nhận
+            OrderStatus.Pending => ("bg-green-500", "text-green-700 dark:text-green-400"), // Màu xanh lá cho đã xác nhận
+            OrderStatus.Approved => ("bg-blue-500", "text-blue-700 dark:text-blue-400"), // Màu xanh dương cho đang giao hàng
             OrderStatus.Completed => ("bg-green-500", "text-green-700 dark:text-green-400"),
             OrderStatus.Cancelled => ("bg-red-500", "text-red-700 dark:text-red-400"),
             _ => ("bg-gray-500", "text-gray-700 dark:text-gray-400")
@@ -139,7 +141,7 @@
                                             <tr class="border-t border-t-primary/20">
                                                 <td class="h-[72px] px-4 py-2 w-[20%] text-gray-600 dark:text-gray-300 text-sm font-normal leading-normal">@($"#RW{order.Id}")</td>
                                                 <td class="h-[72px] px-4 py-2 w-[20%] text-gray-600 dark:text-gray-300 text-sm font-normal leading-normal">@order.CreatedAt.ToString("HH:mm - dd/MM/yyyy")</td>
-                                                <td class="h-[72px] px-4 py-2 w-[25%] text-gray-600 dark:text-gray-300 text-sm font-normal leading-normal">@order.TotalAmount.ToString("N0") VNĐ</td>
+                                                <td class="h-[72px] px-4 py-2 w-[25%] text-gray-600 dark:text-gray-300 text-sm font-normal leading-normal">@order.TotalAmount.ToString("N0") đ</td>
                                                 <td class="h-[72px] px-4 py-2 w-[20%] text-sm font-normal leading-normal">
                                                     <div class="flex items-center gap-2">
                                                         <span class="inline-block h-2 w-2 rounded-full @dotColor"></span>

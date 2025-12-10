@@ -1,46 +1,70 @@
 @using Microsoft.AspNetCore.Identity
 @using RomaWatches.Models
+@using Microsoft.EntityFrameworkCore
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 @{
-    // Thiết lập tiêu đề trang và layout (Layout = null vì trang Admin có layout riêng biệt).
     ViewData["Title"] = "ROMA WATCHES - Admin Dashboard";
     Layout = null;
     
-    // Lấy thông tin người dùng hiện tại.
     var user = await UserManager.GetUserAsync(User);
-    
-    // Kiểm tra quyền Admin. Nếu không phải admin, chuyển hướng về trang chủ.
-    // Mặc dù đã có [Authorize] ở Controller, việc kiểm tra lại ở View là một lớp bảo mật bổ sung.
     if (user == null || user.Role != "admin")
     {
         Context.Response.Redirect("/");
         return;
     }
+    
+    // Lấy dữ liệu từ ViewBag
+    var totalRevenue = ViewBag.TotalRevenue as decimal? ?? 0;
+    var newOrdersCount = ViewBag.NewOrdersCount as int? ?? 0;
+    var totalProductsSold = ViewBag.TotalProductsSold as int? ?? 0;
+    var recentOrders = ViewBag.RecentOrders as List<Order> ?? new List<Order>();
+    var topProducts = ViewBag.TopProducts as List<TopProductViewModel> ?? new List<TopProductViewModel>();
+    
+    // Helper functions
+    string GetOrderStatusText(OrderStatus status)
+    {
+        return status switch
+        {
+            OrderStatus.Pending => "Đang xử lý",
+            OrderStatus.Approved => "Đã duyệt",
+            OrderStatus.Completed => "Đã giao",
+            OrderStatus.Cancelled => "Đã hủy",
+            _ => status.ToString()
+        };
+    }
+    
+    string GetOrderStatusColor(OrderStatus status)
+    {
+        return status switch
+        {
+            OrderStatus.Pending => "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300",
+            OrderStatus.Approved => "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
+            OrderStatus.Completed => "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+            OrderStatus.Cancelled => "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
+            _ => "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300"
+        };
+    }
 }
-
 <!DOCTYPE html>
-<html class="light" lang="en">
+<html class="light" lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>@ViewData["Title"]</title>
-    <!-- Import Tailwind CSS và Fonts -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com" rel="preconnect" />
-    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Cấu hình Tailwind CSS cho trang Admin
         tailwind.config = {
             darkMode: "class",
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#137fec", // Màu xanh chủ đạo cho Admin Panel
-                        "background-light": "#f6f7f8",
-                        "background-dark": "#101922",
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
                     },
                     fontFamily: {
                         "display": ["Inter", "sans-serif"]
@@ -58,249 +82,241 @@
     <style>
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            font-size: 24px;
         }
     </style>
-    <script>
-        // Script xử lý menu người dùng (Dropdown)
-        function toggleUserMenu() {
-            const menu = document.getElementById('userMenu');
-            if (menu) {
-                menu.classList.toggle('hidden');
-                menu.classList.toggle('opacity-0');
-                menu.classList.toggle('invisible');
-                menu.classList.toggle('opacity-100');
-                menu.classList.toggle('visible');
-            }
-        }
-
-        // Đóng menu khi click ra ngoài
-        document.addEventListener('click', function(event) {
-            const menu = document.getElementById('userMenu');
-            const avatar = event.target.closest('[onclick="toggleUserMenu()"]');
-            if (menu && !menu.contains(event.target) && !avatar) {
-                menu.classList.add('hidden', 'opacity-0', 'invisible');
-                menu.classList.remove('opacity-100', 'visible');
-            }
-        });
-    </script>
 </head>
-<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
-    <div class="flex min-h-screen w-full">
-        <!-- SideNavBar: Thanh điều hướng bên trái -->
-        <aside class="flex w-64 flex-col border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-background-dark/50">
-            <div class="flex h-full flex-col justify-between p-4">
-                <div class="flex flex-col gap-8">
-                    <!-- Logo và Tên ứng dụng -->
-                    <div class="flex items-center gap-3 px-3 py-2">
-                        <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="ROMA WATCHES company logo" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDUu5M3mCEJrvnvT022A99mkMBL2CHHROnZMHrSrji-wIAOHYJbeRe-7SNYVfn3HmCO7zxAbSz3HzNeJNChG_3Fw2kPzLnTvYuOKLNacEpVBFHPO93bIGyNWpWbSxpnru2T8BE0Bk2rzHbLh-8Xg8yQrDR_4JXqXyY2R8dY3PLnnQg-HBo-TuPDwFzvYp4-Se9V8H9_cXsbfzp9kzXlBN3vdqIYsF0553cJjBlhSMdl07Qdg4KAslQJZs00q1cp4FFlI1_Q0qYEb54");'></div>
-                        <div class="flex flex-col">
-                            <h1 class="text-gray-900 dark:text-white text-base font-bold leading-normal">ROMA WATCHES</h1>
-                            <p class="text-gray-500 dark:text-gray-400 text-sm font-normal leading-normal">Admin Panel</p>
-                        </div>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-900 dark:text-white">
+    <div class="flex h-screen w-full">
+        <aside class="flex w-64 flex-col bg-white dark:bg-gray-900/50 p-4 border-r border-gray-200 dark:border-gray-800">
+            <div class="flex flex-col gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="ROMA WATCHES brand logo" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAxamz8lB6XbwoLkt1FKYVjvKYWT11Ax5yrp284ZeLs59dCdZTCHOtiH3Fc2N7twBeBliLe1ZC6V9F5tzJ6S8i3cyP1GyDJclakY7h83mg7jv33a5geNSqTRrMRCaS3UKr4BwwGxDraibBjNFFnN7YbAN3cjrQqp1y_4Hp5La2NluKgUhq0OzujLGUO5qK7ogabgYRECwMNI46yUxfJFj8C6MddWct8iir45nIJPCBG3xm-Z-dzM-ziKh4XN9Oph_kepr1VUykTHVE");'></div>
+                    <div class="flex flex-col">
+                        <h1 class="text-gray-900 dark:text-white text-base font-medium leading-normal">ROMA WATCHES</h1>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm font-normal leading-normal">Admin Panel</p>
                     </div>
-                    <!-- Menu Navigation -->
-                    <nav class="flex flex-col gap-2">
-                        <a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 dark:bg-primary/20 text-primary" href="#">
-                            <span class="material-symbols-outlined text-primary">dashboard</span>
-                            <p class="text-sm font-medium leading-normal">Dashboard</p>
-                        </a>
-                        <a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300" href="#">
-                            <span class="material-symbols-outlined">inventory_2</span>
-                            <p class="text-sm font-medium leading-normal">Products</p>
-                        </a>
-                        <a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300" href="#">
-                            <span class="material-symbols-outlined">receipt_long</span>
-                            <p class="text-sm font-medium leading-normal">Orders</p>
-                        </a>
-                        <a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300" href="#">
-                            <span class="material-symbols-outlined">group</span>
-                            <p class="text-sm font-medium leading-normal">Customers</p>
-                        </a>
-                    </nav>
                 </div>
+                <nav class="flex flex-col gap-2 mt-4">
+                    <a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/20 text-primary" asp-controller="Admin" asp-action="Dashboard">
+                        <span class="material-symbols-outlined font-bold" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+                        <p class="text-sm font-bold leading-normal">Bảng điều khiển</p>
+                    </a>
+                    <a class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg" asp-controller="Admin" asp-action="Orders">
+                        <span class="material-symbols-outlined text-gray-800 dark:text-gray-200">shopping_cart</span>
+                        <p class="text-sm font-medium leading-normal">Đơn hàng</p>
+                    </a>
+                    <a class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg" href="#">
+                        <span class="material-symbols-outlined text-gray-800 dark:text-gray-200">inventory_2</span>
+                        <p class="text-sm font-medium leading-normal">Sản phẩm</p>
+                    </a>
+                    <a class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg" href="#">
+                        <span class="material-symbols-outlined text-gray-800 dark:text-gray-200">group</span>
+                        <p class="text-sm font-medium leading-normal">Khách hàng</p>
+                    </a>
+                </nav>
+            </div>
+            <div class="mt-auto flex flex-col gap-1">
+                <a class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg" href="#">
+                    <span class="material-symbols-outlined text-gray-800 dark:text-gray-200">settings</span>
+                    <p class="text-sm font-medium leading-normal">Cài đặt</p>
+                </a>
+                <form asp-controller="Account" asp-action="Logout" method="post" class="w-full">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg w-full text-left">
+                        <span class="material-symbols-outlined text-gray-800 dark:text-gray-200">logout</span>
+                        <p class="text-sm font-medium leading-normal">Đăng xuất</p>
+                    </button>
+                </form>
             </div>
         </aside>
-        
-        <!-- Main Content Area -->
-        <div class="flex flex-1 flex-col">
-            <!-- ToolBar: Thanh công cụ phía trên -->
-            <header class="flex h-16 items-center justify-end gap-2 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-background-dark/50 px-6">
-                <!-- Search Bar -->
-                <div class="relative w-full max-w-xs">
-                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
-                    <input class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-background-light dark:bg-gray-900 pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Search..." type="text" />
+        <main class="flex-1 overflow-y-auto p-8">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex flex-wrap justify-between items-start gap-4 mb-6">
+                    <div class="flex flex-col gap-2">
+                        <h1 class="text-gray-900 dark:text-white text-3xl font-bold leading-tight">Tổng quan</h1>
+                        <p class="text-gray-500 dark:text-gray-400 text-base font-normal leading-normal">Chào mừng trở lại, đây là tổng quan hiệu suất cửa hàng của bạn.</p>
+                    </div>
+                    <button class="flex items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-4 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm font-medium leading-normal tracking-wide hover:bg-gray-200 dark:hover:bg-gray-700">
+                        <span class="material-symbols-outlined text-base">calendar_today</span>
+                        <span class="truncate">30 ngày qua</span>
+                        <span class="material-symbols-outlined text-base">expand_more</span>
+                    </button>
                 </div>
-                <!-- Notifications -->
-                <button class="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white">
-                    <span class="material-symbols-outlined">notifications</span>
-                </button>
-                <!-- User Profile & Menu -->
-                <div class="relative">
-                    <button onclick="toggleUserMenu()" class="h-8 w-8 rounded-full bg-cover bg-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 hover:ring-2 hover:ring-primary/50 transition-all" data-alt="User avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDqgdYhOMCU33kmsJXuYn9TBqN38APm-yD11q5WFPnUwmaQzWaRUsziwSrgl045SNKm1uZpORDTao5Zmq6Dt2PCcJa42eok6V1JOsVXy8y6Ev7e-ljjQj7X6lQTykg8pzSriaQbHVvzAGpGIOoL2bUdHd6u4LHNi4FtOKywh5LLc1g-jTUtbW3aBJMvApgpFDL_fVX5DaTgkvCaEa8IUqqVkIfhQdkvjY-fyFn8EG5eoZVtEmmGsg94PaChd6UPjezVPlSYM2X6IVE");'></button>
-                    <div id="userMenu" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg opacity-0 invisible transition-all duration-200 z-50 hidden">
-                        <div class="py-2">
-                            <div class="px-4 py-2 text-gray-900 dark:text-white text-sm border-b border-gray-200 dark:border-gray-700">
-                                <p class="font-semibold">@user.FirstName</p>
-                                <p class="text-gray-500 dark:text-gray-400 text-xs">@user.Email</p>
-                            </div>
-                            <form asp-controller="Account" asp-action="Logout" method="post" class="mt-2">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="w-full text-left px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm transition-colors flex items-center gap-2">
-                                    <span class="material-symbols-outlined text-base">logout</span>
-                                    <span>Đăng xuất</span>
-                                </button>
-                            </form>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white dark:bg-gray-900/50 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-800 flex flex-col gap-2">
+                        <div class="flex items-center justify-between">
+                            <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Tổng doanh thu</p>
+                            <span class="material-symbols-outlined text-green-500">payments</span>
                         </div>
+                        <h2 class="text-gray-900 dark:text-white text-3xl font-bold">@totalRevenue.ToString("N0")₫</h2>
+                        <p class="text-green-600 dark:text-green-400 text-sm font-medium flex items-center gap-1">
+                            <span class="material-symbols-outlined text-base">trending_up</span>
+                            <span>30 ngày</span>
+                        </p>
+                    </div>
+                    <div class="bg-white dark:bg-gray-900/50 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-800 flex flex-col gap-2">
+                        <div class="flex items-center justify-between">
+                            <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Đơn hàng mới</p>
+                            <span class="material-symbols-outlined text-blue-500">shopping_cart</span>
+                        </div>
+                        <h2 class="text-gray-900 dark:text-white text-3xl font-bold">@newOrdersCount.ToString("N0")</h2>
+                        <p class="text-green-600 dark:text-green-400 text-sm font-medium flex items-center gap-1">
+                            <span class="material-symbols-outlined text-base">trending_up</span>
+                            <span>30 ngày</span>
+                        </p>
+                    </div>
+                    <div class="bg-white dark:bg-gray-900/50 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-800 flex flex-col gap-2">
+                        <div class="flex items-center justify-between">
+                            <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Tổng sản phẩm đã bán</p>
+                            <span class="material-symbols-outlined text-orange-500">sell</span>
+                        </div>
+                        <h2 class="text-gray-900 dark:text-white text-3xl font-bold">@totalProductsSold.ToString("N0")</h2>
+                        <p class="text-green-600 dark:text-green-400 text-sm font-medium flex items-center gap-1">
+                            <span class="material-symbols-outlined text-base">trending_up</span>
+                            <span>30 ngày</span>
+                        </p>
+                    </div>
+                    <div class="bg-white dark:bg-gray-900/50 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-800 flex flex-col gap-2">
+                        <div class="flex items-center justify-between">
+                            <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Lượt truy cập</p>
+                            <span class="material-symbols-outlined text-purple-500">visibility</span>
+                        </div>
+                        <h2 class="text-gray-900 dark:text-white text-3xl font-bold">-</h2>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Chưa có dữ liệu</p>
                     </div>
                 </div>
-            </header>
-            
-            <!-- Dashboard Content -->
-            <main class="flex-1 overflow-y-auto p-6 md:p-8">
-                <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
-                    <!-- Main Content Column -->
-                    <div class="xl:col-span-2 flex flex-col gap-8">
-                        <!-- PageHeading -->
-                        <div class="flex flex-wrap items-center justify-between gap-3">
-                            <p class="text-gray-900 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">Dashboard</p>
-                        </div>
-                        <!-- Stats: Thống kê nhanh -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <div class="flex flex-col gap-2 rounded-xl p-6 border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50">
-                                <p class="text-gray-700 dark:text-gray-300 text-base font-medium leading-normal">Total Revenue</p>
-                                <p class="text-gray-900 dark:text-white tracking-tight text-3xl font-bold leading-tight">$125,680</p>
-                                <p class="text-green-600 dark:text-green-500 text-sm font-medium leading-normal">+5.2%</p>
-                            </div>
-                            <div class="flex flex-col gap-2 rounded-xl p-6 border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50">
-                                <p class="text-gray-700 dark:text-gray-300 text-base font-medium leading-normal">New Orders</p>
-                                <p class="text-gray-900 dark:text-white tracking-tight text-3xl font-bold leading-tight">214</p>
-                                <p class="text-green-600 dark:text-green-500 text-sm font-medium leading-normal">+2.1%</p>
-                            </div>
-                            <div class="flex flex-col gap-2 rounded-xl p-6 border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50">
-                                <p class="text-gray-700 dark:text-gray-300 text-base font-medium leading-normal">Total Sales</p>
-                                <p class="text-gray-900 dark:text-white tracking-tight text-3xl font-bold leading-tight">1,230</p>
-                                <p class="text-green-600 dark:text-green-500 text-sm font-medium leading-normal">+1.8%</p>
-                            </div>
-                            <div class="flex flex-col gap-2 rounded-xl p-6 border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50">
-                                <p class="text-gray-700 dark:text-gray-300 text-base font-medium leading-normal">Visitors</p>
-                                <p class="text-gray-900 dark:text-white tracking-tight text-3xl font-bold leading-tight">4,589</p>
-                                <p class="text-red-600 dark:text-red-500 text-sm font-medium leading-normal">-0.5%</p>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 flex flex-col gap-8">
+                        <div class="bg-white dark:bg-gray-900/50 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-800">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Xu hướng doanh thu</h3>
+                            <div class="h-80">
+                                <canvas id="salesChart"></canvas>
                             </div>
                         </div>
-                        <!-- Revenue Overview Chart: Biểu đồ doanh thu -->
-                        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50 p-6">
-                            <div class="flex justify-between items-center">
-                                <h2 class="text-gray-900 dark:text-white text-xl font-bold leading-tight">Revenue Overview</h2>
-                                <select class="text-sm rounded-md border-gray-300 dark:border-gray-700 bg-background-light dark:bg-gray-900 focus:ring-primary focus:border-primary">
-                                    <option>Last 30 Days</option>
-                                    <option>Last 3 Months</option>
-                                    <option>Last 12 Months</option>
-                                </select>
+                        <div class="bg-white dark:bg-gray-900/50 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800">
+                            <div class="p-6 flex justify-between items-center">
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Đơn hàng gần đây</h3>
+                                <a class="text-sm font-medium text-primary hover:underline" asp-controller="Admin" asp-action="Orders">Xem tất cả</a>
                             </div>
-                            <img class="w-full h-auto dark:invert-[0.85] dark:hue-rotate-180" data-alt="A line chart showing revenue trends over the last 30 days. The trend is generally upward." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSCWsJMhzf1IYQylG6Fr3FYLvPw0SCSnzZ9cV8Z1cssAWGTg9xHx_8Xix8QdRyk2oAniRE2w4lro5Wt-wYWTv-k8Wfx7-IGnvcYMeMttmqNTMf53M_RatSDyKio90prSnYJK6v_mHIb92apkVBNTJX3XOo6n271sP7-ZHWGsWoRPplsdkO3sVrFMpEa1_1awBAnCH-HMTum2Mgv5qsP9mKOI-JGKKlUPyeLDkIvGD-AR0thz6GvSNOVPQJYpebo7s2ZbF-IfUMGjA" />
-                        </div>
-                        <!-- Recent Orders Table: Bảng đơn hàng gần đây -->
-                        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50 p-6">
-                            <h2 class="text-gray-900 dark:text-white text-xl font-bold leading-tight">Recent Orders</h2>
                             <div class="overflow-x-auto">
-                                <table class="w-full text-left text-sm">
-                                    <thead class="text-xs text-gray-500 dark:text-gray-400 uppercase border-b dark:border-gray-700">
+                                <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                                    <thead class="text-xs text-gray-700 dark:text-gray-300 uppercase bg-gray-50 dark:bg-gray-800">
                                         <tr>
-                                            <th class="py-3 px-4" scope="col">Order ID</th>
-                                            <th class="py-3 px-4" scope="col">Customer</th>
-                                            <th class="py-3 px-4" scope="col">Date</th>
-                                            <th class="py-3 px-4" scope="col">Amount</th>
-                                            <th class="py-3 px-4" scope="col">Status</th>
+                                            <th class="px-6 py-3 font-semibold" scope="col">Mã Đơn hàng</th>
+                                            <th class="px-6 py-3 font-semibold" scope="col">Khách hàng</th>
+                                            <th class="px-6 py-3 font-semibold" scope="col">Tổng tiền</th>
+                                            <th class="px-6 py-3 font-semibold" scope="col">Trạng thái</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr class="border-b dark:border-gray-700">
-                                            <td class="py-4 px-4 font-medium text-gray-900 dark:text-white">#30248</td>
-                                            <td class="py-4 px-4">Liam Johnson</td>
-                                            <td class="py-4 px-4">03/15/2024</td>
-                                            <td class="py-4 px-4">$1,250.00</td>
-                                            <td class="py-4 px-4"><span class="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/50 px-2 py-1 text-xs font-medium text-green-700 dark:text-green-400">Completed</span></td>
-                                        </tr>
-                                        <tr class="border-b dark:border-gray-700">
-                                            <td class="py-4 px-4 font-medium text-gray-900 dark:text-white">#30247</td>
-                                            <td class="py-4 px-4">Olivia Smith</td>
-                                            <td class="py-4 px-4">03/15/2024</td>
-                                            <td class="py-4 px-4">$899.99</td>
-                                            <td class="py-4 px-4"><span class="inline-flex items-center rounded-full bg-yellow-100 dark:bg-yellow-900/50 px-2 py-1 text-xs font-medium text-yellow-800 dark:text-yellow-400">Pending</span></td>
-                                        </tr>
-                                        <tr class="border-b dark:border-gray-700">
-                                            <td class="py-4 px-4 font-medium text-gray-900 dark:text-white">#30246</td>
-                                            <td class="py-4 px-4">Noah Williams</td>
-                                            <td class="py-4 px-4">03/14/2024</td>
-                                            <td class="py-4 px-4">$2,400.00</td>
-                                            <td class="py-4 px-4"><span class="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/50 px-2 py-1 text-xs font-medium text-blue-800 dark:text-blue-400">Shipped</span></td>
-                                        </tr>
-                                        <tr class="border-b dark:border-gray-700">
-                                            <td class="py-4 px-4 font-medium text-gray-900 dark:text-white">#30245</td>
-                                            <td class="py-4 px-4">Emma Brown</td>
-                                            <td class="py-4 px-4">03/14/2024</td>
-                                            <td class="py-4 px-4">$450.50</td>
-                                            <td class="py-4 px-4"><span class="inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/50 px-2 py-1 text-xs font-medium text-red-700 dark:text-red-400">Cancelled</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="py-4 px-4 font-medium text-gray-900 dark:text-white">#30244</td>
-                                            <td class="py-4 px-4">James Jones</td>
-                                            <td class="py-4 px-4">03/13/2024</td>
-                                            <td class="py-4 px-4">$1,800.00</td>
-                                            <td class="py-4 px-4"><span class="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/50 px-2 py-1 text-xs font-medium text-green-700 dark:text-green-400">Completed</span></td>
-                                        </tr>
+                                        @if (recentOrders != null && recentOrders.Any())
+                                        {
+                                            @foreach (var order in recentOrders)
+                                            {
+                                                var statusText = GetOrderStatusText(order.Status);
+                                                var statusColor = GetOrderStatusColor(order.Status);
+                                                <tr class="bg-white dark:bg-gray-900/50 border-b dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                                                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap">
+                                                        <a asp-controller="Admin" asp-action="OrderDetails" asp-route-id="@order.Id" class="text-primary hover:underline">#RW@order.Id</a>
+                                                    </td>
+                                                    <td class="px-6 py-4">@order.FullName</td>
+                                                    <td class="px-6 py-4">@order.TotalAmount.ToString("N0")₫</td>
+                                                    <td class="px-6 py-4">
+                                                        <span class="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-medium @statusColor">@statusText</span>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td colspan="4" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">Chưa có đơn hàng</td>
+                                            </tr>
+                                        }
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
-                    <!-- Right Sidebar Column: Sản phẩm bán chạy -->
-                    <div class="xl:col-span-1 flex flex-col gap-8">
-                        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50 p-6">
-                            <h2 class="text-gray-900 dark:text-white text-xl font-bold leading-tight">Top Selling Products</h2>
+                    <div class="lg:col-span-1">
+                        <div class="bg-white dark:bg-gray-900/50 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-800">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Sản phẩm bán chạy nhất</h3>
                             <ul class="flex flex-col gap-4">
-                                <li class="flex items-center gap-4">
-                                    <img class="size-14 rounded-lg object-cover" data-alt="A silver chronograph watch with a black face." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsnHTJ-R3pOqtFn7X3vC6oPNkwG415R0ZcTyFrqRHEvBiyGntV2G61GTo663ndp88KHon7eqtev3KEZ84aFftB1W6vrdy3T3DjQIiVjgAwCIdXwZ4Oh1nF74TdygW8AOdBLD6fyWB_CG0zWZxLslgwlGD2b_aTVXS1K7OWHGHlnIR3l4z8RePxlXzKsE6QUO7H7zxFP5YQ5M6ilyJ3aWon94GYCNUGgJOVkS_CznfUOC1U7nDqsAqdjKIvOnJXqTSy1VbDOHGxRE4" />
-                                    <div class="flex-1">
-                                        <p class="font-medium text-sm text-gray-800 dark:text-white">AeroChron Pro</p>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">120 units sold</p>
-                                    </div>
-                                </li>
-                                <li class="flex items-center gap-4">
-                                    <img class="size-14 rounded-lg object-cover" data-alt="A classic gold watch with a white face and leather strap." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvpYgxRswRR7clYr8oFTSUymWppo0gwYrIuhfkQhnVeVWOiC8xcCdbwVN5BVkRr98WzU017zra2cUqWjROZjicCyR0iZmuOq4UCMN8qAgR6ST5U8WiAXxpjgIsDeQrkttIRwIMC4t5ePypRv4cwyp7Q75xn8Ob7y6T2wSZxKBI2GR4P5P9bAd1YQv7zVDg1Kx1GrbudiI4aD_NT0AYyIJ9LKgn05T1vPEYbdByNJh6EZ3FZdBopMhNly300wz6owEgwloi-zJL_0I" />
-                                    <div class="flex-1">
-                                        <p class="font-medium text-sm text-gray-800 dark:text-white">Elegance Royale</p>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">98 units sold</p>
-                                    </div>
-                                </li>
-                                <li class="flex items-center gap-4">
-                                    <img class="size-14 rounded-lg object-cover" data-alt="A modern black digital sports watch." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmLZVGAUO5KEUW0FXPcofr6hR_g3MtVMSKCJZyANU3t-zzqNNe0fvuWdDf5oUxe3qlNnokPE1UE93hiNrcMRCtGQtYYS0YTrSuTiCxsub2lfF3Uhb3JtWLXCrZd36u86Zk5bRXtkODRSnD6DYKVzIyOyX6onsWEjfN5jfD3JoPGCbqixVuTIKScNd1TtzTBTRD_4Eq9H8_33nRam356r9nMJeMaDzlKzPklgqFzrkY6j0-BSZbgktZmexIl2IUsjrrLFJz047xFCQ" />
-                                    <div class="flex-1">
-                                        <p class="font-medium text-sm text-gray-800 dark:text-white">Stealth Runner</p>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">85 units sold</p>
-                                    </div>
-                                </li>
-                                <li class="flex items-center gap-4">
-                                    <img class="size-14 rounded-lg object-cover" data-alt="A minimalist watch with a white face and a mesh silver strap." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6WSOfFh472kwmKBUnpQezmygpbBeLuOK0qiqgHHCds_6j4e5hnge0QUw8aP88yn2yLYTTSrc4nCUNIYBwjNaEOMy8T7naBj5ayFmnYffAOmC-LfEtqSigvJ-B46UggRzCuNQStsNPpEtyLfYxO7iFQkNLGVodXzSmS54EoTTQ01lV_oUQSO6ZN8dH5EKMlI3IoRQnifESvk8F2cFq4ILIZkTIIyoPy-InZLd_kQi0wAjQQgK_eeTqlvhbgWqR4uHsf5ofqfidNaE" />
-                                    <div class="flex-1">
-                                        <p class="font-medium text-sm text-gray-800 dark:text-white">Urban Minimalist</p>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">72 units sold</p>
-                                    </div>
-                                </li>
-                                <li class="flex items-center gap-4">
-                                    <img class="size-14 rounded-lg object-cover" data-alt="A diver's watch with a rotating bezel and luminous hands." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCay6lUKBT3B4TGclD4KPxjd1OwJbs9wbINYgV9gENVIjDGhxZ-KtWIW7m2XHA7MEJxwxc9m1x-VwXillmPkP3GHI0WTngeDMrZbArYRAk2kZdj-na3204Yfs_AUBjYRIX_vPtQUfHtdidF2V_fLsqu7EwcT9FcQMtaClo4ij6nc45bOBoq7VJqvpL09cK48xjfPY8r0mtqsdAcGIBcntdI66d9HKMKBSzvY3H_Vz2Aq6nNc4hDS3HKUgavUiJYPcijLh0KofZ7Uqw" />
-                                    <div class="flex-1">
-                                        <p class="font-medium text-sm text-gray-800 dark:text-white">Deep Dive Pro</p>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">64 units sold</p>
-                                    </div>
-                                </li>
+                                @if (topProducts != null && topProducts.Count > 0)
+                                {
+                                    @foreach (var product in topProducts)
+                                    {
+                                        <li class="flex items-center gap-4">
+                                            <img alt="@product.ProductName" class="w-16 h-16 object-cover rounded-lg" src="@(string.IsNullOrEmpty(product.ProductImageUrl) ? "https://images.unsplash.com/photo-1523275335684-37898b6baf30" : product.ProductImageUrl)" />
+                                            <div class="flex-1">
+                                                <p class="font-semibold text-gray-900 dark:text-white">@product.ProductName</p>
+                                                <p class="text-sm text-gray-500 dark:text-gray-400">Đã bán: @product.TotalSold</p>
+                                            </div>
+                                            <p class="font-semibold text-gray-800 dark:text-gray-200">@product.ProductPrice.ToString("N0")₫</p>
+                                        </li>
+                                    }
+                                }
+                                else
+                                {
+                                    <li class="text-gray-500 dark:text-gray-400 text-sm">Chưa có dữ liệu</li>
+                                }
                             </ul>
                         </div>
                     </div>
                 </div>
-            </main>
-        </div>
+            </div>
+        </main>
     </div>
+    <script>
+        const ctx = document.getElementById('salesChart');
+        if (ctx) {
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4', 'Tuần 5', 'Tuần 6', 'Tuần 7', 'Tuần 8'],
+                    datasets: [{
+                        label: 'Doanh thu',
+                        data: [12, 19, 15, 25, 22, 30, 28, 35],
+                        borderColor: '#135bec',
+                        backgroundColor: 'rgba(19, 91, 236, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + 'M₫';
+                                },
+                                color: isDarkMode ? '#9ca3af' : '#6b7280'
+                            },
+                            grid: {
+                                color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: isDarkMode ? '#9ca3af' : '#6b7280'
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+    </script>
 </body>
 </html>

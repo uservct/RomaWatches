@@ -65,141 +65,6 @@ namespace RomaWatches.Controllers
             return View(cart);
         }
 
-        // Action tạo đơn hàng tạm thời khi chọn chuyển khoản (để lấy orderId).
-        // POST: /Checkout/CreateDraftOrder
-        [HttpPost]
-        [IgnoreAntiforgeryToken]
-        public async Task<IActionResult> CreateDraftOrder()
-        {
-            try
-            {
-                var user = await _userManager.GetUserAsync(User);
-                if (user == null)
-                {
-                    return Json(new { success = false, message = "Vui lòng đăng nhập" });
-                }
-
-                // Xóa đơn hàng tạm thời cũ (nếu có)
-                var oldDraftOrder = await _context.Orders
-                    .Include(o => o.OrderItems)
-                    .FirstOrDefaultAsync(o => o.UserId == user.Id && o.Status == OrderStatus.Unconfirmed && o.PaymentMethod == PaymentMethod.BankTransfer);
-                
-                if (oldDraftOrder != null)
-                {
-                    _context.OrderItems.RemoveRange(oldDraftOrder.OrderItems);
-                    _context.Orders.Remove(oldDraftOrder);
-                    await _context.SaveChangesAsync();
-                }
-
-                // Lấy giỏ hàng
-                var cart = await _context.Carts
-                    .Include(c => c.CartItems)
-                        .ThenInclude(ci => ci.Product)
-                    .FirstOrDefaultAsync(c => c.UserId == user.Id);
-
-                if (cart == null || !cart.CartItems.Any())
-                {
-                    return Json(new { success = false, message = "Giỏ hàng trống" });
-                }
-
-                // Tính tổng tiền
-                var subtotal = cart.CartItems.Sum(ci => ci.Quantity * ci.Product.Price);
-                var shippingFee = 0m;
-                var total = subtotal + shippingFee;
-
-                // Tạo đơn hàng tạm thời (Unconfirmed - không hiển thị trong lịch sử)
-                var draftOrder = new Order
-                {
-                    UserId = user.Id,
-                    FullName = "Tạm thời", // Sẽ được cập nhật khi đặt hàng
-                    PhoneNumber = "",
-                    Province = "",
-                    Ward = "",
-                    Address = "",
-                    PaymentMethod = PaymentMethod.BankTransfer,
-                    Status = OrderStatus.Unconfirmed, // Không hiển thị trong lịch sử
-                    TotalAmount = total,
-                    ShippingFee = shippingFee,
-                    CreatedAt = DateTime.Now
-                };
-
-                _context.Orders.Add(draftOrder);
-                await _context.SaveChangesAsync();
-
-                // Tạo OrderItems từ giỏ hàng
-                foreach (var cartItem in cart.CartItems)
-                {
-                    var orderItem = new OrderItem
-                    {
-                        OrderId = draftOrder.Id,
-                        ProductId = cartItem.ProductId,
-                        Quantity = cartItem.Quantity,
-                        Price = cartItem.Product.Price,
-                        CreatedAt = DateTime.Now
-                    };
-                    _context.OrderItems.Add(orderItem);
-                }
-
-                await _context.SaveChangesAsync();
-
-                // Tạo QR code URL
-                var accountNumber = "62688888888686";
-                var bank = "MB";
-                var amount = total.ToString("F0");
-                var description = $"Thanh toan don hang #RW{draftOrder.Id}";
-                var qrCodeUrl = $"https://qr.sepay.vn/img?acc={accountNumber}&bank={bank}&amount={amount}&des={Uri.EscapeDataString(description)}";
-
-                return Json(new 
-                { 
-                    success = true, 
-                    orderId = draftOrder.Id,
-                    qrCodeUrl = qrCodeUrl,
-                    accountNumber = "626 8888 8888 686",
-                    accountHolder = "VU CHI THANH",
-                    amount = total
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error creating draft order");
-                return Json(new { success = false, message = "Có lỗi xảy ra khi tạo đơn hàng tạm thời" });
-            }
-        }
-
-        // Action xóa đơn hàng tạm thời khi chuyển sang phương thức khác.
-        // POST: /Checkout/DeleteDraftOrder
-        [HttpPost]
-        [IgnoreAntiforgeryToken]
-        public async Task<IActionResult> DeleteDraftOrder()
-        {
-            try
-            {
-                var user = await _userManager.GetUserAsync(User);
-                if (user == null)
-                {
-                    return Json(new { success = false, message = "Vui lòng đăng nhập" });
-                }
-
-                // Tìm và xóa đơn hàng tạm thời
-                var draftOrder = await _context.Orders
-                    .Include(o => o.OrderItems)
-                    .FirstOrDefaultAsync(o => o.UserId == user.Id && o.Status == OrderStatus.Unconfirmed && o.PaymentMethod == PaymentMethod.BankTransfer);
-                
-                if (draftOrder != null)
-                {
-                    _context.OrderItems.RemoveRange(draftOrder.OrderItems);
-                    _context.Orders.Remove(draftOrder);
-                    await _context.SaveChangesAsync();
-                }
-
-                return Json(new { success = true });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error deleting draft order");
-                return Json(new { success = false, message = "Có lỗi xảy ra khi xóa đơn hàng tạm thời" });
-            }
-        }
 
         // Action xử lý đặt hàng (AJAX).
         // POST: /Checkout/Process
@@ -252,97 +117,11 @@ namespace RomaWatches.Controllers
                     return Json(new { success = false, message = "Phương thức thanh toán không hợp lệ" });
                 }
 
-                // Kiểm tra xem có đơn hàng tạm thời (draft) không (nếu là BankTransfer).
+                // Tạo đơn hàng mới
                 Order order;
                 if (paymentMethod == PaymentMethod.BankTransfer)
                 {
-                    var existingDraftOrder = await _context.Orders
-                        .Include(o => o.OrderItems)
-                        .FirstOrDefaultAsync(o => o.UserId == user.Id && o.Status == OrderStatus.Unconfirmed && o.PaymentMethod == PaymentMethod.BankTransfer);
-
-                    if (existingDraftOrder != null)
-                    {
-                        // Cập nhật đơn hàng tạm thời với thông tin đầy đủ
-                        order = existingDraftOrder;
-                        order.FullName = request.FullName.Trim();
-                        order.PhoneNumber = request.PhoneNumber.Trim();
-                        order.Province = request.Province.Trim();
-                        order.Ward = request.Ward.Trim();
-                        order.Address = request.Address.Trim();
-                        order.Status = OrderStatus.Pending; // Chuyển sang Pending để hiển thị trong lịch sử
-                        order.UpdatedAt = DateTime.Now;
-                        
-                        // Cập nhật lại tổng tiền (phòng trường hợp giỏ hàng thay đổi)
-                        order.TotalAmount = total;
-                        order.ShippingFee = shippingFee;
-                        
-                        // Xóa OrderItems cũ và tạo lại từ giỏ hàng hiện tại
-                        _context.OrderItems.RemoveRange(existingDraftOrder.OrderItems);
-                        
-                        // Tạo lại OrderItems từ giỏ hàng hiện tại
-                        foreach (var cartItem in cart.CartItems)
-                        {
-                            var orderItem = new OrderItem
-                            {
-                                OrderId = order.Id,
-                                ProductId = cartItem.ProductId,
-                                Quantity = cartItem.Quantity,
-                                Price = cartItem.Product.Price,
-                                CreatedAt = DateTime.Now
-                            };
-                            _context.OrderItems.Add(orderItem);
-                        }
-                    }
-                    else
-                    {
-                        // Tạo đơn hàng mới nếu không có draft
-                        order = new Order
-                        {
-                            UserId = user.Id,
-                            FullName = request.FullName.Trim(),
-                            PhoneNumber = request.PhoneNumber.Trim(),
-                            Province = request.Province.Trim(),
-                            Ward = request.Ward.Trim(),
-                            Address = request.Address.Trim(),
-                            PaymentMethod = paymentMethod,
-                            Status = OrderStatus.Pending,
-                            TotalAmount = total,
-                            ShippingFee = shippingFee,
-                            CreatedAt = DateTime.Now
-                        };
-                        _context.Orders.Add(order);
-                        await _context.SaveChangesAsync();
-
-                        // Tạo chi tiết đơn hàng (OrderItems) từ giỏ hàng.
-                        foreach (var cartItem in cart.CartItems)
-                        {
-                            var orderItem = new OrderItem
-                            {
-                                OrderId = order.Id,
-                                ProductId = cartItem.ProductId,
-                                Quantity = cartItem.Quantity,
-                                Price = cartItem.Product.Price,
-                                CreatedAt = DateTime.Now
-                            };
-                            _context.OrderItems.Add(orderItem);
-                        }
-                    }
-                }
-                else
-                {
-                    // Xóa đơn hàng tạm thời nếu có (khi chuyển sang COD hoặc InStore)
-                    var draftOrder = await _context.Orders
-                        .Include(o => o.OrderItems)
-                        .FirstOrDefaultAsync(o => o.UserId == user.Id && o.Status == OrderStatus.Unconfirmed && o.PaymentMethod == PaymentMethod.BankTransfer);
-                    
-                    if (draftOrder != null)
-                    {
-                        _context.OrderItems.RemoveRange(draftOrder.OrderItems);
-                        _context.Orders.Remove(draftOrder);
-                    }
-
-                    // Tạo đơn hàng mới cho COD hoặc InStore
-                    var status = OrderStatus.Approved;
+                    // Tạo đơn hàng với status Unconfirmed cho BankTransfer (chờ admin xác nhận)
                     order = new Order
                     {
                         UserId = user.Id,
@@ -352,28 +131,46 @@ namespace RomaWatches.Controllers
                         Ward = request.Ward.Trim(),
                         Address = request.Address.Trim(),
                         PaymentMethod = paymentMethod,
-                        Status = status,
+                        Status = OrderStatus.Unconfirmed,
                         TotalAmount = total,
                         ShippingFee = shippingFee,
                         CreatedAt = DateTime.Now
                     };
-
-                    _context.Orders.Add(order);
-                    await _context.SaveChangesAsync();
-
-                    // Tạo chi tiết đơn hàng (OrderItems) từ giỏ hàng.
-                    foreach (var cartItem in cart.CartItems)
+                }
+                else
+                {
+                    // Tạo đơn hàng với status Approved cho COD hoặc InStore
+                    order = new Order
                     {
-                        var orderItem = new OrderItem
-                        {
-                            OrderId = order.Id,
-                            ProductId = cartItem.ProductId,
-                            Quantity = cartItem.Quantity,
-                            Price = cartItem.Product.Price,
-                            CreatedAt = DateTime.Now
-                        };
-                        _context.OrderItems.Add(orderItem);
-                    }
+                        UserId = user.Id,
+                        FullName = request.FullName.Trim(),
+                        PhoneNumber = request.PhoneNumber.Trim(),
+                        Province = request.Province.Trim(),
+                        Ward = request.Ward.Trim(),
+                        Address = request.Address.Trim(),
+                        PaymentMethod = paymentMethod,
+                        Status = OrderStatus.Approved,
+                        TotalAmount = total,
+                        ShippingFee = shippingFee,
+                        CreatedAt = DateTime.Now
+                    };
+                }
+
+                _context.Orders.Add(order);
+                await _context.SaveChangesAsync();
+
+                // Tạo chi tiết đơn hàng (OrderItems) từ giỏ hàng.
+                foreach (var cartItem in cart.CartItems)
+                {
+                    var orderItem = new OrderItem
+                    {
+                        OrderId = order.Id,
+                        ProductId = cartItem.ProductId,
+                        Quantity = cartItem.Quantity,
+                        Price = cartItem.Product.Price,
+                        CreatedAt = DateTime.Now
+                    };
+                    _context.OrderItems.Add(orderItem);
                 }
 
                 await _context.SaveChangesAsync();
@@ -388,22 +185,22 @@ namespace RomaWatches.Controllers
                 await _context.SaveChangesAsync();
 
                 // Chuẩn bị thông báo phản hồi.
-                var message = order.Status == OrderStatus.Pending
-                    ? "Đơn hàng đang chờ xét duyệt. Chúng tôi sẽ liên hệ với bạn sớm nhất."
+                var message = order.Status == OrderStatus.Unconfirmed
+                    ? "Đơn hàng đang chờ xác nhận thanh toán. Chúng tôi sẽ kiểm tra và xác nhận đơn hàng của bạn sớm nhất."
                     : "Đặt hàng thành công! Cảm ơn bạn đã mua sắm tại Roma Watches.";
 
                 // Tất cả các phương thức đều redirect đến trang success.
                 var redirectUrl = $"/Checkout/Success?orderId={order.Id}";
 
-                // Nếu là chuyển khoản ngân hàng, trả về thông tin mã QR để thanh toán (cập nhật lại với orderId).
+                // Nếu là chuyển khoản ngân hàng, trả về thông tin mã QR để thanh toán.
                 if (paymentMethod == PaymentMethod.BankTransfer)
                 {
                     var accountNumber = "62688888888686";
                     var bank = "MB";
                     var amount = total.ToString("F0");
-                    var description = $"Thanh toan don hang #RW{order.Id}";
+                    var description = "thanh toan don hang RomaWatches";
                     
-                    // Tạo link QR code SePay/VietQR với orderId chính xác.
+                    // Tạo link QR code SePay/VietQR với nội dung cố định.
                     var qrCodeUrl = $"https://qr.sepay.vn/img?acc={accountNumber}&bank={bank}&amount={amount}&des={Uri.EscapeDataString(description)}";
                     
                     return Json(new 
@@ -496,12 +293,7 @@ namespace RomaWatches.Controllers
                     return Json(new { success = false, message = "Đơn hàng không tồn tại" });
                 }
 
-                // Cập nhật trạng thái đơn hàng từ Unconfirmed sang Pending.
-                if (order.Status == OrderStatus.Unconfirmed && order.PaymentMethod == PaymentMethod.BankTransfer)
-                {
-                    order.Status = OrderStatus.Pending;
-                    order.UpdatedAt = DateTime.Now;
-                }
+                // Không cần xử lý gì vì đơn hàng đã được tạo với status Pending
 
                 // Xóa giỏ hàng sau khi người dùng xác nhận thanh toán.
                 var cart = await _context.Carts

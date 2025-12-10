@@ -39,7 +39,6 @@ namespace RomaWatches.Controllers
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
                 .Where(o => o.UserId == user.Id)
-                .Where(o => o.Status != OrderStatus.Unconfirmed) // Không hiển thị đơn hàng chưa xác nhận thanh toán (đơn treo).
                 .AsQueryable();
 
             // Lọc theo trạng thái đơn hàng.
@@ -48,8 +47,8 @@ namespace RomaWatches.Controllers
                 switch (status.ToLower())
                 {
                     case "processing":
-                        // Đang xử lý: Bao gồm Pending (Chờ duyệt) và Approved (Đã duyệt).
-                        query = query.Where(o => o.Status == OrderStatus.Pending || o.Status == OrderStatus.Approved);
+                        // Đang xử lý: Bao gồm Unconfirmed (Chờ xác nhận), Pending (Đã xác nhận) và Approved (Đang giao hàng).
+                        query = query.Where(o => o.Status == OrderStatus.Unconfirmed || o.Status == OrderStatus.Pending || o.Status == OrderStatus.Approved);
                         break;
                     case "completed":
                         // Đã hoàn thành.

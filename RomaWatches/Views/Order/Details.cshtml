@@ -11,8 +11,9 @@
     {
         return status switch
         {
-            OrderStatus.Pending => ("bg-yellow-500/10", "bg-yellow-500", "text-yellow-400", "Đang chờ xác nhận"),
-            OrderStatus.Approved => ("bg-green-500/10", "bg-green-500", "text-green-400", "Đã xác nhận"),
+            OrderStatus.Unconfirmed => ("bg-yellow-500/10", "bg-yellow-500", "text-yellow-400", "Đang chờ xác nhận"),
+            OrderStatus.Pending => ("bg-green-500/10", "bg-green-500", "text-green-400", "Đã xác nhận"),
+            OrderStatus.Approved => ("bg-blue-500/10", "bg-blue-500", "text-blue-400", "Đang giao hàng"),
             OrderStatus.Completed => ("bg-green-500/10", "bg-green-500", "text-green-400", "Đã giao hàng"),
             OrderStatus.Cancelled => ("bg-red-500/10", "bg-red-500", "text-red-400", "Đã hủy"),
             _ => ("bg-gray-500/10", "bg-gray-500", "text-gray-400", status.ToString())
