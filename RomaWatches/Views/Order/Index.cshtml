@@ -8,24 +8,24 @@
     
     var currentStatus = ViewBag.CurrentStatus as string;
     
-    string GetStatusText(OrderStatus status)
+    string GetStatusText(Order order)
     {
-        return status switch
+        return order.Status switch
         {
-            OrderStatus.Pending => "Đang xử lý",
-            OrderStatus.Approved => "Đang xử lý",
+            OrderStatus.Pending => "Đang chờ xác nhận", // BankTransfer đã xác nhận thanh toán, chờ admin duyệt
+            OrderStatus.Approved => "Đã xác nhận", // COD/InStore đã được xác nhận
             OrderStatus.Completed => "Đã giao hàng",
             OrderStatus.Cancelled => "Đã hủy",
-            _ => status.ToString()
+            _ => order.Status.ToString()
         };
     }
     
-    (string dotColor, string textColor) GetStatusColor(OrderStatus status)
+    (string dotColor, string textColor) GetStatusColor(Order order)
     {
-        return status switch
+        return order.Status switch
         {
-            OrderStatus.Pending => ("bg-orange-500", "text-orange-700 dark:text-orange-400"),
-            OrderStatus.Approved => ("bg-orange-500", "text-orange-700 dark:text-orange-400"),
+            OrderStatus.Pending => ("bg-yellow-500", "text-yellow-700 dark:text-yellow-400"), // Màu vàng cho đang chờ xác nhận
+            OrderStatus.Approved => ("bg-green-500", "text-green-700 dark:text-green-400"), // Màu xanh lá cho đã xác nhận
             OrderStatus.Completed => ("bg-green-500", "text-green-700 dark:text-green-400"),
             OrderStatus.Cancelled => ("bg-red-500", "text-red-700 dark:text-red-400"),
             _ => ("bg-gray-500", "text-gray-700 dark:text-gray-400")
@@ -129,11 +129,11 @@
                                     <tbody>
                                         @foreach (var order in Model)
                                         {
-                                            var (dotColor, textColor) = GetStatusColor(order.Status);
-                                            var statusText = GetStatusText(order.Status);
+                                            var (dotColor, textColor) = GetStatusColor(order);
+                                            var statusText = GetStatusText(order);
                                             <tr class="border-t border-t-primary/20">
-                                                <td class="h-[72px] px-4 py-2 w-[20%] text-gray-600 dark:text-gray-300 text-sm font-normal leading-normal">#RW@order.Id</td>
-                                                <td class="h-[72px] px-4 py-2 w-[20%] text-gray-600 dark:text-gray-300 text-sm font-normal leading-normal">@order.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                                <td class="h-[72px] px-4 py-2 w-[20%] text-gray-600 dark:text-gray-300 text-sm font-normal leading-normal">@($"#RW{order.Id}")</td>
+                                                <td class="h-[72px] px-4 py-2 w-[20%] text-gray-600 dark:text-gray-300 text-sm font-normal leading-normal">@order.CreatedAt.ToString("HH:mm - dd/MM/yyyy")</td>
                                                 <td class="h-[72px] px-4 py-2 w-[25%] text-gray-600 dark:text-gray-300 text-sm font-normal leading-normal">@order.TotalAmount.ToString("N0") VNĐ</td>
                                                 <td class="h-[72px] px-4 py-2 w-[20%] text-sm font-normal leading-normal">
                                                     <div class="flex items-center gap-2">
@@ -142,7 +142,7 @@
                                                     </div>
                                                 </td>
                                                 <td class="h-[72px] px-4 py-2 w-[15%] text-primary text-sm font-bold leading-normal tracking-[0.015em] cursor-pointer hover:underline">
-                                                    <a href="#">Xem chi tiết</a>
+                                                    <a asp-controller="Order" asp-action="Details" asp-route-id="@order.Id">Xem chi tiết</a>
                                                 </td>
                                             </tr>
                                         }

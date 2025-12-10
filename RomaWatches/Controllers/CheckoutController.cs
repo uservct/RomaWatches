@@ -36,9 +36,25 @@ namespace RomaWatches.Controllers
                     .ThenInclude(ci => ci.Product)
                 .FirstOrDefaultAsync(c => c.UserId == user.Id);
 
+            // If cart is empty, try to restore from session
             if (cart == null || !cart.CartItems.Any())
             {
-                return RedirectToAction("Index", "Cart");
+                var restored = await RestoreCartIfExists(user.Id);
+                
+                if (restored)
+                {
+                    // Reload cart after restore
+                    cart = await _context.Carts
+                        .Include(c => c.CartItems)
+                            .ThenInclude(ci => ci.Product)
+                        .FirstOrDefaultAsync(c => c.UserId == user.Id);
+                }
+                
+                // If still empty after restore attempt, redirect to cart page
+                if (cart == null || !cart.CartItems.Any())
+                {
+                    return RedirectToAction("Index", "Cart");
+                }
             }
 
             return View(cart);
@@ -137,6 +153,9 @@ namespace RomaWatches.Controllers
                 {
                     _context.CartItems.RemoveRange(cart.CartItems);
                     cart.UpdatedAt = DateTime.Now;
+                    
+                    // Clear saved cart from session after successful checkout
+                    HttpContext.Session.Remove($"SavedCart_{user.Id}");
                 }
 
                 await _context.SaveChangesAsync();
@@ -146,13 +165,19 @@ namespace RomaWatches.Controllers
                     ? "Đơn hàng đang chờ xét duyệt. Chúng tôi sẽ liên hệ với bạn sớm nhất."
                     : "Đặt hàng thành công! Cảm ơn bạn đã mua sắm tại Roma Watches.";
 
+                // For COD and InStore, redirect to Success page
+                var redirectUrl = paymentMethod != PaymentMethod.BankTransfer
+                    ? $"/Checkout/Success?orderId={order.Id}"
+                    : "/";
+
                 var response = new 
                 { 
                     success = true, 
                     message = message,
                     orderId = order.Id,
                     status = status.ToString(),
-                    redirectUrl = "/"
+                    redirectUrl = redirectUrl,
+                    paymentMethod = paymentMethod.ToString()
                 };
 
                 // If BankTransfer, add QR code information
@@ -187,6 +212,34 @@ namespace RomaWatches.Controllers
                 _logger.LogError(ex, "Error processing checkout");
                 return Json(new { success = false, message = "Có lỗi xảy ra khi xử lý đơn hàng. Vui lòng thử lại." });
             }
+        }
+
+        // GET: Checkout/Success
+        public async Task<IActionResult> Success(int orderId)
+        {
+            if (orderId <= 0)
+            {
+                return NotFound();
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Load order with OrderItems and Products, verify it belongs to the user
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                .FirstOrDefaultAsync(o => o.Id == orderId && o.UserId == user.Id);
+
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            return View(order);
         }
 
         // POST: Checkout/ConfirmPayment
@@ -233,15 +286,87 @@ namespace RomaWatches.Controllers
                     _context.CartItems.RemoveRange(cart.CartItems);
                     cart.UpdatedAt = DateTime.Now;
                 }
+                
+                // Clear saved cart from session after successful payment confirmation
+                HttpContext.Session.Remove($"SavedCart_{user.Id}");
 
                 await _context.SaveChangesAsync();
 
-                return Json(new { success = true, message = "Xác nhận thanh toán thành công" });
+                return Json(new { 
+                    success = true, 
+                    message = "Xác nhận thanh toán thành công",
+                    redirectUrl = $"/Checkout/Success?orderId={order.Id}"
+                });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error confirming payment");
                 return Json(new { success = false, message = "Có lỗi xảy ra khi xác nhận thanh toán. Vui lòng thử lại." });
+            }
+        }
+
+        // Private helper method to automatically restore cart from session
+        private async Task<bool> RestoreCartIfExists(string userId)
+        {
+            try
+            {
+                var savedCartJson = HttpContext.Session.GetString($"SavedCart_{userId}");
+                if (string.IsNullOrEmpty(savedCartJson))
+                {
+                    return false;
+                }
+
+                var savedCartItems = JsonSerializer.Deserialize<List<SavedCartItem>>(savedCartJson);
+                if (savedCartItems == null || !savedCartItems.Any())
+                {
+                    HttpContext.Session.Remove($"SavedCart_{userId}");
+                    return false;
+                }
+
+                // Get or create cart
+                var cart = await _context.Carts
+                    .Include(c => c.CartItems)
+                    .FirstOrDefaultAsync(c => c.UserId == userId);
+
+                if (cart == null)
+                {
+                    cart = new Cart
+                    {
+                        UserId = userId,
+                        CreatedAt = DateTime.Now
+                    };
+                    _context.Carts.Add(cart);
+                    await _context.SaveChangesAsync();
+                }
+
+                // Only restore if current cart is empty (to avoid overwriting)
+                if (!cart.CartItems.Any())
+                {
+                    // Restore saved cart items
+                    foreach (var savedItem in savedCartItems)
+                    {
+                        var cartItem = new CartItem
+                        {
+                            CartId = cart.Id,
+                            ProductId = savedItem.ProductId,
+                            Quantity = savedItem.Quantity,
+                            CreatedAt = DateTime.Now
+                        };
+                        cart.CartItems.Add(cartItem);
+                    }
+
+                    cart.UpdatedAt = DateTime.Now;
+                    await _context.SaveChangesAsync();
+                }
+
+                // Clear saved cart from session after restore
+                HttpContext.Session.Remove($"SavedCart_{userId}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error auto-restoring cart for user {UserId}", userId);
+                return false;
             }
         }
     }

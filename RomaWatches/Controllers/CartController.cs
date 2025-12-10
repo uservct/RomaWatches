@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RomaWatches.Data;
 using RomaWatches.Models;
+using System.Text.Json;
 
 namespace RomaWatches.Controllers
 {
@@ -36,7 +37,19 @@ namespace RomaWatches.Controllers
                     .ThenInclude(ci => ci.Product)
                 .FirstOrDefaultAsync(c => c.UserId == user.Id);
 
+            // Auto-restore saved cart if current cart is empty
             if (cart == null || !cart.CartItems.Any())
+            {
+                await RestoreCartIfExists(user.Id);
+                
+                // Reload cart after restore
+                cart = await _context.Carts
+                    .Include(c => c.CartItems)
+                        .ThenInclude(ci => ci.Product)
+                    .FirstOrDefaultAsync(c => c.UserId == user.Id);
+            }
+
+            if (cart == null)
             {
                 cart = new Cart { UserId = user.Id, CartItems = new List<CartItem>() };
             }
@@ -251,6 +264,227 @@ namespace RomaWatches.Controllers
             {
                 _logger.LogError(ex, "Error getting cart count");
                 return Json(new { count = 0 });
+            }
+        }
+
+        // POST: Cart/BuyNow
+        [HttpPost]
+        [Authorize]
+        [IgnoreAntiforgeryToken]
+        public async Task<IActionResult> BuyNow([FromBody] AddToCartRequest request)
+        {
+            try
+            {
+                if (request == null || request.ProductId <= 0)
+                {
+                    return Json(new { success = false, message = "Thông tin sản phẩm không hợp lệ" });
+                }
+
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "Vui lòng đăng nhập để mua sản phẩm" });
+                }
+
+                var product = await _context.Products.FindAsync(request.ProductId);
+                if (product == null)
+                {
+                    return Json(new { success = false, message = "Sản phẩm không tồn tại" });
+                }
+
+                // Get or create cart
+                var cart = await _context.Carts
+                    .Include(c => c.CartItems)
+                    .FirstOrDefaultAsync(c => c.UserId == user.Id);
+
+                if (cart == null)
+                {
+                    cart = new Cart
+                    {
+                        UserId = user.Id,
+                        CreatedAt = DateTime.Now
+                    };
+                    _context.Carts.Add(cart);
+                    await _context.SaveChangesAsync();
+                }
+
+                // Save current cart items to session (to restore later if needed)
+                if (cart.CartItems.Any())
+                {
+                    var savedCartItems = cart.CartItems.Select(ci => new
+                    {
+                        ProductId = ci.ProductId,
+                        Quantity = ci.Quantity
+                    }).ToList();
+                    
+                    HttpContext.Session.SetString($"SavedCart_{user.Id}", JsonSerializer.Serialize(savedCartItems));
+                }
+
+                // Remove all existing cart items
+                _context.CartItems.RemoveRange(cart.CartItems);
+
+                // Add only the selected product
+                var cartItem = new CartItem
+                {
+                    CartId = cart.Id,
+                    ProductId = request.ProductId,
+                    Quantity = 1,
+                    CreatedAt = DateTime.Now
+                };
+                cart.CartItems.Add(cartItem);
+
+                cart.UpdatedAt = DateTime.Now;
+                await _context.SaveChangesAsync();
+
+                // Get updated cart count
+                var cartCount = await GetCartCountInternal(user.Id);
+
+                return Json(new { success = true, message = "Đã thêm sản phẩm vào giỏ hàng", cartCount = cartCount });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in BuyNow");
+                return Json(new { success = false, message = "Có lỗi xảy ra khi xử lý đơn hàng" });
+            }
+        }
+
+        // POST: Cart/RestoreCart
+        [HttpPost]
+        [Authorize]
+        [IgnoreAntiforgeryToken]
+        public async Task<IActionResult> RestoreCart()
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "Vui lòng đăng nhập" });
+                }
+
+                var savedCartJson = HttpContext.Session.GetString($"SavedCart_{user.Id}");
+                if (string.IsNullOrEmpty(savedCartJson))
+                {
+                    return Json(new { success = false, message = "Không có giỏ hàng đã lưu" });
+                }
+
+                var savedCartItems = JsonSerializer.Deserialize<List<SavedCartItem>>(savedCartJson);
+                if (savedCartItems == null || !savedCartItems.Any())
+                {
+                    return Json(new { success = false, message = "Giỏ hàng đã lưu trống" });
+                }
+
+                // Get or create cart
+                var cart = await _context.Carts
+                    .Include(c => c.CartItems)
+                    .FirstOrDefaultAsync(c => c.UserId == user.Id);
+
+                if (cart == null)
+                {
+                    cart = new Cart
+                    {
+                        UserId = user.Id,
+                        CreatedAt = DateTime.Now
+                    };
+                    _context.Carts.Add(cart);
+                    await _context.SaveChangesAsync();
+                }
+
+                // Remove current cart items
+                _context.CartItems.RemoveRange(cart.CartItems);
+
+                // Restore saved cart items
+                foreach (var savedItem in savedCartItems)
+                {
+                    var cartItem = new CartItem
+                    {
+                        CartId = cart.Id,
+                        ProductId = savedItem.ProductId,
+                        Quantity = savedItem.Quantity,
+                        CreatedAt = DateTime.Now
+                    };
+                    cart.CartItems.Add(cartItem);
+                }
+
+                cart.UpdatedAt = DateTime.Now;
+                await _context.SaveChangesAsync();
+
+                // Clear saved cart from session
+                HttpContext.Session.Remove($"SavedCart_{user.Id}");
+
+                var cartCount = await GetCartCountInternal(user.Id);
+
+                return Json(new { success = true, message = "Đã khôi phục giỏ hàng", cartCount = cartCount });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error restoring cart");
+                return Json(new { success = false, message = "Có lỗi xảy ra khi khôi phục giỏ hàng" });
+            }
+        }
+
+        // Private helper method to automatically restore cart from session
+        private async Task<bool> RestoreCartIfExists(string userId)
+        {
+            try
+            {
+                var savedCartJson = HttpContext.Session.GetString($"SavedCart_{userId}");
+                if (string.IsNullOrEmpty(savedCartJson))
+                {
+                    return false;
+                }
+
+                var savedCartItems = JsonSerializer.Deserialize<List<SavedCartItem>>(savedCartJson);
+                if (savedCartItems == null || !savedCartItems.Any())
+                {
+                    HttpContext.Session.Remove($"SavedCart_{userId}");
+                    return false;
+                }
+
+                // Get or create cart
+                var cart = await _context.Carts
+                    .Include(c => c.CartItems)
+                    .FirstOrDefaultAsync(c => c.UserId == userId);
+
+                if (cart == null)
+                {
+                    cart = new Cart
+                    {
+                        UserId = userId,
+                        CreatedAt = DateTime.Now
+                    };
+                    _context.Carts.Add(cart);
+                    await _context.SaveChangesAsync();
+                }
+
+                // Only restore if current cart is empty (to avoid overwriting)
+                if (!cart.CartItems.Any())
+                {
+                    // Restore saved cart items
+                    foreach (var savedItem in savedCartItems)
+                    {
+                        var cartItem = new CartItem
+                        {
+                            CartId = cart.Id,
+                            ProductId = savedItem.ProductId,
+                            Quantity = savedItem.Quantity,
+                            CreatedAt = DateTime.Now
+                        };
+                        cart.CartItems.Add(cartItem);
+                    }
+
+                    cart.UpdatedAt = DateTime.Now;
+                    await _context.SaveChangesAsync();
+                }
+
+                // Clear saved cart from session after restore
+                HttpContext.Session.Remove($"SavedCart_{userId}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error auto-restoring cart for user {UserId}", userId);
+                return false;
             }
         }
 

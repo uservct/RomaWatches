@@ -1,0 +1,295 @@
+@model RomaWatches.Models.Order
+@using Microsoft.AspNetCore.Identity
+@using RomaWatches.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@{
+    ViewData["Title"] = "ROMA WATCHES - Chi tiết Đơn hàng";
+    Layout = null;
+    
+    // Helper functions
+    (string badgeClass, string dotColor, string textColor, string statusText) GetStatusInfo(OrderStatus status)
+    {
+        return status switch
+        {
+            OrderStatus.Pending => ("bg-yellow-500/10", "bg-yellow-500", "text-yellow-400", "Đang chờ xác nhận"),
+            OrderStatus.Approved => ("bg-green-500/10", "bg-green-500", "text-green-400", "Đã xác nhận"),
+            OrderStatus.Completed => ("bg-green-500/10", "bg-green-500", "text-green-400", "Đã giao hàng"),
+            OrderStatus.Cancelled => ("bg-red-500/10", "bg-red-500", "text-red-400", "Đã hủy"),
+            _ => ("bg-gray-500/10", "bg-gray-500", "text-gray-400", status.ToString())
+        };
+    }
+    
+    string GetPaymentMethodText(PaymentMethod method)
+    {
+        return method switch
+        {
+            PaymentMethod.COD => "Thanh toán khi nhận hàng",
+            PaymentMethod.InStore => "Thanh toán tại cửa hàng",
+            PaymentMethod.BankTransfer => "Chuyển khoản ngân hàng",
+            _ => method.ToString()
+        };
+    }
+    
+    var (badgeClass, dotColor, textColor, statusText) = GetStatusInfo(Model.Status);
+    var orderNumber = $"#RW{Model.Id}";
+    var orderDate = Model.CreatedAt.ToString("HH:mm - dd/MM/yyyy");
+    var subtotal = Model.OrderItems?.Sum(oi => oi.Quantity * oi.Price) ?? 0;
+    var canCancel = Model.Status != OrderStatus.Completed && Model.Status != OrderStatus.Cancelled;
+}
+<!DOCTYPE html>
+<html class="dark" lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>@ViewData["Title"]</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700;900&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ecb613",
+                        "background-light": "#f8f8f6",
+                        "background-dark": "#221d10",
+                    },
+                    fontFamily: {
+                        "display": ["Noto Serif", "Noto Sans", "sans-serif"],
+                        "sans": ["Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-sans">
+    <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+        @await Html.PartialAsync("_Header")
+        <div class="h-[72px]"></div>
+        <main class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 flex flex-1 justify-center py-5 sm:py-10">
+            <div class="layout-content-container flex flex-col w-full max-w-5xl flex-1 gap-8">
+                <div>
+                    <!-- Breadcrumbs -->
+                    <div class="flex flex-wrap gap-2 py-4">
+                        <a class="text-gray-500 dark:text-[#9da6b9] hover:text-primary text-sm font-medium leading-normal" asp-controller="Home" asp-action="Index">Trang chủ</a>
+                        <span class="text-gray-500 dark:text-[#9da6b9] text-sm font-medium leading-normal">/</span>
+                        <a class="text-gray-500 dark:text-[#9da6b9] hover:text-primary text-sm font-medium leading-normal" href="#">Tài khoản của tôi</a>
+                        <span class="text-gray-500 dark:text-[#9da6b9] text-sm font-medium leading-normal">/</span>
+                        <a class="text-gray-500 dark:text-[#9da6b9] hover:text-primary text-sm font-medium leading-normal" asp-controller="Order" asp-action="Index">Lịch sử đơn hàng</a>
+                        <span class="text-gray-500 dark:text-[#9da6b9] text-sm font-medium leading-normal">/</span>
+                        <span class="text-gray-800 dark:text-white text-sm font-medium leading-normal">Chi tiết đơn hàng @orderNumber</span>
+                    </div>
+                    <!-- PageHeading -->
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                        <p class="text-gray-900 dark:text-white text-3xl sm:text-4xl font-black leading-tight tracking-[-0.033em] font-display">Chi tiết Đơn hàng</p>
+                        @if (canCancel)
+                        {
+                            <div class="flex gap-2">
+                                <button onclick="cancelOrder()" class="flex cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-4 bg-red-500 hover:bg-red-600 text-white text-sm font-bold leading-normal tracking-[0.015em] transition-colors">
+                                    <span class="material-symbols-outlined text-lg">cancel</span>
+                                    <span class="truncate">Hủy đơn hàng</span>
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <!-- DescriptionList (Order Summary) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-gray-200 dark:bg-white/10 rounded-lg overflow-hidden">
+                    <div class="flex flex-col gap-1 p-4 bg-background-light dark:bg-background-dark">
+                        <p class="text-gray-500 dark:text-[#9da6b9] text-sm font-normal leading-normal">Mã đơn hàng:</p>
+                        <p class="text-gray-800 dark:text-white text-sm font-bold leading-normal text-primary">@orderNumber</p>
+                    </div>
+                    <div class="flex flex-col gap-1 p-4 bg-background-light dark:bg-background-dark">
+                        <p class="text-gray-500 dark:text-[#9da6b9] text-sm font-normal leading-normal">Ngày đặt hàng:</p>
+                        <p class="text-gray-800 dark:text-white text-sm font-medium leading-normal">@orderDate</p>
+                    </div>
+                    <div class="flex flex-col gap-1 p-4 bg-background-light dark:bg-background-dark">
+                        <p class="text-gray-500 dark:text-[#9da6b9] text-sm font-normal leading-normal">Trạng thái:</p>
+                        <div class="flex items-center">
+                            <span class="inline-flex items-center gap-2 rounded-full @badgeClass px-2 py-1 text-xs font-semibold @textColor">
+                                <span class="size-1.5 rounded-full @dotColor"></span>@statusText
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-1 p-4 bg-background-light dark:bg-background-dark">
+                        <p class="text-gray-500 dark:text-[#9da6b9] text-sm font-normal leading-normal">Tổng cộng:</p>
+                        <p class="text-gray-800 dark:text-white text-sm font-bold leading-normal">@Model.TotalAmount.ToString("N0") ₫</p>
+                    </div>
+                </div>
+                <!-- Info Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="flex flex-col gap-4 rounded-lg bg-gray-100 dark:bg-white/5 p-6 lg:col-span-2">
+                        <h3 class="text-gray-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] font-display">Địa chỉ giao hàng</h3>
+                        <div class="text-gray-600 dark:text-[#9da6b9] text-sm font-normal leading-relaxed">
+                            <p class="font-medium text-gray-700 dark:text-gray-200">@Model.FullName</p>
+                            <p>@Model.PhoneNumber</p>
+                            <p>@Model.Address, @Model.Ward, @Model.Province</p>
+                            <p class="mt-2 text-xs italic">Địa chỉ thanh toán: Giống địa chỉ giao hàng</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-4 rounded-lg bg-gray-100 dark:bg-white/5 p-6">
+                        <h3 class="text-gray-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] font-display">Phương thức thanh toán</h3>
+                        <div class="flex items-center gap-3">
+                            <div>
+                                <p class="text-gray-700 dark:text-gray-200 text-sm font-medium">@GetPaymentMethodText(Model.PaymentMethod)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Product List Section -->
+                <div class="flex flex-col gap-4 rounded-lg bg-gray-100 dark:bg-white/5 p-6">
+                    <h3 class="text-gray-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] font-display">Các sản phẩm trong đơn hàng</h3>
+                    <div class="flow-root">
+                        <div class="-mx-6 -my-2 overflow-x-auto">
+                            <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-white/10">
+                                    <thead>
+                                        <tr>
+                                            <th class="py-3.5 pl-6 pr-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-200" scope="col">Sản phẩm</th>
+                                            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-700 dark:text-gray-200" scope="col">Số lượng</th>
+                                            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-700 dark:text-gray-200 hidden sm:table-cell" scope="col">Đơn giá</th>
+                                            <th class="relative py-3.5 pl-3 pr-6 text-right text-sm font-semibold text-gray-700 dark:text-gray-200" scope="col">Tạm tính</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200 dark:divide-white/10">
+                                        @if (Model.OrderItems != null && Model.OrderItems.Any())
+                                        {
+                                            @foreach (var item in Model.OrderItems)
+                                            {
+                                                <tr>
+                                                    <td class="whitespace-nowrap py-4 pl-6 pr-3 text-sm">
+                                                        <div class="flex items-center">
+                                                            <div class="h-16 w-16 flex-shrink-0">
+                                                                <img class="h-16 w-16 rounded-md object-cover" 
+                                                                     alt="@(item.Product?.Name ?? "Sản phẩm")" 
+                                                                     src="@(string.IsNullOrEmpty(item.Product?.ImageUrl) ? "https://images.unsplash.com/photo-1523275335684-37898b6baf30" : item.Product.ImageUrl)" />
+                                                            </div>
+                                                            <div class="ml-4">
+                                                                <div class="font-medium text-gray-800 dark:text-white">@(item.Product?.Name ?? "Sản phẩm không xác định")</div>
+                                                                <div class="text-gray-500 dark:text-gray-400">@(item.Product?.Brand ?? "")</div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-600 dark:text-gray-300">@item.Quantity</td>
+                                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-600 dark:text-gray-300 hidden sm:table-cell">@item.Price.ToString("N0") ₫</td>
+                                                    <td class="whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm font-medium text-gray-800 dark:text-white">@((item.Quantity * item.Price).ToString("N0")) ₫</td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="border-t border-gray-200 dark:border-white/10">
+                                            <th class="hidden pl-6 pr-3 pt-4 text-right text-sm font-normal text-gray-600 dark:text-gray-400 sm:table-cell" colspan="3" scope="row">Tạm tính</th>
+                                            <th class="pl-6 pr-3 pt-4 text-left text-sm font-normal text-gray-600 dark:text-gray-400 sm:hidden" scope="row">Tạm tính</th>
+                                            <td class="pl-3 pr-6 pt-4 text-right text-sm text-gray-800 dark:text-white">@subtotal.ToString("N0") ₫</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="hidden pl-6 pr-3 pt-2 text-right text-sm font-normal text-gray-600 dark:text-gray-400 sm:table-cell" colspan="3" scope="row">Phí vận chuyển</th>
+                                            <th class="pl-6 pr-3 pt-2 text-left text-sm font-normal text-gray-600 dark:text-gray-400 sm:hidden" scope="row">Phí vận chuyển</th>
+                                            <td class="pl-3 pr-6 pt-2 text-right text-sm text-gray-800 dark:text-white">@Model.ShippingFee.ToString("N0") ₫</td>
+                                        </tr>
+                                        <tr class="font-semibold text-gray-800 dark:text-white">
+                                            <th class="hidden pl-6 pr-3 pt-2 text-right text-sm sm:table-cell" colspan="3" scope="row">Tổng cộng</th>
+                                            <th class="pl-6 pr-3 pt-2 text-left text-sm sm:hidden" scope="row">Tổng cộng</th>
+                                            <td class="pl-3 pr-6 pt-2 text-right text-sm">@Model.TotalAmount.ToString("N0") ₫</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        @await Html.PartialAsync("_Footer")
+    </div>
+    @await Html.PartialAsync("_CommonScripts")
+    @await Html.PartialAsync("_LoginModal")
+    <script>
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-24 right-4 z-50 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full ${
+                type === 'error' ? 'bg-red-500' : 
+                type === 'success' ? 'bg-green-500' : 
+                'bg-primary'
+            } text-white font-medium`;
+            notification.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined">${
+                        type === 'error' ? 'error' : 
+                        type === 'success' ? 'check_circle' : 
+                        'info'
+                    }</span>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+                notification.classList.add('translate-x-0');
+            }, 10);
+            
+            setTimeout(() => {
+                notification.classList.remove('translate-x-0');
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        function cancelOrder() {
+            if (!confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?')) {
+                return;
+            }
+
+            const orderId = @Model.Id;
+            
+            fetch('/Order/Cancel', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                },
+                body: JSON.stringify({ orderId: orderId })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    showNotification('Đơn hàng đã được hủy thành công', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/Order';
+                    }, 2000);
+                } else {
+                    showNotification(data.message || 'Có lỗi xảy ra khi hủy đơn hàng', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Có lỗi xảy ra khi hủy đơn hàng. Vui lòng thử lại.', 'error');
+            });
+        }
+    </script>
+</body>
+</html>
+

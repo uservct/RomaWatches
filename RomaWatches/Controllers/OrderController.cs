@@ -62,6 +62,88 @@ namespace RomaWatches.Controllers
             ViewBag.CurrentStatus = status;
             return View(orders);
         }
+
+        // GET: Order/Details/{id}
+        public async Task<IActionResult> Details(int id)
+        {
+            if (id <= 0)
+            {
+                return NotFound();
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Load order with OrderItems and Products, verify it belongs to the user
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                .FirstOrDefaultAsync(o => o.Id == id && o.UserId == user.Id);
+
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            return View(order);
+        }
+
+        // POST: Order/Cancel
+        [HttpPost]
+        [IgnoreAntiforgeryToken]
+        public async Task<IActionResult> Cancel([FromBody] CancelOrderRequest request)
+        {
+            try
+            {
+                if (request == null || request.OrderId <= 0)
+                {
+                    return Json(new { success = false, message = "Dữ liệu không hợp lệ" });
+                }
+
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "Vui lòng đăng nhập" });
+                }
+
+                // Verify order belongs to user
+                var order = await _context.Orders
+                    .FirstOrDefaultAsync(o => o.Id == request.OrderId && o.UserId == user.Id);
+
+                if (order == null)
+                {
+                    return Json(new { success = false, message = "Đơn hàng không tồn tại" });
+                }
+
+                // Check if order can be cancelled (not Completed)
+                if (order.Status == OrderStatus.Completed)
+                {
+                    return Json(new { success = false, message = "Không thể hủy đơn hàng đã hoàn thành" });
+                }
+
+                // Update order status to Cancelled
+                order.Status = OrderStatus.Cancelled;
+                order.UpdatedAt = DateTime.Now;
+
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Đơn hàng đã được hủy thành công" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error cancelling order");
+                return Json(new { success = false, message = "Có lỗi xảy ra khi hủy đơn hàng. Vui lòng thử lại." });
+            }
+        }
+    }
+
+    // Request model for cancelling order
+    public class CancelOrderRequest
+    {
+        public int OrderId { get; set; }
     }
 }
 

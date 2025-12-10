@@ -771,22 +771,46 @@
                 return;
             }
             
-            // TODO: Implement buy now logic
-            // This should add to cart and redirect to checkout
             const button = event.target.closest('button');
             const originalText = button.innerHTML;
             
             button.disabled = true;
-            button.innerHTML = '<span class="material-symbols-outlined text-base">check</span><span class="text-sm">Đang xử lý...</span>';
+            button.innerHTML = '<span class="material-symbols-outlined text-base">hourglass_empty</span><span class="text-sm">Đang xử lý...</span>';
             
-            // Simulate processing
-            setTimeout(() => {
-                // Redirect to cart or checkout page
-                // window.location.href = '/Cart/Checkout';
-                
+            // Get anti-forgery token
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+            
+            // Use BuyNow endpoint to clear cart and add only this product
+            fetch('/Cart/BuyNow', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify({ productId: productId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update cart count in header
+                    if (data.cartCount !== undefined && typeof updateCartCountInHeader === 'function') {
+                        updateCartCountInHeader(data.cartCount);
+                    }
+                    
+                    // Redirect to checkout immediately
+                    window.location.href = '/Checkout';
+                } else {
+                    button.disabled = false;
+                    button.innerHTML = originalText;
+                    showNotification(data.message || 'Có lỗi xảy ra khi xử lý đơn hàng', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
                 button.disabled = false;
                 button.innerHTML = originalText;
-            }, 1000);
+                showNotification('Có lỗi xảy ra khi xử lý đơn hàng. Vui lòng thử lại.', 'error');
+            });
         }
 
         // Add to cart function

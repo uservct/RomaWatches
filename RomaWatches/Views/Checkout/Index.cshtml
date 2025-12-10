@@ -340,8 +340,10 @@
                         button.disabled = false;
                         button.innerHTML = originalText;
                         // Don't update cart count yet - will update when user confirms payment
+                        // Don't mark as successful yet - wait for payment confirmation
                     } else {
-                        // For other payment methods, clear cart and update count
+                        // For other payment methods, mark as successful and redirect
+                        window.checkoutSuccessful = true;
                         if (typeof updateCartCountInHeader === 'function') {
                             updateCartCountInHeader(0);
                         }
@@ -417,6 +419,9 @@
             })
             .then(data => {
                 if (data.success) {
+                    // Mark checkout as successful
+                    window.checkoutSuccessful = true;
+                    
                     // Update cart count in header
                     if (typeof updateCartCountInHeader === 'function') {
                         updateCartCountInHeader(0);
@@ -432,7 +437,11 @@
                     
                     // Redirect sau 2 giây
                     setTimeout(() => {
-                        window.location.href = '/Order';
+                        if (data.redirectUrl) {
+                            window.location.href = data.redirectUrl;
+                        } else {
+                            window.location.href = '/Order';
+                        }
                     }, 2000);
                 } else {
                     showNotification(data.message || 'Có lỗi xảy ra khi xác nhận thanh toán', 'error');
@@ -453,6 +462,51 @@
             // Redirect đến trang đơn hàng
             window.location.href = '/Order';
         }
+
+        // Track if checkout was successful (initialize as false)
+        window.checkoutSuccessful = false;
+
+        // Auto-restore cart when user leaves checkout page without completing order
+        window.addEventListener('beforeunload', function(e) {
+            if (!window.checkoutSuccessful) {
+                // Try to restore cart silently (use fetch with keepalive for reliability)
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+                if (token) {
+                    fetch('/Cart/RestoreCart', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': token
+                        },
+                        body: JSON.stringify({}),
+                        keepalive: true
+                    }).catch(() => {
+                        // Ignore errors during page unload
+                    });
+                }
+            }
+        });
+
+        // Also restore when page becomes hidden (user switches tabs, minimizes, etc.)
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && !window.checkoutSuccessful) {
+                // User is leaving the page, try to restore cart
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+                if (token) {
+                    fetch('/Cart/RestoreCart', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': token
+                        },
+                        body: JSON.stringify({}),
+                        keepalive: true
+                    }).catch(() => {
+                        // Ignore errors
+                    });
+                }
+            }
+        });
     </script>
 </body>
 </html>
