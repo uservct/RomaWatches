@@ -12,6 +12,7 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>@ViewData["Title"]</title>
+    <!-- Import Tailwind CSS và Fonts -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700;900&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
@@ -21,6 +22,7 @@
         }
     </style>
     <script id="tailwind-config">
+        // Cấu hình Tailwind CSS
         tailwind.config = {
             darkMode: "class",
             theme: {
@@ -49,6 +51,7 @@
         @await Html.PartialAsync("_Header")
         <div class="h-[72px]"></div>
         <main class="w-full max-w-screen-2xl mx-auto px-4 sm:px-8 lg:px-10 py-8">
+            <!-- Breadcrumbs: Điều hướng phân cấp -->
             <div class="flex flex-wrap gap-2 mb-8">
                 <a class="text-neutral-500 dark:text-[#b9b29d] text-sm font-medium leading-normal hover:text-primary" asp-controller="Home" asp-action="Index">Trang chủ</a>
                 <span class="text-neutral-500 dark:text-[#b9b29d] text-sm font-medium leading-normal">/</span>
@@ -65,11 +68,12 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
-                <!-- Product Images -->
+                <!-- Product Images: Hình ảnh sản phẩm -->
                 <div class="flex flex-col-reverse md:flex-row gap-4">
                     <div class="flex md:flex-col gap-3 justify-center md:justify-start">
                         @if (!string.IsNullOrEmpty(Model.ImageUrl))
                         {
+                            <!-- Thumbnails -->
                             <div class="w-20 bg-center bg-no-repeat aspect-square bg-cover rounded-lg ring-2 ring-primary cursor-pointer thumbnail-image" data-main-image="@Model.ImageUrl">
                                 <img src="@Model.ImageUrl" alt="@Model.Name" class="w-full h-full object-cover rounded-lg" />
                             </div>
@@ -91,6 +95,7 @@
                         }
                     </div>
                     <div class="flex-1">
+                        <!-- Main Image -->
                         <div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl overflow-hidden" id="mainProductImage">
                             <img src="@(string.IsNullOrEmpty(Model.ImageUrl) ? "https://images.unsplash.com/photo-1523275335684-37898b6baf30" : Model.ImageUrl)" 
                                  alt="@Model.Name" 
@@ -99,7 +104,7 @@
                     </div>
                 </div>
 
-                <!-- Product Info -->
+                <!-- Product Info: Thông tin sản phẩm -->
                 <div class="flex flex-col gap-6 pt-4">
                     <div>
                         <p class="text-primary text-sm font-bold uppercase tracking-wider font-sans">@Model.Brand</p>
@@ -120,6 +125,8 @@
                     {
                         <p class="text-neutral-600 dark:text-[#b9b29d] text-base font-normal leading-relaxed font-sans">@Model.Description</p>
                     }
+                    
+                    <!-- Action Buttons: Nút mua hàng -->
                     <div class="flex flex-col sm:flex-row gap-4 pt-4">
                         <button onclick="addToCart(@Model.Id, event)" class="flex-1 flex max-w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 bg-neutral-700 dark:bg-neutral-600 hover:bg-neutral-800 dark:hover:bg-neutral-700 text-white gap-2 text-base font-semibold leading-normal tracking-[0.015em] px-6 transition-colors">
                             <span class="material-symbols-outlined text-xl">add_shopping_cart</span>
@@ -130,6 +137,8 @@
                             Mua ngay
                         </button>
                     </div>
+                    
+                    <!-- Additional Info: Thông tin bổ sung -->
                     <div class="pt-6 flex flex-col gap-4 text-sm font-sans border-t border-neutral-200 dark:border-neutral-800">
                         <div class="flex items-center gap-3 text-neutral-600 dark:text-[#b9b29d]">
                             <span class="material-symbols-outlined text-primary text-2xl">local_shipping</span>
@@ -147,7 +156,7 @@
                 </div>
             </div>
 
-            <!-- Product Specifications -->
+            <!-- Product Specifications: Thông số kỹ thuật -->
             <div class="mt-16 lg:mt-24">
                 <div class="border-b border-neutral-200 dark:border-neutral-800">
                     <nav aria-label="Tabs" class="flex gap-8 -mb-px font-sans">
@@ -265,7 +274,7 @@
     @await Html.PartialAsync("_LoginModal")
     @await Html.PartialAsync("_CommonScripts")
     <script>
-        // Thumbnail image click handler
+        // Xử lý sự kiện click vào ảnh thumbnail
         document.addEventListener('DOMContentLoaded', function() {
             const thumbnails = document.querySelectorAll('.thumbnail-image');
             const mainImage = document.getElementById('mainProductImage');
@@ -276,7 +285,7 @@
                     const imageUrl = this.getAttribute('data-main-image');
                     if (imageUrl && mainImageImg) {
                         mainImageImg.src = imageUrl;
-                        // Update active thumbnail
+                        // Cập nhật thumbnail đang active
                         thumbnails.forEach(t => {
                             t.classList.remove('ring-2', 'ring-primary');
                             t.classList.add('border', 'border-neutral-200', 'dark:border-neutral-800');
@@ -288,7 +297,7 @@
             });
         });
 
-        // Tab navigation
+        // Xử lý chuyển tab (Thông số, Mô tả, Đánh giá)
         document.addEventListener('DOMContentLoaded', function() {
             const tabs = document.querySelectorAll('nav[aria-label="Tabs"] a');
             const sections = {
@@ -303,7 +312,7 @@
                     const href = this.getAttribute('href');
                     const sectionId = href.replace('#', '');
 
-                    // Update tab styles
+                    // Cập nhật style cho tab
                     tabs.forEach(t => {
                         t.classList.remove('text-primary', 'border-primary');
                         t.classList.add('text-neutral-500', 'dark:text-neutral-400', 'border-transparent');
@@ -313,7 +322,7 @@
                     this.classList.remove('text-neutral-500', 'dark:text-neutral-400', 'border-transparent');
                     this.setAttribute('aria-current', 'page');
 
-                    // Show/hide sections
+                    // Ẩn/Hiện các section tương ứng
                     Object.keys(sections).forEach(key => {
                         if (sections[key]) {
                             if (key === sectionId) {
@@ -327,17 +336,17 @@
             });
         });
 
-        // Check if user is logged in
+        // Kiểm tra xem người dùng đã đăng nhập chưa
         function isUserLoggedIn() {
-            // Check if user info exists in header (sign out button indicates logged in)
+            // Kiểm tra thông tin user trên header hoặc nút đăng xuất
             return document.querySelector('form[asp-controller="Account"][asp-action="Logout"]') !== null ||
                    document.querySelector('a[asp-controller="Admin"]') !== null ||
                    @(SignInManager.IsSignedIn(User) ? "true" : "false");
         }
 
-        // Show notification message
+        // Hiển thị thông báo (Toast notification)
         function showNotification(message, type = 'info') {
-            // Create notification element
+            // Tạo element thông báo
             const notification = document.createElement('div');
             notification.className = `fixed top-24 right-4 z-50 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full ${
                 type === 'error' ? 'bg-red-500' : 
@@ -357,13 +366,13 @@
             
             document.body.appendChild(notification);
             
-            // Animate in
+            // Hiệu ứng trượt vào
             setTimeout(() => {
                 notification.classList.remove('translate-x-full');
                 notification.classList.add('translate-x-0');
             }, 10);
             
-            // Animate out and remove
+            // Hiệu ứng trượt ra và xóa
             setTimeout(() => {
                 notification.classList.remove('translate-x-0');
                 notification.classList.add('translate-x-full');
@@ -373,14 +382,14 @@
             }, 3000);
         }
 
-        // Add to cart function
+        // Hàm thêm vào giỏ hàng
         function addToCart(productId, event) {
             if (event) {
                 event.preventDefault();
                 event.stopPropagation();
             }
             
-            // Check if user is logged in
+            // Kiểm tra đăng nhập
             if (!isUserLoggedIn()) {
                 showNotification('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng', 'error');
                 setTimeout(() => {
@@ -395,7 +404,7 @@
             button.disabled = true;
             button.innerHTML = '<span class="material-symbols-outlined text-xl">hourglass_empty</span><span>Đang thêm...</span>';
             
-            // Get anti-forgery token
+            // Lấy anti-forgery token
             const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
             
             fetch('/Cart/Add', {
@@ -413,7 +422,7 @@
                     button.classList.remove('bg-neutral-700', 'dark:bg-neutral-600', 'hover:bg-neutral-800', 'dark:hover:bg-neutral-700');
                     button.classList.add('bg-green-500', 'hover:bg-green-600');
                     
-                    // Update cart count in header
+                    // Cập nhật số lượng giỏ hàng trên header
                     if (data.cartCount !== undefined) {
                         updateCartCountInHeader(data.cartCount);
                     }
@@ -452,14 +461,14 @@
             }
         }
 
-        // Buy now function
+        // Hàm Mua ngay
         function buyNow(productId, event) {
             if (event) {
                 event.preventDefault();
                 event.stopPropagation();
             }
             
-            // Check if user is logged in
+            // Kiểm tra đăng nhập
             if (!isUserLoggedIn()) {
                 showNotification('Vui lòng đăng nhập để mua sản phẩm', 'error');
                 setTimeout(() => {
@@ -474,10 +483,10 @@
             button.disabled = true;
             button.innerHTML = '<span class="material-symbols-outlined text-xl">hourglass_empty</span><span>Đang xử lý...</span>';
             
-            // Get anti-forgery token
+            // Lấy anti-forgery token
             const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
             
-            // Use BuyNow endpoint to clear cart and add only this product
+            // Sử dụng endpoint BuyNow để xóa giỏ hàng cũ và chỉ thêm sản phẩm này
             fetch('/Cart/BuyNow', {
                 method: 'POST',
                 headers: {
@@ -489,12 +498,12 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Update cart count in header
+                    // Cập nhật số lượng giỏ hàng
                     if (data.cartCount !== undefined && typeof updateCartCountInHeader === 'function') {
                         updateCartCountInHeader(data.cartCount);
                     }
                     
-                    // Redirect to checkout immediately
+                    // Chuyển hướng đến trang thanh toán ngay lập tức
                     window.location.href = '/Checkout';
                 } else {
                     button.disabled = false;
@@ -512,6 +521,3 @@
     </script>
 </body>
 </html>
-
-
-

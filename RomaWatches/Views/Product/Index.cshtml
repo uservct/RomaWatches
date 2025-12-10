@@ -12,6 +12,7 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>@ViewData["Title"]</title>
+    <!-- Import Tailwind CSS và Fonts -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700;900&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
@@ -21,6 +22,7 @@
         }
     </style>
     <script id="tailwind-config">
+        // Cấu hình Tailwind CSS
         tailwind.config = {
             darkMode: "class",
             theme: {
@@ -50,6 +52,7 @@
         <div class="h-[72px]"></div>
         <main class="w-full max-w-screen-2xl mx-auto px-4 sm:px-8 lg:px-10 py-8">
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                <!-- Sidebar: Bộ lọc sản phẩm -->
                 <aside class="lg:col-span-1 lg:sticky lg:top-24 h-fit">
                     <div class="flex h-full min-h-[700px] flex-col justify-between bg-transparent p-4 rounded-lg border border-neutral-200/50 dark:border-white/10">
                         <div class="flex flex-col gap-6">
@@ -241,8 +244,11 @@
                         </div>
                     </div>
                 </aside>
+                
+                <!-- Main Content: Danh sách sản phẩm -->
                 <div class="lg:col-span-3">
                     <div class="flex flex-col gap-4 mb-6">
+                        <!-- Breadcrumbs -->
                         <div class="flex flex-wrap gap-2">
                             <a class="text-neutral-500 dark:text-[#b9b29d] text-sm font-medium leading-normal" asp-controller="Home" asp-action="Index">Trang chủ</a>
                             <span class="text-neutral-500 dark:text-[#b9b29d] text-sm font-medium leading-normal">/</span>
@@ -253,6 +259,8 @@
                         <p class="text-neutral-800 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em] font-display">Đồng Hồ Sang Trọng</p>
                         <p class="text-neutral-500 dark:text-[#b9b29d] text-base font-normal leading-normal">Khám phá bộ sưu tập đồng hồ được tuyển chọn của chúng tôi</p>
                     </div>
+                    
+                    <!-- Sorting Dropdown -->
                     <div class="flex justify-end mb-6">
                         <div class="flex gap-3 pb-2">
                             <div class="relative" style="z-index: 50;">
@@ -276,6 +284,8 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Products Grid -->
                     <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
                         @if (Model != null && Model.Any())
                         {
@@ -314,6 +324,8 @@
                             </div>
                         }
                     </div>
+                    
+                    <!-- Pagination (Static for now) -->
                     <nav aria-label="Pagination" class="flex items-center justify-center mt-12">
                         <a class="relative inline-flex items-center rounded-l-md px-2 py-2 text-neutral-500 dark:text-neutral-400 ring-1 ring-inset ring-neutral-300 dark:ring-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 focus:z-20 focus:outline-offset-0" href="#">
                             <span class="sr-only">Trước</span>
@@ -847,9 +859,9 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-            button.innerHTML = '<span class="material-symbols-outlined text-base">check</span><span class="text-sm">Đã thêm</span>';
-            button.classList.remove('bg-neutral-700', 'dark:bg-neutral-600', 'hover:bg-neutral-800', 'dark:hover:bg-neutral-700');
-            button.classList.add('bg-green-500', 'hover:bg-green-600');
+                    button.innerHTML = '<span class="material-symbols-outlined text-base">check</span><span class="text-sm">Đã thêm</span>';
+                    button.classList.remove('bg-neutral-700', 'dark:bg-neutral-600', 'hover:bg-neutral-800', 'dark:hover:bg-neutral-700');
+                    button.classList.add('bg-green-500', 'hover:bg-green-600');
             
                     // Update cart count in header
                     if (data.cartCount !== undefined) {
@@ -858,12 +870,12 @@
                     
                     showNotification(data.message || 'Đã thêm sản phẩm vào giỏ hàng', 'success');
                     
-            setTimeout(() => {
-                button.disabled = false;
-                button.innerHTML = originalText;
-                button.classList.remove('bg-green-500', 'hover:bg-green-600');
-                button.classList.add('bg-neutral-700', 'dark:bg-neutral-600', 'hover:bg-neutral-800', 'dark:hover:bg-neutral-700');
-            }, 2000);
+                    setTimeout(() => {
+                        button.disabled = false;
+                        button.innerHTML = originalText;
+                        button.classList.remove('bg-green-500', 'hover:bg-green-600');
+                        button.classList.add('bg-neutral-700', 'dark:bg-neutral-600', 'hover:bg-neutral-800', 'dark:hover:bg-neutral-700');
+                    }, 2000);
                 } else {
                     button.disabled = false;
                     button.innerHTML = originalText;
@@ -892,4 +904,3 @@
     </script>
 </body>
 </html>
-

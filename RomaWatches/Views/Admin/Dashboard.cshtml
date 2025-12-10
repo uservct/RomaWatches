@@ -3,10 +3,15 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 @{
+    // Thiết lập tiêu đề trang và layout (Layout = null vì trang Admin có layout riêng biệt).
     ViewData["Title"] = "ROMA WATCHES - Admin Dashboard";
     Layout = null;
+    
+    // Lấy thông tin người dùng hiện tại.
     var user = await UserManager.GetUserAsync(User);
     
+    // Kiểm tra quyền Admin. Nếu không phải admin, chuyển hướng về trang chủ.
+    // Mặc dù đã có [Authorize] ở Controller, việc kiểm tra lại ở View là một lớp bảo mật bổ sung.
     if (user == null || user.Role != "admin")
     {
         Context.Response.Redirect("/");
@@ -20,18 +25,20 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>@ViewData["Title"]</title>
+    <!-- Import Tailwind CSS và Fonts -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <script>
+        // Cấu hình Tailwind CSS cho trang Admin
         tailwind.config = {
             darkMode: "class",
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#137fec",
+                        "primary": "#137fec", // Màu xanh chủ đạo cho Admin Panel
                         "background-light": "#f6f7f8",
                         "background-dark": "#101922",
                     },
@@ -55,6 +62,7 @@
         }
     </style>
     <script>
+        // Script xử lý menu người dùng (Dropdown)
         function toggleUserMenu() {
             const menu = document.getElementById('userMenu');
             if (menu) {
@@ -66,7 +74,7 @@
             }
         }
 
-        // Close menu when clicking outside
+        // Đóng menu khi click ra ngoài
         document.addEventListener('click', function(event) {
             const menu = document.getElementById('userMenu');
             const avatar = event.target.closest('[onclick="toggleUserMenu()"]');
@@ -79,10 +87,11 @@
 </head>
 <body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
     <div class="flex min-h-screen w-full">
-        <!-- SideNavBar -->
+        <!-- SideNavBar: Thanh điều hướng bên trái -->
         <aside class="flex w-64 flex-col border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-background-dark/50">
             <div class="flex h-full flex-col justify-between p-4">
                 <div class="flex flex-col gap-8">
+                    <!-- Logo và Tên ứng dụng -->
                     <div class="flex items-center gap-3 px-3 py-2">
                         <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="ROMA WATCHES company logo" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDUu5M3mCEJrvnvT022A99mkMBL2CHHROnZMHrSrji-wIAOHYJbeRe-7SNYVfn3HmCO7zxAbSz3HzNeJNChG_3Fw2kPzLnTvYuOKLNacEpVBFHPO93bIGyNWpWbSxpnru2T8BE0Bk2rzHbLh-8Xg8yQrDR_4JXqXyY2R8dY3PLnnQg-HBo-TuPDwFzvYp4-Se9V8H9_cXsbfzp9kzXlBN3vdqIYsF0553cJjBlhSMdl07Qdg4KAslQJZs00q1cp4FFlI1_Q0qYEb54");'></div>
                         <div class="flex flex-col">
@@ -90,6 +99,7 @@
                             <p class="text-gray-500 dark:text-gray-400 text-sm font-normal leading-normal">Admin Panel</p>
                         </div>
                     </div>
+                    <!-- Menu Navigation -->
                     <nav class="flex flex-col gap-2">
                         <a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 dark:bg-primary/20 text-primary" href="#">
                             <span class="material-symbols-outlined text-primary">dashboard</span>
@@ -111,16 +121,21 @@
                 </div>
             </div>
         </aside>
+        
+        <!-- Main Content Area -->
         <div class="flex flex-1 flex-col">
-            <!-- ToolBar -->
+            <!-- ToolBar: Thanh công cụ phía trên -->
             <header class="flex h-16 items-center justify-end gap-2 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-background-dark/50 px-6">
+                <!-- Search Bar -->
                 <div class="relative w-full max-w-xs">
                     <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
                     <input class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-background-light dark:bg-gray-900 pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Search..." type="text" />
                 </div>
+                <!-- Notifications -->
                 <button class="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white">
                     <span class="material-symbols-outlined">notifications</span>
                 </button>
+                <!-- User Profile & Menu -->
                 <div class="relative">
                     <button onclick="toggleUserMenu()" class="h-8 w-8 rounded-full bg-cover bg-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 hover:ring-2 hover:ring-primary/50 transition-all" data-alt="User avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDqgdYhOMCU33kmsJXuYn9TBqN38APm-yD11q5WFPnUwmaQzWaRUsziwSrgl045SNKm1uZpORDTao5Zmq6Dt2PCcJa42eok6V1JOsVXy8y6Ev7e-ljjQj7X6lQTykg8pzSriaQbHVvzAGpGIOoL2bUdHd6u4LHNi4FtOKywh5LLc1g-jTUtbW3aBJMvApgpFDL_fVX5DaTgkvCaEa8IUqqVkIfhQdkvjY-fyFn8EG5eoZVtEmmGsg94PaChd6UPjezVPlSYM2X6IVE");'></button>
                     <div id="userMenu" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg opacity-0 invisible transition-all duration-200 z-50 hidden">
@@ -140,6 +155,8 @@
                     </div>
                 </div>
             </header>
+            
+            <!-- Dashboard Content -->
             <main class="flex-1 overflow-y-auto p-6 md:p-8">
                 <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
                     <!-- Main Content Column -->
@@ -148,7 +165,7 @@
                         <div class="flex flex-wrap items-center justify-between gap-3">
                             <p class="text-gray-900 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">Dashboard</p>
                         </div>
-                        <!-- Stats -->
+                        <!-- Stats: Thống kê nhanh -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                             <div class="flex flex-col gap-2 rounded-xl p-6 border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50">
                                 <p class="text-gray-700 dark:text-gray-300 text-base font-medium leading-normal">Total Revenue</p>
@@ -171,7 +188,7 @@
                                 <p class="text-red-600 dark:text-red-500 text-sm font-medium leading-normal">-0.5%</p>
                             </div>
                         </div>
-                        <!-- Revenue Overview Chart -->
+                        <!-- Revenue Overview Chart: Biểu đồ doanh thu -->
                         <div class="flex flex-col gap-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50 p-6">
                             <div class="flex justify-between items-center">
                                 <h2 class="text-gray-900 dark:text-white text-xl font-bold leading-tight">Revenue Overview</h2>
@@ -183,7 +200,7 @@
                             </div>
                             <img class="w-full h-auto dark:invert-[0.85] dark:hue-rotate-180" data-alt="A line chart showing revenue trends over the last 30 days. The trend is generally upward." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSCWsJMhzf1IYQylG6Fr3FYLvPw0SCSnzZ9cV8Z1cssAWGTg9xHx_8Xix8QdRyk2oAniRE2w4lro5Wt-wYWTv-k8Wfx7-IGnvcYMeMttmqNTMf53M_RatSDyKio90prSnYJK6v_mHIb92apkVBNTJX3XOo6n271sP7-ZHWGsWoRPplsdkO3sVrFMpEa1_1awBAnCH-HMTum2Mgv5qsP9mKOI-JGKKlUPyeLDkIvGD-AR0thz6GvSNOVPQJYpebo7s2ZbF-IfUMGjA" />
                         </div>
-                        <!-- Recent Orders Table -->
+                        <!-- Recent Orders Table: Bảng đơn hàng gần đây -->
                         <div class="flex flex-col gap-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50 p-6">
                             <h2 class="text-gray-900 dark:text-white text-xl font-bold leading-tight">Recent Orders</h2>
                             <div class="overflow-x-auto">
@@ -238,7 +255,7 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Right Sidebar Column -->
+                    <!-- Right Sidebar Column: Sản phẩm bán chạy -->
                     <div class="xl:col-span-1 flex flex-col gap-8">
                         <div class="flex flex-col gap-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50 p-6">
                             <h2 class="text-gray-900 dark:text-white text-xl font-bold leading-tight">Top Selling Products</h2>
@@ -287,4 +304,3 @@
     </div>
 </body>
 </html>
-

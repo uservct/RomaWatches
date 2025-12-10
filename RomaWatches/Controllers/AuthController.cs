@@ -5,15 +5,17 @@ using RomaWatches.Models;
 
 namespace RomaWatches.Controllers
 {
+    // API Controller xử lý xác thực từ bên thứ 3 (ví dụ: Google).
     [ApiController]
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly IConfiguration _configuration;
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly ILogger<AuthController> _logger;
+        private readonly IConfiguration _configuration; // Cấu hình hệ thống.
+        private readonly UserManager<ApplicationUser> _userManager; // Quản lý người dùng.
+        private readonly SignInManager<ApplicationUser> _signInManager; // Quản lý đăng nhập.
+        private readonly ILogger<AuthController> _logger; // Logger.
 
+        // Constructor injection.
         public AuthController(
             IConfiguration configuration,
             UserManager<ApplicationUser> userManager,
@@ -26,36 +28,38 @@ namespace RomaWatches.Controllers
             _logger = logger;
         }
 
+        // API xử lý đăng nhập bằng Google.
+        // POST: api/Auth/google
         [HttpPost("google")]
         public async Task<IActionResult> GoogleLogin([FromBody] IdTokenRequest request)
         {
             try
             {
-                // Validate Google token
+                // Xác thực token Google gửi lên.
                 var payload = await GoogleJsonWebSignature.ValidateAsync(request.id_token, new GoogleJsonWebSignature.ValidationSettings
                 {
-                    Audience = new[] { _configuration["Google:ClientId"] }
+                    Audience = new[] { _configuration["Google:ClientId"] } // Kiểm tra Client ID.
                 });
 
-                // Lấy thông tin user từ Google
+                // Lấy thông tin user từ payload của Google.
                 var email = payload.Email;
                 var name = payload.Name;
                 var googleId = payload.Subject;
 
                 _logger.LogInformation("Google login attempt for email: {Email}", email);
 
-                // Tìm user trong database theo email
+                // Tìm user trong database theo email.
                 var user = await _userManager.FindByEmailAsync(email);
 
                 if (user == null)
                 {
-                    // Tạo user mới nếu chưa tồn tại
+                    // Tạo user mới nếu chưa tồn tại.
                     var nameParts = name.Split(' ', 2);
                     user = new ApplicationUser
                     {
                         UserName = email,
                         Email = email,
-                        EmailConfirmed = true,
+                        EmailConfirmed = true, // Email từ Google đã được xác thực.
                         FirstName = nameParts.Length > 0 ? nameParts[0] : name,
                         LastName = nameParts.Length > 1 ? nameParts[1] : "",
                         Role = "user"
@@ -72,7 +76,7 @@ namespace RomaWatches.Controllers
                     _logger.LogInformation("Created new user from Google login: {Email}", email);
                 }
 
-                // Đăng nhập user
+                // Đăng nhập user vào hệ thống (tạo cookie).
                 await _signInManager.SignInAsync(user, isPersistent: true);
                 _logger.LogInformation("User logged in successfully via Google: {Email}", email);
 
@@ -86,6 +90,7 @@ namespace RomaWatches.Controllers
         }
     }
 
+    // Class DTO nhận token từ client.
     public class IdTokenRequest
     {
         public string id_token { get; set; } = string.Empty;

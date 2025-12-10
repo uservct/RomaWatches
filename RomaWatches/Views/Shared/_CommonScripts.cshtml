@@ -2,36 +2,39 @@
 @using RomaWatches.Models
 @inject SignInManager<ApplicationUser> SignInManager
 <script>
-    // Store login status from server
+    // Lưu trạng thái đăng nhập từ server để sử dụng ở client-side
     const userIsLoggedIn = @(SignInManager.IsSignedIn(User) ? "true" : "false");
     
-    // Open login modal function - shared across all pages
+    // Hàm mở modal đăng nhập - được sử dụng chung cho tất cả các trang
     function openLoginModal() {
         const modal = document.getElementById('loginModal');
         const modalContent = document.getElementById('modalContent');
         if (modal && modalContent) {
             modal.classList.remove('hidden');
+            // Hiệu ứng trượt vào
             modalContent.classList.remove('translate-x-full');
             modalContent.classList.add('translate-x-0');
+            // Ngăn cuộn trang khi modal mở
             document.body.style.overflow = 'hidden';
         }
     }
 
-    // Close login modal function
+    // Hàm đóng modal đăng nhập
     function closeLoginModal() {
         const modal = document.getElementById('loginModal');
         const modalContent = document.getElementById('modalContent');
         if (modal && modalContent) {
+            // Hiệu ứng trượt ra
             modalContent.classList.remove('translate-x-0');
             modalContent.classList.add('translate-x-full');
             setTimeout(() => {
                 modal.classList.add('hidden');
                 document.body.style.overflow = '';
-            }, 300); // Wait for animation to complete
+            }, 300); // Đợi hiệu ứng hoàn tất
         }
     }
 
-    // Toggle search bar
+    // Bật/tắt thanh tìm kiếm
     function toggleSearch() {
         const searchContainer = document.getElementById('searchContainer');
         const searchInput = document.getElementById('searchInput');
@@ -47,19 +50,19 @@
         }
     }
 
-    // Handle search form submission
+    // Xử lý khi submit form tìm kiếm
     function handleSearch(event) {
         event.preventDefault();
         const searchInput = document.getElementById('searchInput');
         
         if (searchInput && searchInput.value.trim()) {
             const searchQuery = encodeURIComponent(searchInput.value.trim());
-            // Redirect to Product page with search query
+            // Chuyển hướng đến trang sản phẩm với từ khóa tìm kiếm
             window.location.href = `/Product?searchQuery=${searchQuery}`;
         }
     }
 
-    // Close search when clicking outside
+    // Đóng thanh tìm kiếm khi click ra ngoài
     document.addEventListener('DOMContentLoaded', function() {
         document.addEventListener('click', function(event) {
             const searchContainer = document.getElementById('searchContainer');
@@ -77,11 +80,11 @@
             }
         });
 
-        // Load cart count on page load
+        // Tải số lượng giỏ hàng khi trang được tải
         loadCartCount();
     });
 
-    // Function to load cart count from server
+    // Hàm tải số lượng giỏ hàng từ server
     function loadCartCount() {
         fetch('/Cart/GetCartCount')
             .then(response => response.json())
@@ -93,7 +96,7 @@
             });
     }
 
-    // Function to update cart count in header
+    // Hàm cập nhật hiển thị số lượng giỏ hàng trên header
     function updateCartCountInHeader(count) {
         const cartBadge = document.querySelector('header .shopping-bag-badge');
         if (cartBadge) {
@@ -106,18 +109,18 @@
         }
     }
 
-    // Check if user is logged in
+    // Kiểm tra xem người dùng đã đăng nhập chưa
     function isUserLoggedIn() {
-        // First check server-side value (most reliable)
+        // Kiểm tra giá trị từ server trước (đáng tin cậy nhất)
         if (typeof userIsLoggedIn !== 'undefined' && userIsLoggedIn === true) {
             return true;
         }
-        // Fallback: Check if user info exists in header (sign out button indicates logged in)
+        // Fallback: Kiểm tra thông tin user trên header hoặc nút đăng xuất
         return document.querySelector('form[asp-controller="Account"][asp-action="Logout"]') !== null ||
                document.querySelector('a[asp-controller="Admin"]') !== null;
     }
 
-    // Show notification message
+    // Hiển thị thông báo (Toast notification)
     function showNotification(message, type = 'info') {
         const notification = document.createElement('div');
         notification.className = `fixed top-24 right-4 z-50 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full ${
@@ -138,11 +141,13 @@
         
         document.body.appendChild(notification);
         
+        // Hiệu ứng trượt vào
         setTimeout(() => {
             notification.classList.remove('translate-x-full');
             notification.classList.add('translate-x-0');
         }, 10);
         
+        // Hiệu ứng trượt ra và xóa
         setTimeout(() => {
             notification.classList.remove('translate-x-0');
             notification.classList.add('translate-x-full');
@@ -152,7 +157,7 @@
         }, 3000);
     }
 
-    // Handle cart click - check login before navigating
+    // Xử lý click vào giỏ hàng - kiểm tra đăng nhập trước khi điều hướng
     function handleCartClick(event) {
         event.preventDefault();
         event.stopPropagation();
@@ -167,8 +172,7 @@
             return;
         }
         
-        // If logged in, navigate to cart page
+        // Nếu đã đăng nhập, chuyển hướng đến trang giỏ hàng
         window.location.href = '/Cart';
     }
 </script>
-

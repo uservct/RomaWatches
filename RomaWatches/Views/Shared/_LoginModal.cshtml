@@ -3,10 +3,10 @@
 @inject SignInManager<ApplicationUser> SignInManager
 
 <div id="loginModal" class="fixed inset-0 z-50 hidden overflow-hidden">
-    <!-- Backdrop -->
+    <!-- Backdrop: Lớp nền mờ -->
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeLoginModal()"></div>
 
-    <!-- Modal Container - Slide from right -->
+    <!-- Modal Container - Trượt từ phải sang -->
     <div class="absolute right-0 top-0 h-full w-full max-w-md bg-[#1d190e] text-gray-300 shadow-2xl transform transition-transform duration-300 ease-in-out translate-x-full"
         id="modalContent">
         <button class="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors z-10"
@@ -16,7 +16,7 @@
 
         <div class="h-full overflow-y-auto">
             <div class="px-8 pt-8">
-                <!-- Tabs -->
+                <!-- Tabs: Chuyển đổi giữa Đăng nhập và Đăng ký -->
                 <div class="flex border-b border-white/10">
                     <button id="loginTab"
                         class="flex flex-1 flex-col items-center justify-center border-b-[3px] border-b-primary pb-3 pt-2"
@@ -33,12 +33,12 @@
                 </div>
             </div>
 
-            <!-- Login Content -->
+            <!-- Login Content: Form đăng nhập -->
             <div id="loginContent" class="flex flex-col p-8">
                 <h1 class="text-white tracking-light text-[32px] font-bold leading-tight text-left pb-4">Roma Watches
                 </h1>
 
-                <!-- Error/Success Messages -->
+                <!-- Thông báo Lỗi/Thành công -->
                 <div id="loginMessage" class="mb-4 hidden"></div>
 
                 <form id="loginForm" asp-controller="Account" asp-action="Login" method="post"
@@ -48,14 +48,14 @@
                         <p class="text-white/80 text-base font-medium leading-normal pb-2">Email</p>
                         <input name="email" type="email"
                             class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-white/20 bg-[#2b2618] h-14 placeholder:text-gray-500 p-4 text-base font-normal leading-normal transition-all"
-                            placeholder="Enter your email" required />
+                            placeholder="Nhập email của bạn" required />
                     </label>
                     <label class="flex flex-col">
                         <p class="text-white/80 text-base font-medium leading-normal pb-2">Mật khẩu</p>
                         <div class="relative flex w-full flex-1 items-stretch">
                             <input id="loginPassword" name="password" type="password"
                                 class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-white/20 bg-[#2b2618] h-14 placeholder:text-gray-500 p-4 text-base font-normal leading-normal transition-all pr-12"
-                                placeholder="Enter your password" required />
+                                placeholder="Nhập mật khẩu của bạn" required />
                             <div class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500 cursor-pointer"
                                 onclick="togglePasswordVisibility('loginPassword')">
                                 <span class="material-symbols-outlined" id="loginPasswordIcon">visibility_off</span>
@@ -77,10 +77,10 @@
                 </div>
 
                 <div class="flex flex-col gap-4">
-                    <!-- Google Sign-In Button will be rendered here -->
+                    <!-- Nút Đăng nhập Google sẽ được render tại đây -->
                     <div id="googleSignInButton" class="flex justify-center"></div>
                     
-                    <!-- Fallback custom button if Google button doesn't render -->
+                    <!-- Nút fallback nếu nút Google không render được -->
                     <button id="btnGoogleLoginFallback" style="display: none;"
                         class="flex items-center justify-center w-full h-14 px-6 rounded-lg bg-white/5 border border-white/10 text-white text-base font-semibold hover:bg-white/10 transition-colors">
                         <img alt="Google logo" class="h-6 w-auto mr-3"
@@ -90,12 +90,12 @@
                 </div>
             </div>
 
-            <!-- Register Content -->
+            <!-- Register Content: Form đăng ký -->
             <div id="registerContent" class="flex flex-col p-8 hidden">
                 <h1 class="text-white tracking-light text-[32px] font-bold leading-tight text-left pb-4">Đăng ký tài
                     khoản</h1>
 
-                <!-- Error/Success Messages -->
+                <!-- Thông báo Lỗi/Thành công -->
                 <div id="registerMessage" class="mb-4 hidden"></div>
 
                 <form id="registerForm" asp-controller="Account" asp-action="Register" method="post"
@@ -106,27 +106,27 @@
                             <p class="text-white/80 text-base font-medium leading-normal pb-2">Tên</p>
                             <input name="firstName" type="text"
                                 class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-white/20 bg-[#2b2618] h-14 placeholder:text-gray-500 p-4 text-base font-normal leading-normal transition-all"
-                                placeholder="First name" required />
+                                placeholder="Tên" required />
                         </label>
                         <label class="flex flex-col">
                             <p class="text-white/80 text-base font-medium leading-normal pb-2">Họ</p>
                             <input name="lastName" type="text"
                                 class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-white/20 bg-[#2b2618] h-14 placeholder:text-gray-500 p-4 text-base font-normal leading-normal transition-all"
-                                placeholder="Last name" required />
+                                placeholder="Họ" required />
                         </label>
                     </div>
                     <label class="flex flex-col">
                         <p class="text-white/80 text-base font-medium leading-normal pb-2">Email</p>
                         <input name="email" type="email"
                             class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-white/20 bg-[#2b2618] h-14 placeholder:text-gray-500 p-4 text-base font-normal leading-normal transition-all"
-                            placeholder="Enter your email" required />
+                            placeholder="Nhập email của bạn" required />
                     </label>
                     <label class="flex flex-col">
                         <p class="text-white/80 text-base font-medium leading-normal pb-2">Mật khẩu</p>
                         <div class="relative flex w-full flex-1 items-stretch">
                             <input id="registerPassword" name="password" type="password"
                                 class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-white/20 bg-[#2b2618] h-14 placeholder:text-gray-500 p-4 text-base font-normal leading-normal transition-all pr-12"
-                                placeholder="Enter your password" required />
+                                placeholder="Nhập mật khẩu" required />
                             <div class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500 cursor-pointer"
                                 onclick="togglePasswordVisibility('registerPassword')">
                                 <span class="material-symbols-outlined" id="registerPasswordIcon">visibility_off</span>
@@ -138,7 +138,7 @@
                         <div class="relative flex w-full flex-1 items-stretch">
                             <input id="confirmPassword" name="confirmPassword" type="password"
                                 class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-white/20 bg-[#2b2618] h-14 placeholder:text-gray-500 p-4 text-base font-normal leading-normal transition-all pr-12"
-                                placeholder="Confirm password" required />
+                                placeholder="Nhập lại mật khẩu" required />
                             <div class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500 cursor-pointer"
                                 onclick="togglePasswordVisibility('confirmPassword')">
                                 <span class="material-symbols-outlined" id="confirmPasswordIcon">visibility_off</span>
@@ -155,6 +155,7 @@
 </div>
 
 <script>
+    // Chuyển đổi giữa tab Đăng nhập và Đăng ký
     function switchTab(tab) {
         const loginTab = document.getElementById('loginTab');
         const registerTab = document.getElementById('registerTab');
@@ -190,6 +191,7 @@
         }
     }
 
+    // Ẩn/Hiện mật khẩu
     function togglePasswordVisibility(inputId) {
         const input = document.getElementById(inputId);
         const icon = document.getElementById(inputId + 'Icon');
@@ -202,6 +204,7 @@
         }
     }
 
+    // Hiển thị thông báo lỗi hoặc thành công
     function showMessage(elementId, message, isError) {
         const messageDiv = document.getElementById(elementId);
         messageDiv.textContent = message;
@@ -215,16 +218,16 @@
     }
 
     function showForgotPassword() {
-        showMessage('loginMessage', 'Forgot password feature coming soon!', false);
+        showMessage('loginMessage', 'Tính năng quên mật khẩu đang được phát triển!', false);
     }
 
-    // Handle form submissions
+    // Xử lý submit form Đăng nhập
     document.getElementById('loginForm')?.addEventListener('submit', async function (e) {
         e.preventDefault();
         const submitButton = this.querySelector('button[type="submit"]');
         const originalText = submitButton.textContent;
         submitButton.disabled = true;
-        submitButton.textContent = 'Logging in...';
+        submitButton.textContent = 'Đang đăng nhập...';
 
         try {
             const formData = new FormData(this);
@@ -264,12 +267,13 @@
         }
     });
 
+    // Xử lý submit form Đăng ký
     document.getElementById('registerForm')?.addEventListener('submit', async function (e) {
         e.preventDefault();
         const submitButton = this.querySelector('button[type="submit"]');
         const originalText = submitButton.textContent;
         submitButton.disabled = true;
-        submitButton.textContent = 'Registering...';
+        submitButton.textContent = 'Đang đăng ký...';
 
         try {
             const formData = new FormData(this);
@@ -318,13 +322,13 @@
     });
 </script>
 
-<!-- Google Identity Services script -->
+<!-- Script cho Google Identity Services -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
   function handleCredentialResponse(response) {
       console.log("Đang xử lý đăng nhập Google...");
       
-      // Show loading on the button area
+      // Hiển thị trạng thái đang tải
       const buttonDiv = document.getElementById('googleSignInButton');
       if (buttonDiv) {
           buttonDiv.innerHTML = '<div class="flex items-center justify-center h-14 text-white/70">Đang đăng nhập...</div>';
@@ -353,14 +357,14 @@
               }, 1000);
           } else {
               showMessage('loginMessage', data.message || 'Đăng nhập Google thất bại.', true);
-              // Re-render button on error
+              // Render lại nút nếu lỗi
               initializeGoogleSignIn();
           }
       })
       .catch(err => {
           console.error('Google login error:', err);
           showMessage('loginMessage', 'Có lỗi xảy ra khi đăng nhập với Google. Vui lòng thử lại.', true);
-          // Re-render button on error
+          // Render lại nút nếu lỗi
           initializeGoogleSignIn();
       });
   }
@@ -371,11 +375,11 @@
           google.accounts.id.initialize({
               client_id: '106868822898-9ltmbs2ona27tvtqrk09c7pqea87ge1m.apps.googleusercontent.com',
               callback: handleCredentialResponse,
-              ux_mode: 'popup', // Use popup instead of redirect
+              ux_mode: 'popup', // Sử dụng popup thay vì redirect
               auto_select: false
           });
 
-          // Render the Google Sign-In button
+          // Render nút Đăng nhập Google
           google.accounts.id.renderButton(
               document.getElementById('googleSignInButton'),
               {
@@ -391,14 +395,14 @@
           console.log('Google Sign-In button rendered successfully');
       } catch (error) {
           console.error('Error initializing Google Sign-In:', error);
-          // Show fallback button if Google button fails
+          // Hiển thị nút fallback nếu nút Google lỗi
           document.getElementById('btnGoogleLoginFallback').style.display = 'flex';
       }
   }
 
-  // Initialize when window loads and Google script is ready
+  // Khởi tạo khi window load và script Google đã sẵn sàng
   window.addEventListener('load', function() {
-      // Wait a bit for Google script to be fully loaded
+      // Đợi một chút để script Google load hoàn toàn
       setTimeout(function() {
           if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
               initializeGoogleSignIn();

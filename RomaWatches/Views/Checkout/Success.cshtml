@@ -7,7 +7,7 @@
     ViewData["Title"] = "ROMA WATCHES - Đặt hàng thành công";
     Layout = null;
     
-    // Determine message based on payment method
+    // Xác định thông báo dựa trên phương thức thanh toán
     var mainMessage = Model.PaymentMethod switch
     {
         PaymentMethod.COD => "Đơn hàng đã được xác nhận",
@@ -20,7 +20,7 @@
         ? "Vui lòng đến cửa hàng để mua sản phẩm" 
         : null;
     
-    // Determine icon based on payment method
+    // Xác định icon hiển thị
     var iconName = Model.PaymentMethod == PaymentMethod.BankTransfer 
         ? "schedule" 
         : "check_circle";
@@ -29,13 +29,13 @@
         ? "text-yellow-500" 
         : "text-primary";
     
-    // Format order number
+    // Định dạng mã đơn hàng
     var orderNumber = $"#RW{Model.Id}";
     
-    // Format date
+    // Định dạng ngày đặt hàng
     var orderDate = Model.CreatedAt.ToString("dd 'Tháng' M, yyyy", new CultureInfo("vi-VN"));
     
-    // Format payment method name
+    // Hiển thị tên phương thức thanh toán tiếng Việt
     var paymentMethodName = Model.PaymentMethod switch
     {
         PaymentMethod.COD => "Thanh toán khi nhận hàng",
@@ -50,6 +50,7 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>@ViewData["Title"]</title>
+    <!-- Import Tailwind CSS và Fonts -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700;900&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
@@ -59,6 +60,7 @@
         }
     </style>
     <script id="tailwind-config">
+        // Cấu hình Tailwind CSS
         tailwind.config = {
             darkMode: "class",
             theme: {
@@ -91,9 +93,11 @@
             <div class="layout-content-container flex flex-col w-full max-w-4xl flex-1">
                 <div class="flex flex-col items-center w-full bg-white dark:bg-[#221d10] border border-neutral-200 dark:border-[#393528] rounded-xl shadow-sm p-6 sm:p-10">
                     <div class="flex flex-col items-center text-center">
+                        <!-- Icon trạng thái -->
                         <div class="flex items-center justify-center size-16 bg-primary/20 rounded-full mb-6">
                             <span class="material-symbols-outlined @iconColor !text-4xl">@iconName</span>
                         </div>
+                        <!-- Thông báo chính -->
                         <h1 class="text-neutral-900 dark:text-white tracking-tight text-3xl sm:text-4xl font-bold font-display leading-tight">@mainMessage</h1>
                         @if (!string.IsNullOrEmpty(additionalMessage))
                         {
@@ -108,7 +112,10 @@
                             <p class="text-neutral-600 dark:text-neutral-300 text-base font-normal leading-normal mt-3 max-w-md">Đơn hàng của bạn đã được xác nhận. Chúng tôi đã gửi một email xác nhận đến địa chỉ email của bạn.</p>
                         }
                     </div>
+                    
                     <div class="w-full border-t border-dashed border-neutral-300 dark:border-[#544d3b] my-8 sm:my-10"></div>
+                    
+                    <!-- Thông tin tóm tắt đơn hàng -->
                     <div class="w-full">
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                             <div class="flex flex-col gap-1 rounded-lg bg-neutral-100 dark:bg-[#2c2617] p-4">
@@ -129,7 +136,10 @@
                             </div>
                         </div>
                     </div>
+                    
                     <div class="w-full border-t border-dashed border-neutral-300 dark:border-[#544d3b] my-8 sm:my-10"></div>
+                    
+                    <!-- Chi tiết sản phẩm trong đơn hàng -->
                     <div class="w-full">
                         <h3 class="text-neutral-900 dark:text-white text-lg font-bold font-display leading-tight tracking-[-0.015em] mb-4">Chi tiết đơn hàng</h3>
                         <div class="flex flex-col gap-4">
@@ -153,6 +163,8 @@
                             }
                         </div>
                     </div>
+                    
+                    <!-- Các nút điều hướng -->
                     <div class="w-full mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
                         <a asp-controller="Product" asp-action="Index" class="flex w-full sm:w-auto min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-6 bg-primary text-neutral-900 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
                             <span class="truncate">Tiếp tục mua sắm</span>

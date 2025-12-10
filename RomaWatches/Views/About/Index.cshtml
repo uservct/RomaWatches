@@ -1,4 +1,5 @@
 @{
+    // Thiết lập tiêu đề trang và layout (Layout = null vì trang này tự định nghĩa cấu trúc HTML đầy đủ).
     ViewData["Title"] = "Về chúng tôi - ROMA WATCHES";
     Layout = null;
 }
@@ -8,19 +9,21 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>@ViewData["Title"]</title>
+    <!-- Import Tailwind CSS và các font chữ từ Google Fonts -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700;900&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <script>
+        // Cấu hình Tailwind CSS: Dark mode, màu sắc chủ đạo, font chữ.
         tailwind.config = {
             darkMode: "class",
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#ecb613",
+                        "primary": "#ecb613", // Màu vàng kim chủ đạo.
                         "background-light": "#f8f8f6",
-                        "background-dark": "#221d10",
+                        "background-dark": "#221d10", // Màu nền tối.
                     },
                     fontFamily: {
                         "display": ["Noto Serif", "serif"],
@@ -37,6 +40,7 @@
         }
     </script>
     <style>
+        /* Style cho icon Material Symbols */
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
@@ -44,19 +48,22 @@
 </head>
 <body class="bg-background-light dark:bg-background-dark font-sans">
     <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+        <!-- Header Partial: Thanh điều hướng -->
         @await Html.PartialAsync("_Header")
-        <div class="h-[72px]"></div>
+        <div class="h-[72px]"></div> <!-- Spacer cho fixed header -->
+        
         <div class="layout-container flex h-full grow flex-col">
             <div class="px-4 sm:px-10 md:px-20 lg:px-40 flex flex-1 justify-center py-5">
                 <div class="layout-content-container flex flex-col max-w-[1200px] flex-1">
                     <main class="flex flex-col gap-16 md:gap-24 py-16 md:py-24">
-                        <!-- Hero Section -->
+                        
+                        <!-- Hero Section: Phần giới thiệu chính -->
                         <section class="flex flex-col items-center text-center px-4">
                             <h1 class="font-display text-4xl md:text-6xl font-black leading-tight tracking-[-0.033em] mb-4 text-white">Di Sản Vượt Thời Gian</h1>
                             <p class="text-base md:text-lg font-normal leading-relaxed text-white/80 max-w-3xl mx-auto">Tại ROMA WATCHES, chúng tôi không chỉ chế tác đồng hồ. Chúng tôi kiến tạo di sản. Mỗi cỗ máy thời gian là một minh chứng cho cam kết về sự xuất sắc, kết hợp nghệ thuật thủ công truyền thống với tinh thần đổi mới không ngừng.</p>
                         </section>
 
-                        <!-- Story Section -->
+                        <!-- Story Section: Câu chuyện thương hiệu -->
                         <section class="grid grid-cols-1 md:grid-cols-2 items-center gap-8 md:gap-12 px-4">
                             <div class="flex-1 order-2 md:order-1">
                                 <h2 class="text-3xl md:text-4xl font-bold font-display leading-tight tracking-[-0.015em] mb-6 text-white">Câu Chuyện Của Chúng Tôi</h2>
@@ -67,7 +74,7 @@
                             </div>
                         </section>
 
-                        <!-- Philosophy Section -->
+                        <!-- Philosophy Section: Triết lý chế tác -->
                         <section class="px-4">
                             <div class="w-full min-h-[500px] md:min-h-[600px] bg-center bg-no-repeat bg-cover rounded-xl shadow-lg flex items-center justify-center text-center p-8 md:p-12" data-alt="A master watchmaker meticulously assembling a watch movement." style='background-image: linear-gradient(rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.7) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuAJoBdBjbky2EGO2821HpxIz9QOF0kFnWqQ4t3pUyzoC-M46oxWsYDnjh0mruWTb-2Z5up57ep4I5qZcfuPVBmyktRWWDyMICIVDjftOmL2cG8uoWWLsRb98UDjxj49VGbwck6mXUhX9ygzBkID7qOQtA-chjrc2neMML9Uzfrh5N0HurG-pa-R6WaI7ww4JscYWrSSVTlxqImv0lYSEZy3rZxSnpWVvtx-5oDG4ZmWiyJY-Pa1Reu4HACxFaMwqxs3oLz3c5M7dkE");'>
                                 <div class="flex flex-col gap-6 text-white max-w-4xl">
@@ -77,7 +84,7 @@
                             </div>
                         </section>
 
-                        <!-- Core Values Section -->
+                        <!-- Core Values Section: Giá trị cốt lõi -->
                         <section class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 px-4 text-center">
                             <div class="flex flex-col items-center gap-4 p-6 rounded-lg bg-white/5">
                                 <div class="flex items-center justify-center h-16 w-16 rounded-full bg-primary/10 text-primary mb-2">
@@ -102,7 +109,7 @@
                             </div>
                         </section>
 
-                        <!-- Craftsmanship Section -->
+                        <!-- Craftsmanship Section: Nghệ thuật thủ công -->
                         <section class="flex flex-col items-center gap-8 px-4">
                             <div class="text-center max-w-3xl">
                                 <h2 class="text-3xl md:text-4xl font-bold font-display leading-tight tracking-[-0.015em] mb-4 text-white">Nghệ Thuật Thủ Công Tinh Xảo</h2>
@@ -124,7 +131,7 @@
                             </div>
                         </section>
 
-                        <!-- CTA Section -->
+                        <!-- CTA Section: Kêu gọi hành động -->
                         <section class="text-center px-4 py-12 md:py-16 rounded-xl bg-white/5 mx-4">
                             <h2 class="text-3xl font-bold font-display leading-tight tracking-[-0.015em] mb-4 text-white">Khám Phá Di Sản</h2>
                             <p class="text-base font-normal leading-relaxed text-white/80 max-w-xl mx-auto mb-8">Câu chuyện về nghệ thuật chế tác của chúng tôi được kể lại trọn vẹn nhất trên cổ tay bạn. Hãy khám phá những bộ sưu tập đồng hồ đẳng cấp và tìm ra cỗ máy thời gian của riêng mình.</p>
@@ -136,8 +143,10 @@
                 </div>
             </div>
         </div>
+        <!-- Footer Partial: Chân trang -->
         @await Html.PartialAsync("_Footer")
     </div>
+    <!-- Modal Login và Scripts chung -->
     @await Html.PartialAsync("_LoginModal")
     @await Html.PartialAsync("_CommonScripts")
 </body>

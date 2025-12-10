@@ -7,13 +7,16 @@ using RomaWatches.Models;
 
 namespace RomaWatches.Controllers
 {
+    // Controller quản lý đơn hàng của người dùng.
+    // Yêu cầu đăng nhập.
     [Authorize]
     public class OrderController : Controller
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly ILogger<OrderController> _logger;
+        private readonly ApplicationDbContext _context; // Context cơ sở dữ liệu.
+        private readonly UserManager<ApplicationUser> _userManager; // Quản lý người dùng.
+        private readonly ILogger<OrderController> _logger; // Logger.
 
+        // Constructor injection.
         public OrderController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, ILogger<OrderController> logger)
         {
             _context = context;
@@ -21,7 +24,8 @@ namespace RomaWatches.Controllers
             _logger = logger;
         }
 
-        // GET: Order
+        // Action hiển thị danh sách đơn hàng (Lịch sử mua hàng).
+        // GET: /Order
         public async Task<IActionResult> Index(string? status = null)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -30,31 +34,35 @@ namespace RomaWatches.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
+            // Truy vấn đơn hàng của người dùng.
             var query = _context.Orders
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
                 .Where(o => o.UserId == user.Id)
-                .Where(o => o.Status != OrderStatus.Unconfirmed) // Không hiển thị đơn hàng chưa xác nhận thanh toán
+                .Where(o => o.Status != OrderStatus.Unconfirmed) // Không hiển thị đơn hàng chưa xác nhận thanh toán (đơn treo).
                 .AsQueryable();
 
-            // Filter by status
+            // Lọc theo trạng thái đơn hàng.
             if (!string.IsNullOrEmpty(status))
             {
                 switch (status.ToLower())
                 {
                     case "processing":
-                        // Đang xử lý: Pending hoặc Approved
+                        // Đang xử lý: Bao gồm Pending (Chờ duyệt) và Approved (Đã duyệt).
                         query = query.Where(o => o.Status == OrderStatus.Pending || o.Status == OrderStatus.Approved);
                         break;
                     case "completed":
+                        // Đã hoàn thành.
                         query = query.Where(o => o.Status == OrderStatus.Completed);
                         break;
                     case "cancelled":
+                        // Đã hủy.
                         query = query.Where(o => o.Status == OrderStatus.Cancelled);
                         break;
                 }
             }
 
+            // Sắp xếp theo thời gian tạo mới nhất.
             var orders = await query
                 .OrderByDescending(o => o.CreatedAt)
                 .ToListAsync();
@@ -63,7 +71,8 @@ namespace RomaWatches.Controllers
             return View(orders);
         }
 
-        // GET: Order/Details/{id}
+        // Action hiển thị chi tiết đơn hàng.
+        // GET: /Order/Details/{id}
         public async Task<IActionResult> Details(int id)
         {
             if (id <= 0)
@@ -77,7 +86,8 @@ namespace RomaWatches.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            // Load order with OrderItems and Products, verify it belongs to the user
+            // Tải thông tin đơn hàng và chi tiết sản phẩm.
+            // Đảm bảo đơn hàng thuộc về người dùng hiện tại.
             var order = await _context.Orders
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
@@ -91,7 +101,8 @@ namespace RomaWatches.Controllers
             return View(order);
         }
 
-        // POST: Order/Cancel
+        // Action hủy đơn hàng (AJAX).
+        // POST: /Order/Cancel
         [HttpPost]
         [IgnoreAntiforgeryToken]
         public async Task<IActionResult> Cancel([FromBody] CancelOrderRequest request)
@@ -109,7 +120,7 @@ namespace RomaWatches.Controllers
                     return Json(new { success = false, message = "Vui lòng đăng nhập" });
                 }
 
-                // Verify order belongs to user
+                // Kiểm tra đơn hàng thuộc về người dùng.
                 var order = await _context.Orders
                     .FirstOrDefaultAsync(o => o.Id == request.OrderId && o.UserId == user.Id);
 
@@ -118,13 +129,13 @@ namespace RomaWatches.Controllers
                     return Json(new { success = false, message = "Đơn hàng không tồn tại" });
                 }
 
-                // Check if order can be cancelled (not Completed)
+                // Kiểm tra xem đơn hàng có thể hủy được không (chỉ hủy được nếu chưa hoàn thành).
                 if (order.Status == OrderStatus.Completed)
                 {
                     return Json(new { success = false, message = "Không thể hủy đơn hàng đã hoàn thành" });
                 }
 
-                // Update order status to Cancelled
+                // Cập nhật trạng thái thành Đã hủy.
                 order.Status = OrderStatus.Cancelled;
                 order.UpdatedAt = DateTime.Now;
 
@@ -140,7 +151,7 @@ namespace RomaWatches.Controllers
         }
     }
 
-    // Request model for cancelling order
+    // Class DTO cho request hủy đơn hàng.
     public class CancelOrderRequest
     {
         public int OrderId { get; set; }

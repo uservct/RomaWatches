@@ -4,10 +4,11 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @{
     ViewData["Title"] = "ROMA WATCHES - Giỏ hàng";
-    Layout = null;
+    Layout = null; // Layout tự định nghĩa.
     
+    // Tính tổng tiền giỏ hàng (nếu có).
     var subtotal = Model.CartItems?.Sum(ci => ci.Quantity * ci.Product.Price) ?? 0;
-    var total = subtotal; // Shipping will be calculated later
+    var total = subtotal; // Phí vận chuyển sẽ được tính ở bước thanh toán.
 }
 <!DOCTYPE html>
 <html class="dark" lang="vi">
@@ -15,6 +16,7 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>@ViewData["Title"]</title>
+    <!-- Import Tailwind CSS và Fonts -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700;900&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
@@ -24,6 +26,7 @@
         }
     </style>
     <script id="tailwind-config">
+        // Cấu hình Tailwind CSS
         tailwind.config = {
             darkMode: "class",
             theme: {
@@ -49,9 +52,12 @@
 </head>
 <body class="bg-background-light dark:bg-background-dark font-display">
     <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+        <!-- Header Partial -->
         @await Html.PartialAsync("_Header")
         <div class="h-[72px]"></div>
+        
         <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            <!-- Breadcrumbs -->
             <div class="flex flex-wrap gap-2 p-4">
                 <a class="text-gray-500 dark:text-[#b9b29d] text-sm font-medium leading-normal hover:text-primary" asp-controller="Home" asp-action="Index">Trang chủ</a>
                 <span class="text-gray-500 dark:text-[#b9b29d] text-sm font-medium leading-normal">/</span>
@@ -61,6 +67,7 @@
                 <p class="text-black dark:text-white text-4xl font-black leading-tight tracking-[-0.033em] min-w-72">Giỏ hàng của bạn</p>
             </div>
             
+            <!-- Kiểm tra trạng thái đăng nhập -->
             @if (!SignInManager.IsSignedIn(User))
             {
                 <div class="mt-8 text-center py-16" id="loginRequiredMessage">
@@ -72,6 +79,7 @@
                     </button>
                 </div>
             }
+            // Kiểm tra giỏ hàng trống
             else if (Model.CartItems == null || !Model.CartItems.Any())
             {
                 <div class="mt-8 text-center py-16">
@@ -85,6 +93,7 @@
             }
             else
             {
+                // Hiển thị danh sách sản phẩm trong giỏ hàng
                 <div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-12">
                     <div class="lg:col-span-2">
                         <div class="overflow-x-auto">
@@ -146,6 +155,8 @@
                             </a>
                         </div>
                     </div>
+                    
+                    <!-- Order Summary: Tóm tắt đơn hàng -->
                     <div class="lg:col-span-1">
                         <div class="bg-gray-50 dark:bg-[#221d10] p-6 rounded-xl">
                             <h2 class="text-black dark:text-white text-xl font-bold leading-tight tracking-[-0.015em] pb-4 border-b border-gray-200 dark:border-gray-700">Tóm tắt đơn hàng</h2>
@@ -182,18 +193,18 @@
     @await Html.PartialAsync("_CommonScripts")
     @await Html.PartialAsync("_LoginModal")
     <script>
-        // Check if user is logged in
+        // Kiểm tra xem người dùng đã đăng nhập chưa
         function isUserLoggedIn() {
-            // Check if user info exists in header (sign out button indicates logged in)
+            // Kiểm tra thông qua sự tồn tại của nút đăng xuất hoặc link admin
             return document.querySelector('form[asp-controller="Account"][asp-action="Logout"]') !== null ||
                    document.querySelector('a[asp-controller="Admin"]') !== null ||
                    @(SignInManager.IsSignedIn(User) ? "true" : "false");
         }
 
-        // Check login on page load
+        // Kiểm tra đăng nhập khi tải trang
         document.addEventListener('DOMContentLoaded', function() {
             if (!isUserLoggedIn()) {
-                // Hide cart content if exists
+                // Ẩn nội dung giỏ hàng nếu chưa đăng nhập
                 const cartContent = document.querySelector('.mt-8.grid');
                 if (cartContent) {
                     cartContent.style.display = 'none';
@@ -208,6 +219,7 @@
             }
         });
 
+        // Hàm hiển thị thông báo (Toast notification)
         function showNotification(message, type = 'info') {
             const notification = document.createElement('div');
             notification.className = `fixed top-24 right-4 z-50 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full ${
@@ -228,11 +240,13 @@
             
             document.body.appendChild(notification);
             
+            // Animation hiển thị
             setTimeout(() => {
                 notification.classList.remove('translate-x-full');
                 notification.classList.add('translate-x-0');
             }, 10);
             
+            // Tự động ẩn sau 3 giây
             setTimeout(() => {
                 notification.classList.remove('translate-x-0');
                 notification.classList.add('translate-x-full');
@@ -242,6 +256,7 @@
             }, 3000);
         }
 
+        // Cập nhật tổng tiền hiển thị
         function updateTotals() {
             let subtotal = 0;
             document.querySelectorAll('.item-total').forEach(el => {
@@ -253,6 +268,7 @@
             document.getElementById('total').textContent = subtotal.toLocaleString('vi-VN') + ' ₫';
         }
 
+        // Tăng số lượng sản phẩm
         function increaseQuantity(cartItemId) {
             const input = document.querySelector(`input[data-cart-item-id="${cartItemId}"]`);
             if (!input) return;
@@ -262,6 +278,7 @@
             updateQuantity(cartItemId, newQuantity);
         }
 
+        // Giảm số lượng sản phẩm
         function decreaseQuantity(cartItemId) {
             const input = document.querySelector(`input[data-cart-item-id="${cartItemId}"]`);
             if (!input) return;
@@ -275,6 +292,7 @@
             updateQuantity(cartItemId, newQuantity);
         }
 
+        // Gửi request cập nhật số lượng lên server
         function updateQuantity(cartItemId, quantity) {
             fetch('/Cart/Update', {
                 method: 'POST',
@@ -287,13 +305,13 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Update the quantity input
+                    // Cập nhật input số lượng
                     const input = document.querySelector(`input[data-cart-item-id="${cartItemId}"]`);
                     if (input) {
                         input.value = quantity;
                     }
                     
-                    // Update item total
+                    // Cập nhật thành tiền của item
                     const row = document.querySelector(`tr[data-cart-item-id="${cartItemId}"]`);
                     if (row) {
                         const itemTotalEl = row.querySelector('.item-total');
@@ -304,7 +322,7 @@
                         }
                     }
                     
-                    // Update totals
+                    // Cập nhật tổng tiền giỏ hàng
                     document.getElementById('subtotal').textContent = data.total.toLocaleString('vi-VN') + ' ₫';
                     document.getElementById('total').textContent = data.total.toLocaleString('vi-VN') + ' ₫';
                     
@@ -319,6 +337,7 @@
             });
         }
 
+        // Xóa sản phẩm khỏi giỏ hàng
         function removeItem(cartItemId) {
             if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?')) {
                 return;
@@ -335,22 +354,22 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Remove the row
+                    // Xóa dòng sản phẩm khỏi bảng
                     const row = document.querySelector(`tr[data-cart-item-id="${cartItemId}"]`);
                     if (row) {
                         row.remove();
                     }
                     
-                    // Update totals
+                    // Cập nhật tổng tiền
                     document.getElementById('subtotal').textContent = data.total.toLocaleString('vi-VN') + ' ₫';
                     document.getElementById('total').textContent = data.total.toLocaleString('vi-VN') + ' ₫';
                     
-                    // Update cart count in header
+                    // Cập nhật số lượng trên badge giỏ hàng ở header
                     if (data.cartCount !== undefined) {
                         updateCartCountInHeader(data.cartCount);
                     }
                     
-                    // Check if cart is empty
+                    // Nếu giỏ hàng trống thì reload trang để hiển thị thông báo trống
                     const remainingItems = document.querySelectorAll('tbody tr[data-cart-item-id]').length;
                     if (remainingItems === 0) {
                         location.reload();
@@ -367,6 +386,7 @@
             });
         }
 
+        // Cập nhật badge số lượng trên header
         function updateCartCountInHeader(count) {
             const cartBadge = document.querySelector('header .shopping-bag-badge');
             if (cartBadge) {
@@ -379,15 +399,16 @@
             }
         }
 
+        // Chuyển hướng đến trang thanh toán
         function proceedToCheckout() {
-            // Check if cart has items
+            // Kiểm tra giỏ hàng có sản phẩm không
             const cartItems = document.querySelectorAll('tbody tr[data-cart-item-id]').length;
             if (cartItems === 0) {
                 showNotification('Giỏ hàng của bạn đang trống', 'error');
                 return;
             }
             
-            // Redirect to checkout page
+            // Chuyển hướng
             window.location.href = '/Checkout';
         }
     </script>

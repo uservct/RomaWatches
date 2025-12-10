@@ -1,7 +1,7 @@
 ﻿@model List<RomaWatches.Models.Product>
 @{
     ViewData["Title"] = "ROMA WATCHES - Nghệ Thuật Của Sự Chính Xác";
-    Layout = null;
+    Layout = null; // Layout tự định nghĩa, không dùng layout chung mặc định.
 }
 <!DOCTYPE html>
 <html class="dark" lang="vi">
@@ -9,10 +9,12 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>@ViewData["Title"]</title>
+    <!-- Import Tailwind CSS và Fonts -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <script>
+        // Cấu hình Tailwind CSS
         tailwind.config = {
             darkMode: "class",
             theme: {
@@ -47,9 +49,12 @@
         <div class="layout-container flex h-full grow flex-col w-full">
             <div class="w-full flex flex-1 justify-center py-5">
                 <div class="layout-content-container flex flex-col w-full flex-1">
+                    <!-- Header Partial -->
                     @await Html.PartialAsync("_Header")
                     <div class="h-[72px]"></div>
+                    
                     <main class="flex flex-col gap-12 sm:gap-16 md:gap-20 pt-5 w-full">
+                        <!-- Hero Section: Banner chính -->
                         <div class="w-full">
                             <div class="w-full">
                                 <div class="flex min-h-[60vh] sm:min-h-[65vh] md:min-h-[100vh] flex-col gap-6 bg-cover bg-center bg-no-repeat items-center justify-center text-center px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 pb-12 sm:pb-16 w-full" data-alt="Close up shot of a luxury chronograph watch on a dark, textured background." style='background-image: linear-gradient(rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.6) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuB9BIzj4BpbkNQe3bzWcSR-km-Yy3_QDQimtD4GDhqMv2wC8-YLRca_MM8CkzvOlnXXbkda-Zn3OXcoCHnmugxCVjSlckq8550CEW0TEr8DESqFtq6Pve0lgcmnPVr6a2jbanFBgd2p9XNSQ7JbjoHz0tUzpMuOtglvW_CzGmiRkcfpLMl7-26FPhjRVIIDTO4rBIP_my9vtpaeY05-HZd16QR0IrJTUi-ZvzNWNpiCzRObVqiTZw2_2BqA7Vep2bxIOFMxVrLtUQY");'>
@@ -67,6 +72,8 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        <!-- New Arrivals: Sản phẩm mới -->
                         <section class="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
                             <h2 class="text-white text-[22px] sm:text-2xl md:text-3xl font-bold leading-tight tracking-[-0.015em] pb-4 sm:pb-6 pt-5">Hàng Mới Về</h2>
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 pb-4">
@@ -107,6 +114,8 @@
                                 }
                             </div>
                         </section>
+                        
+                        <!-- Featured Collections: Bộ sưu tập nổi bật -->
                         <section class="w-full">
                             <h2 class="text-white text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 pb-3 pt-5">Bộ Sưu Tập Nổi Bật</h2>
                             <div class="p-4 sm:p-6 md:p-8 lg:p-12 xl:p-16 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -124,6 +133,8 @@
                                 </a>
                             </div>
                         </section>
+                        
+                        <!-- Feature Highlight: Giới thiệu tính năng/đặc điểm -->
                         <section class="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-8 sm:py-12">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
                                 <div class="w-full">
@@ -151,7 +162,7 @@
                                             </button>
                                             <div class="accordion-content mt-4 text-white/80 text-sm sm:text-base leading-relaxed max-h-0 overflow-hidden transition-all duration-300">
                                                 <p>Đồng hồ cơ không chỉ đơn thuần là một phương tiện để xem giờ mà còn thể hiện sự tinh tế và cá nhân hóa của chủ nhân.</p>
-</div>
+                                            </div>
                                         </div>
                                         <div class="accordion-item border-b border-white/10 pb-4">
                                             <button class="accordion-header w-full flex items-center justify-between text-left text-white hover:text-white/80 transition-colors" onclick="toggleAccordion(this)">
@@ -166,6 +177,8 @@
                                 </div>
                             </div>
                         </section>
+                        
+                        <!-- Shop by Brand: Mua sắm theo thương hiệu -->
                         <section class="w-full">
                             <h2 class="text-white text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 pb-3 pt-5">Mua Sắm Theo Thương Hiệu</h2>
                             <div class="mx-4 sm:mx-6 md:mx-8 lg:mx-12 xl:mx-16 p-4 sm:p-6 bg-black/20 dark:bg-black/20 rounded-xl">
@@ -200,7 +213,7 @@
 @await Html.PartialAsync("_LoginModal")
 @await Html.PartialAsync("_CommonScripts")
 <script>
-    // Drag to scroll functionality
+    // Drag to scroll functionality (Kéo để cuộn)
     (function() {
         const scrollContainer = document.getElementById('productScrollContainer');
         if (!scrollContainer) return;
@@ -211,7 +224,7 @@
         let hasMoved = false;
 
         scrollContainer.addEventListener('mousedown', (e) => {
-            // Don't start drag if clicking on a button or link
+            // Không bắt đầu kéo nếu click vào nút hoặc link
             if (e.target.closest('button, a')) {
                 return;
             }
@@ -240,19 +253,19 @@
             hasMoved = true;
             e.preventDefault();
             const x = e.pageX - scrollContainer.offsetLeft;
-            const walk = (x - startX) * 2; // Scroll speed multiplier
+            const walk = (x - startX) * 2; // Hệ số tốc độ cuộn
             scrollContainer.scrollLeft = scrollLeft - walk;
         });
     })();
 
-    // Accordion functionality
+    // Accordion functionality (Hiệu ứng mở rộng/thu gọn)
     function toggleAccordion(button) {
         const item = button.closest('.accordion-item');
         const content = item.querySelector('.accordion-content');
         const icon = button.querySelector('.accordion-icon');
         const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
 
-        // Close all accordions
+        // Đóng tất cả accordion khác
         document.querySelectorAll('.accordion-content').forEach(acc => {
             acc.style.maxHeight = '0px';
         });
@@ -262,7 +275,7 @@
             ic.classList.add('text-white/60');
         });
 
-        // Toggle current accordion
+        // Mở accordion hiện tại nếu đang đóng
         if (!isOpen) {
             content.style.maxHeight = content.scrollHeight + 'px';
             icon.textContent = '▼';
@@ -271,19 +284,18 @@
         }
     }
 
-    // Initialize first accordion as open
+    // Khởi tạo accordion đầu tiên ở trạng thái mở
     document.addEventListener('DOMContentLoaded', function() {
         const firstAccordion = document.querySelector('.accordion-item');
         if (firstAccordion) {
             const firstContent = firstAccordion.querySelector('.accordion-content');
             if (firstContent) {
-                // Set initial height for first accordion
                 firstContent.style.maxHeight = firstContent.scrollHeight + 'px';
             }
         }
     });
 
-    // Buy now function
+    // Hàm Mua ngay
     function buyNow(productId, event) {
         event.preventDefault();
         event.stopPropagation();
@@ -294,22 +306,20 @@
         button.disabled = true;
         button.innerHTML = '<span class="material-symbols-outlined text-base">hourglass_empty</span><span class="text-sm">Đang xử lý...</span>';
         
-        // Simulate processing
+        // Giả lập xử lý và chuyển hướng
         setTimeout(() => {
-            // Redirect to product details or checkout
             window.location.href = `/Product/Details/${productId}`;
         }, 1000);
     }
 
-    // Note: isUserLoggedIn() and showNotification() are defined in _CommonScripts.cshtml
-    // They are available globally after _CommonScripts is loaded
-
-    // Add to cart function
+    // Lưu ý: isUserLoggedIn() và showNotification() được định nghĩa trong _CommonScripts.cshtml
+    
+    // Hàm Thêm vào giỏ hàng
     function addToCart(productId, event) {
         event.preventDefault();
         event.stopPropagation();
         
-        // Check if user is logged in
+        // Kiểm tra đăng nhập
         if (!isUserLoggedIn()) {
             showNotification('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng', 'error');
             setTimeout(() => {
@@ -326,7 +336,7 @@
         button.disabled = true;
         button.innerHTML = '<span class="material-symbols-outlined text-base">hourglass_empty</span><span class="text-sm">Đang thêm...</span>';
         
-        // Get anti-forgery token
+        // Lấy anti-forgery token
         const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
         
         fetch('/Cart/Add', {
@@ -340,23 +350,23 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-        button.innerHTML = '<span class="material-symbols-outlined text-base">check</span><span class="text-sm">Đã thêm</span>';
-        button.classList.remove('bg-neutral-700', 'dark:bg-neutral-600', 'hover:bg-neutral-800', 'dark:hover:bg-neutral-700');
-        button.classList.add('bg-green-500', 'hover:bg-green-600');
-        
-                // Update cart count in header
+                button.innerHTML = '<span class="material-symbols-outlined text-base">check</span><span class="text-sm">Đã thêm</span>';
+                button.classList.remove('bg-neutral-700', 'dark:bg-neutral-600', 'hover:bg-neutral-800', 'dark:hover:bg-neutral-700');
+                button.classList.add('bg-green-500', 'hover:bg-green-600');
+                
+                // Cập nhật số lượng trên header
                 if (data.cartCount !== undefined) {
                     updateCartCountInHeader(data.cartCount);
                 }
                 
                 showNotification(data.message || 'Đã thêm sản phẩm vào giỏ hàng', 'success');
                 
-        setTimeout(() => {
-            button.disabled = false;
-            button.innerHTML = originalText;
-            button.classList.remove('bg-green-500', 'hover:bg-green-600');
-            button.classList.add('bg-neutral-700', 'dark:bg-neutral-600', 'hover:bg-neutral-800', 'dark:hover:bg-neutral-700');
-        }, 2000);
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.innerHTML = originalText;
+                    button.classList.remove('bg-green-500', 'hover:bg-green-600');
+                    button.classList.add('bg-neutral-700', 'dark:bg-neutral-600', 'hover:bg-neutral-800', 'dark:hover:bg-neutral-700');
+                }, 2000);
             } else {
                 button.disabled = false;
                 button.innerHTML = originalText;

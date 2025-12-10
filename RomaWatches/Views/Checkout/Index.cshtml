@@ -6,8 +6,9 @@
     ViewData["Title"] = "ROMA WATCHES - Thanh toán";
     Layout = null;
     
+    // Tính tổng tiền hàng.
     var subtotal = Model.CartItems?.Sum(ci => ci.Quantity * ci.Product.Price) ?? 0;
-    var shippingFee = 0m; // Có thể tính sau
+    var shippingFee = 0m; // Phí vận chuyển (hiện tại là 0, có thể phát triển thêm logic tính phí sau này).
     var total = subtotal + shippingFee;
 }
 <!DOCTYPE html>
@@ -16,6 +17,7 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>@ViewData["Title"]</title>
+    <!-- Import Tailwind CSS và Fonts -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700;900&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
@@ -25,6 +27,7 @@
         }
     </style>
     <script id="tailwind-config">
+        // Cấu hình Tailwind CSS
         tailwind.config = {
             darkMode: "class",
             theme: {
@@ -56,6 +59,7 @@
         <main class="flex-1 px-4 sm:px-8 md:px-10 py-8 lg:py-12">
             <div class="mx-auto max-w-7xl">
                 <div class="flex flex-col lg:flex-row gap-12 xl:gap-16">
+                    <!-- Form thông tin giao hàng và thanh toán -->
                     <div class="w-full lg:w-3/5 xl:w-2/3">
                         <div class="flex flex-wrap justify-between gap-4 items-baseline">
                             <p class="text-neutral-800 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em] min-w-72 font-display">Thanh toán</p>
@@ -96,6 +100,8 @@
                                         placeholder="+84 123 456 789" />
                                 </label>
                             </form>
+                            
+                            <!-- Lựa chọn phương thức thanh toán -->
                             <h2 class="text-neutral-800 dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em] pb-3 pt-10 font-display">Phương thức thanh toán</h2>
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4 font-sans">
                                 <label class="flex items-center gap-4 p-4 rounded-lg border-2 border-primary bg-primary/10 dark:bg-primary/20 cursor-pointer payment-method-option" data-method="COD">
@@ -120,14 +126,49 @@
                                     </div>
                                 </label>
                             </div>
+                            
+                            <!-- QR Code hiển thị inline khi chọn chuyển khoản -->
+                            <div id="bankTransferQR" class="hidden mt-6 p-6 border-2 border-primary/30 dark:border-primary/20 rounded-xl bg-primary/5 dark:bg-primary/10">
+                                <h3 class="text-xl font-bold text-neutral-800 dark:text-white font-display mb-4">Thông tin chuyển khoản</h3>
+                                <div class="text-center mb-6">
+                                    <p class="text-neutral-700 dark:text-neutral-300 text-base mb-4">Quét mã QR để thanh toán</p>
+                                    <div class="flex justify-center mb-6">
+                                        <img id="qrCodeImage" src="" alt="QR Code" class="w-64 h-64 border-2 border-neutral-200 dark:border-neutral-700 rounded-lg bg-white p-4" />
+                                    </div>
+                                    <div class="bg-neutral-100 dark:bg-neutral-800 rounded-lg p-4 mb-4">
+                                        <div class="text-left space-y-2">
+                                            <div class="flex justify-between">
+                                                <span class="text-neutral-600 dark:text-neutral-400 text-sm">Số tài khoản:</span>
+                                                <span id="accountNumber" class="text-neutral-800 dark:text-white font-bold text-sm">626 8888 8888 686</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-neutral-600 dark:text-neutral-400 text-sm">Chủ tài khoản:</span>
+                                                <span id="accountHolder" class="text-neutral-800 dark:text-white font-bold text-sm">VU CHI THANH</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-neutral-600 dark:text-neutral-400 text-sm">Số tiền:</span>
+                                                <span id="paymentAmount" class="text-primary font-bold text-lg"></span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-neutral-600 dark:text-neutral-400 text-sm">Nội dung:</span>
+                                                <span id="paymentDescription" class="text-neutral-800 dark:text-white font-medium text-sm text-right"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="text-neutral-600 dark:text-neutral-400 text-sm">Vui lòng chuyển khoản đúng số tiền và nội dung để đơn hàng được xử lý nhanh chóng.</p>
+                                </div>
+                            </div>
+                            
                             <div class="mt-10 flex justify-end">
                                 <button type="button" onclick="processCheckout(event)" class="flex min-w-[180px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-12 px-6 bg-primary text-background-dark text-base font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
-                                    <span>Tiếp tục thanh toán</span>
+                                    <span>Đặt hàng</span>
                                     <span class="material-symbols-outlined">arrow_forward</span>
                                 </button>
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Sidebar: Tóm tắt đơn hàng -->
                     <aside class="w-full lg:w-2/5 xl:w-1/3 lg:sticky lg:top-12 self-start lg:pt-20">
                         <div class="border border-neutral-200 dark:border-[#393528] rounded-xl p-6">
                             <h3 class="text-xl font-bold text-neutral-800 dark:text-white font-display mb-6">Tóm tắt đơn hàng</h3>
@@ -176,59 +217,12 @@
     @await Html.PartialAsync("_CommonScripts")
     @await Html.PartialAsync("_LoginModal")
     
-    <!-- QR Code Modal for Bank Transfer -->
-    <div id="qrCodeModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
-        <div class="bg-background-light dark:bg-background-dark rounded-xl p-8 max-w-md w-full mx-4 shadow-2xl">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold text-neutral-800 dark:text-white font-display">Thanh toán chuyển khoản</h3>
-                <button onclick="closeQRModal()" class="text-neutral-600 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-white transition-colors">
-                    <span class="material-symbols-outlined text-3xl">close</span>
-                </button>
-            </div>
-            
-            <div class="text-center mb-6">
-                <p class="text-neutral-700 dark:text-neutral-300 text-base mb-4">Quét mã QR để thanh toán</p>
-                <div class="flex justify-center mb-6">
-                    <img id="qrCodeImage" src="" alt="QR Code" class="w-64 h-64 border-2 border-neutral-200 dark:border-neutral-700 rounded-lg bg-white p-4" />
-                </div>
-                <div class="bg-neutral-100 dark:bg-neutral-800 rounded-lg p-4 mb-4">
-                    <div class="text-left space-y-2">
-                        <div class="flex justify-between">
-                            <span class="text-neutral-600 dark:text-neutral-400 text-sm">Số tài khoản:</span>
-                            <span id="accountNumber" class="text-neutral-800 dark:text-white font-bold text-sm">626 8888 8888 686</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-neutral-600 dark:text-neutral-400 text-sm">Chủ tài khoản:</span>
-                            <span id="accountHolder" class="text-neutral-800 dark:text-white font-bold text-sm">VU CHI THANH</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-neutral-600 dark:text-neutral-400 text-sm">Số tiền:</span>
-                            <span id="paymentAmount" class="text-primary font-bold text-lg"></span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-neutral-600 dark:text-neutral-400 text-sm">Nội dung:</span>
-                            <span id="paymentDescription" class="text-neutral-800 dark:text-white font-medium text-sm text-right"></span>
-                        </div>
-                    </div>
-                </div>
-                <p class="text-neutral-600 dark:text-neutral-400 text-sm mb-4">Vui lòng chuyển khoản đúng số tiền và nội dung để đơn hàng được xử lý nhanh chóng.</p>
-            </div>
-            
-            <div class="flex gap-3">
-                <button onclick="confirmPayment()" class="flex-1 px-4 py-3 bg-primary text-background-dark rounded-lg font-bold hover:bg-primary/90 transition-colors">
-                    Đã chuyển khoản
-                </button>
-                <button onclick="goToOrders()" class="flex-1 px-4 py-3 bg-neutral-200 dark:bg-neutral-700 text-neutral-800 dark:text-white rounded-lg font-medium hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors">
-                    Xem đơn hàng
-                </button>
-            </div>
-        </div>
-    </div>
-    
     <script>
-        // Payment method selection styling
+        // Xử lý style cho các lựa chọn phương thức thanh toán và hiển thị QR code
         document.addEventListener('DOMContentLoaded', function() {
             const paymentOptions = document.querySelectorAll('.payment-method-option');
+            const qrSection = document.getElementById('bankTransferQR');
+            
             paymentOptions.forEach(option => {
                 const radio = option.querySelector('input[type="radio"]');
                 radio.addEventListener('change', function() {
@@ -240,10 +234,80 @@
                         option.classList.add('border-primary', 'bg-primary/10', 'dark:bg-primary/20');
                         option.classList.remove('border-neutral-300', 'dark:border-[#544d3b]');
                     }
+                    
+                    // Hiển thị/ẩn QR code khi chọn BankTransfer
+                    if (this.value === 'BankTransfer' && this.checked) {
+                        // Tạo đơn hàng tạm thời để lấy orderId
+                        createDraftOrder();
+                    } else {
+                        // Xóa đơn hàng tạm thời nếu chuyển sang phương thức khác
+                        deleteDraftOrder();
+                        qrSection.classList.add('hidden');
+                    }
                 });
             });
         });
+        
+        // Hàm tạo đơn hàng tạm thời để lấy orderId
+        function createDraftOrder() {
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+            const qrSection = document.getElementById('bankTransferQR');
+            
+            fetch('/Checkout/CreateDraftOrder', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Cập nhật QR code với orderId thực tế
+                    document.getElementById('qrCodeImage').src = data.qrCodeUrl;
+                    document.getElementById('accountNumber').textContent = data.accountNumber;
+                    document.getElementById('accountHolder').textContent = data.accountHolder;
+                    document.getElementById('paymentAmount').textContent = new Intl.NumberFormat('vi-VN').format(data.amount) + ' ₫';
+                    document.getElementById('paymentDescription').textContent = `Thanh toan don hang #RW${data.orderId}`;
+                    
+                    // Lưu orderId để dùng khi đặt hàng
+                    window.draftOrderId = data.orderId;
+                    
+                    // Hiển thị QR code section
+                    qrSection.classList.remove('hidden');
+                } else {
+                    showNotification(data.message || 'Có lỗi xảy ra khi tạo đơn hàng tạm thời', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error creating draft order:', error);
+                showNotification('Có lỗi xảy ra khi tạo đơn hàng tạm thời', 'error');
+            });
+        }
 
+        // Hàm xóa đơn hàng tạm thời
+        function deleteDraftOrder() {
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+            
+            fetch('/Checkout/DeleteDraftOrder', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.draftOrderId = null;
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting draft order:', error);
+            });
+        }
+
+        // Hàm hiển thị thông báo
         function showNotification(message, type = 'info') {
             const notification = document.createElement('div');
             notification.className = `fixed top-24 right-4 z-50 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full ${
@@ -278,6 +342,7 @@
             }, 3000);
         }
 
+        // Xử lý sự kiện click nút "Tiếp tục thanh toán"
         function processCheckout(event) {
             if (event) {
                 event.preventDefault();
@@ -305,7 +370,7 @@
                 PaymentMethod: paymentMethodRadio.value
             };
 
-            // Validate
+            // Validate dữ liệu
             if (!formData.FullName || !formData.PhoneNumber || !formData.Province || !formData.Ward || !formData.Address) {
                 showNotification('Vui lòng điền đầy đủ thông tin giao hàng', 'error');
                 return;
@@ -332,30 +397,35 @@
             })
             .then(data => {
                 if (data.success) {
-                    // If BankTransfer, show QR code modal (don't clear cart yet)
+                    // Nếu là chuyển khoản ngân hàng, cập nhật QR code với thông tin đơn hàng chính xác
                     if (data.paymentMethod === 'BankTransfer' && data.qrCodeUrl) {
-                        // Store orderId for later confirmation
-                        window.currentOrderId = data.orderId;
-                        showQRModal(data.qrCodeUrl, data.accountNumber, data.accountHolder, data.amount, `Thanh toan don hang #RW${data.orderId}`);
-                        button.disabled = false;
-                        button.innerHTML = originalText;
-                        // Don't update cart count yet - will update when user confirms payment
-                        // Don't mark as successful yet - wait for payment confirmation
-                    } else {
-                        // For other payment methods, mark as successful and redirect
-                        window.checkoutSuccessful = true;
-                        if (typeof updateCartCountInHeader === 'function') {
-                            updateCartCountInHeader(0);
-                        }
-                        showNotification(data.message, 'success');
-                        setTimeout(() => {
-                            if (data.redirectUrl) {
-                                window.location.href = data.redirectUrl;
-                            } else {
-                                window.location.href = '/';
-                            }
-                        }, 2000);
+                        // Cập nhật QR code với thông tin đơn hàng (có orderId)
+                        document.getElementById('qrCodeImage').src = data.qrCodeUrl;
+                        document.getElementById('accountNumber').textContent = data.accountNumber;
+                        document.getElementById('accountHolder').textContent = data.accountHolder;
+                        document.getElementById('paymentAmount').textContent = new Intl.NumberFormat('vi-VN').format(data.amount) + ' ₫';
+                        document.getElementById('paymentDescription').textContent = `Thanh toan don hang #RW${data.orderId}`;
+                        
+                        // Đảm bảo QR code section đang hiển thị
+                        document.getElementById('bankTransferQR').classList.remove('hidden');
+                        
+                        // Scroll đến QR code
+                        document.getElementById('bankTransferQR').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                     }
+                    
+                    // Tất cả các phương thức đều redirect đến trang success sau 2 giây
+                    window.checkoutSuccessful = true;
+                    if (typeof updateCartCountInHeader === 'function') {
+                        updateCartCountInHeader(0);
+                    }
+                    showNotification(data.message, 'success');
+                    setTimeout(() => {
+                        if (data.redirectUrl) {
+                            window.location.href = data.redirectUrl;
+                        } else {
+                            window.location.href = '/';
+                        }
+                    }, 2000);
                 } else {
                     button.disabled = false;
                     button.innerHTML = originalText;
@@ -370,106 +440,14 @@
             });
         }
 
-        function showQRModal(qrCodeUrl, accountNumber, accountHolder, amount, description) {
-            const modal = document.getElementById('qrCodeModal');
-            const qrImage = document.getElementById('qrCodeImage');
-            const accountNumberEl = document.getElementById('accountNumber');
-            const accountHolderEl = document.getElementById('accountHolder');
-            const paymentAmountEl = document.getElementById('paymentAmount');
-            const paymentDescriptionEl = document.getElementById('paymentDescription');
-            
-            qrImage.src = qrCodeUrl;
-            accountNumberEl.textContent = accountNumber;
-            accountHolderEl.textContent = accountHolder;
-            paymentAmountEl.textContent = new Intl.NumberFormat('vi-VN').format(amount) + ' ₫';
-            paymentDescriptionEl.textContent = description;
-            
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
 
-        function closeQRModal() {
-            const modal = document.getElementById('qrCodeModal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            // Chỉ đóng modal, không hiện thông báo và không redirect
-        }
-
-        function confirmPayment() {
-            const orderId = window.currentOrderId;
-            if (!orderId) {
-                showNotification('Không tìm thấy thông tin đơn hàng', 'error');
-                return;
-            }
-
-            // Call API to confirm payment and clear cart
-            fetch('/Checkout/ConfirmPayment', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
-                },
-                body: JSON.stringify({ orderId: orderId })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    // Mark checkout as successful
-                    window.checkoutSuccessful = true;
-                    
-                    // Update cart count in header
-                    if (typeof updateCartCountInHeader === 'function') {
-                        updateCartCountInHeader(0);
-                    }
-                    
-                    // Đóng modal
-                    const modal = document.getElementById('qrCodeModal');
-                    modal.classList.add('hidden');
-                    modal.classList.remove('flex');
-                    
-                    // Hiện thông báo thành công
-                    showNotification('Đơn hàng của bạn đã được đặt thành công và đang chờ xét duyệt.', 'success');
-                    
-                    // Redirect sau 2 giây
-                    setTimeout(() => {
-                        if (data.redirectUrl) {
-                            window.location.href = data.redirectUrl;
-                        } else {
-                            window.location.href = '/Order';
-                        }
-                    }, 2000);
-                } else {
-                    showNotification(data.message || 'Có lỗi xảy ra khi xác nhận thanh toán', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('Có lỗi xảy ra khi xác nhận thanh toán. Vui lòng thử lại.', 'error');
-            });
-        }
-
-        function goToOrders() {
-            // Đóng modal trước khi redirect
-            const modal = document.getElementById('qrCodeModal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            
-            // Redirect đến trang đơn hàng
-            window.location.href = '/Order';
-        }
-
-        // Track if checkout was successful (initialize as false)
+        // Biến theo dõi trạng thái checkout thành công
         window.checkoutSuccessful = false;
 
-        // Auto-restore cart when user leaves checkout page without completing order
+        // Tự động khôi phục giỏ hàng nếu người dùng rời trang mà chưa hoàn tất đơn hàng
         window.addEventListener('beforeunload', function(e) {
             if (!window.checkoutSuccessful) {
-                // Try to restore cart silently (use fetch with keepalive for reliability)
+                // Thử khôi phục giỏ hàng (sử dụng fetch với keepalive để đảm bảo request được gửi)
                 const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
                 if (token) {
                     fetch('/Cart/RestoreCart', {
@@ -481,16 +459,15 @@
                         body: JSON.stringify({}),
                         keepalive: true
                     }).catch(() => {
-                        // Ignore errors during page unload
+                        // Bỏ qua lỗi khi unload trang
                     });
                 }
             }
         });
 
-        // Also restore when page becomes hidden (user switches tabs, minimizes, etc.)
+        // Khôi phục giỏ hàng khi tab bị ẩn (người dùng chuyển tab, minimize, v.v.)
         document.addEventListener('visibilitychange', function() {
             if (document.hidden && !window.checkoutSuccessful) {
-                // User is leaving the page, try to restore cart
                 const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
                 if (token) {
                     fetch('/Cart/RestoreCart', {
@@ -502,7 +479,7 @@
                         body: JSON.stringify({}),
                         keepalive: true
                     }).catch(() => {
-                        // Ignore errors
+                        // Bỏ qua lỗi
                     });
                 }
             }

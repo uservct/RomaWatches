@@ -6,7 +6,7 @@
     ViewData["Title"] = "ROMA WATCHES - Chi tiết Đơn hàng";
     Layout = null;
     
-    // Helper functions
+    // Hàm helper để lấy thông tin hiển thị trạng thái đơn hàng (màu sắc, text)
     (string badgeClass, string dotColor, string textColor, string statusText) GetStatusInfo(OrderStatus status)
     {
         return status switch
@@ -19,6 +19,7 @@
         };
     }
     
+    // Hàm helper để hiển thị tên phương thức thanh toán tiếng Việt
     string GetPaymentMethodText(PaymentMethod method)
     {
         return method switch
@@ -30,10 +31,13 @@
         };
     }
     
+    // Lấy thông tin hiển thị cho trạng thái hiện tại
     var (badgeClass, dotColor, textColor, statusText) = GetStatusInfo(Model.Status);
     var orderNumber = $"#RW{Model.Id}";
     var orderDate = Model.CreatedAt.ToString("HH:mm - dd/MM/yyyy");
     var subtotal = Model.OrderItems?.Sum(oi => oi.Quantity * oi.Price) ?? 0;
+    
+    // Kiểm tra xem đơn hàng có thể hủy được không (chưa hoàn thành và chưa hủy)
     var canCancel = Model.Status != OrderStatus.Completed && Model.Status != OrderStatus.Cancelled;
 }
 <!DOCTYPE html>
@@ -42,6 +46,7 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>@ViewData["Title"]</title>
+    <!-- Import Tailwind CSS và Fonts -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700;900&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
@@ -51,6 +56,7 @@
         }
     </style>
     <script id="tailwind-config">
+        // Cấu hình Tailwind CSS
         tailwind.config = {
             darkMode: "class",
             theme: {
@@ -82,7 +88,7 @@
         <main class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 flex flex-1 justify-center py-5 sm:py-10">
             <div class="layout-content-container flex flex-col w-full max-w-5xl flex-1 gap-8">
                 <div>
-                    <!-- Breadcrumbs -->
+                    <!-- Breadcrumbs: Điều hướng phân cấp -->
                     <div class="flex flex-wrap gap-2 py-4">
                         <a class="text-gray-500 dark:text-[#9da6b9] hover:text-primary text-sm font-medium leading-normal" asp-controller="Home" asp-action="Index">Trang chủ</a>
                         <span class="text-gray-500 dark:text-[#9da6b9] text-sm font-medium leading-normal">/</span>
@@ -92,7 +98,8 @@
                         <span class="text-gray-500 dark:text-[#9da6b9] text-sm font-medium leading-normal">/</span>
                         <span class="text-gray-800 dark:text-white text-sm font-medium leading-normal">Chi tiết đơn hàng @orderNumber</span>
                     </div>
-                    <!-- PageHeading -->
+                    
+                    <!-- Tiêu đề trang và nút hủy đơn hàng -->
                     <div class="flex flex-wrap items-center justify-between gap-4">
                         <p class="text-gray-900 dark:text-white text-3xl sm:text-4xl font-black leading-tight tracking-[-0.033em] font-display">Chi tiết Đơn hàng</p>
                         @if (canCancel)
@@ -106,7 +113,8 @@
                         }
                     </div>
                 </div>
-                <!-- DescriptionList (Order Summary) -->
+                
+                <!-- Thông tin tóm tắt đơn hàng -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-gray-200 dark:bg-white/10 rounded-lg overflow-hidden">
                     <div class="flex flex-col gap-1 p-4 bg-background-light dark:bg-background-dark">
                         <p class="text-gray-500 dark:text-[#9da6b9] text-sm font-normal leading-normal">Mã đơn hàng:</p>
@@ -129,7 +137,8 @@
                         <p class="text-gray-800 dark:text-white text-sm font-bold leading-normal">@Model.TotalAmount.ToString("N0") ₫</p>
                     </div>
                 </div>
-                <!-- Info Section -->
+                
+                <!-- Thông tin giao hàng và thanh toán -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="flex flex-col gap-4 rounded-lg bg-gray-100 dark:bg-white/5 p-6 lg:col-span-2">
                         <h3 class="text-gray-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] font-display">Địa chỉ giao hàng</h3>
@@ -149,7 +158,8 @@
                         </div>
                     </div>
                 </div>
-                <!-- Product List Section -->
+                
+                <!-- Danh sách sản phẩm -->
                 <div class="flex flex-col gap-4 rounded-lg bg-gray-100 dark:bg-white/5 p-6">
                     <h3 class="text-gray-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] font-display">Các sản phẩm trong đơn hàng</h3>
                     <div class="flow-root">
@@ -219,6 +229,7 @@
     @await Html.PartialAsync("_CommonScripts")
     @await Html.PartialAsync("_LoginModal")
     <script>
+        // Hàm hiển thị thông báo
         function showNotification(message, type = 'info') {
             const notification = document.createElement('div');
             notification.className = `fixed top-24 right-4 z-50 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full ${
@@ -239,11 +250,13 @@
             
             document.body.appendChild(notification);
             
+            // Hiệu ứng trượt vào
             setTimeout(() => {
                 notification.classList.remove('translate-x-full');
                 notification.classList.add('translate-x-0');
             }, 10);
             
+            // Tự động ẩn sau 3 giây
             setTimeout(() => {
                 notification.classList.remove('translate-x-0');
                 notification.classList.add('translate-x-full');
@@ -253,6 +266,7 @@
             }, 3000);
         }
 
+        // Hàm hủy đơn hàng
         function cancelOrder() {
             if (!confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?')) {
                 return;
@@ -260,6 +274,7 @@
 
             const orderId = @Model.Id;
             
+            // Gửi yêu cầu hủy đơn hàng
             fetch('/Order/Cancel', {
                 method: 'POST',
                 headers: {
@@ -277,6 +292,7 @@
             .then(data => {
                 if (data.success) {
                     showNotification('Đơn hàng đã được hủy thành công', 'success');
+                    // Chuyển hướng về danh sách đơn hàng sau khi hủy thành công
                     setTimeout(() => {
                         window.location.href = '/Order';
                     }, 2000);
@@ -292,4 +308,3 @@
     </script>
 </body>
 </html>
-
