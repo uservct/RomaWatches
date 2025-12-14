@@ -15,62 +15,14 @@
     }
     
     // Helper functions
-    string GetPaymentStatusText(Order order)
-    {
-        if (order.Status == OrderStatus.Cancelled)
-        {
-            return "Đã hủy";
-        }
-        if (order.PaymentMethod == PaymentMethod.BankTransfer)
-        {
-            if (order.Status == OrderStatus.Unconfirmed || order.Status == OrderStatus.Pending)
-            {
-                return "Chờ thanh toán";
-            }
-            return "Đã thanh toán";
-        }
-        else
-        {
-            if (order.Status == OrderStatus.Approved || order.Status == OrderStatus.Completed)
-            {
-                return "Đã thanh toán";
-            }
-            return "Chờ thanh toán";
-        }
-    }
-    
-    string GetPaymentStatusColor(Order order)
-    {
-        if (order.Status == OrderStatus.Cancelled)
-        {
-            return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
-        }
-        if (order.PaymentMethod == PaymentMethod.BankTransfer)
-        {
-            if (order.Status == OrderStatus.Unconfirmed || order.Status == OrderStatus.Pending)
-            {
-                return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
-            }
-            return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
-        }
-        else
-        {
-            if (order.Status == OrderStatus.Approved || order.Status == OrderStatus.Completed)
-            {
-                return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
-            }
-            return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
-        }
-    }
-    
     string GetOrderStatusText(OrderStatus status)
     {
         return status switch
         {
-            OrderStatus.Unconfirmed => "Chưa xác nhận",
-            OrderStatus.Pending => "Đang xử lý",
-            OrderStatus.Approved => "Đã duyệt",
-            OrderStatus.Completed => "Đã giao",
+            OrderStatus.Unconfirmed => "Đang chờ xác nhận",
+            OrderStatus.Pending => "Đã xác nhận",
+            OrderStatus.Approved => "Đang giao hàng",
+            OrderStatus.Completed => "Đã giao hàng",
             OrderStatus.Cancelled => "Đã hủy",
             _ => status.ToString()
         };
@@ -80,8 +32,8 @@
     {
         return status switch
         {
-            OrderStatus.Unconfirmed => "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300",
-            OrderStatus.Pending => "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300",
+            OrderStatus.Unconfirmed => "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
+            OrderStatus.Pending => "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
             OrderStatus.Approved => "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
             OrderStatus.Completed => "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
             OrderStatus.Cancelled => "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
@@ -100,8 +52,6 @@
         };
     }
     
-    var paymentStatusText = GetPaymentStatusText(Model);
-    var paymentStatusColor = GetPaymentStatusColor(Model);
     var orderStatusText = GetOrderStatusText(Model.Status);
     var orderStatusColor = GetOrderStatusColor(Model.Status);
     var orderNumber = $"#RW{Model.Id}";
@@ -145,6 +95,17 @@
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
+        /* Bỏ mũi tên dropdown */
+        .status-select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: none;
+            padding-right: 0.75rem;
+        }
+        .status-select::-ms-expand {
+            display: none;
+        }
     </style>
 </head>
 <body class="bg-background-light dark:bg-background-dark font-display text-gray-900 dark:text-white">
@@ -160,13 +121,13 @@
                     </div>
                 </div>
                 <nav class="flex flex-col gap-2 mt-4">
-                    <a class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg" href="/Admin/Dashboard">
+                    <a class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg" asp-controller="Admin" asp-action="Dashboard">
                         <span class="material-symbols-outlined text-gray-800 dark:text-gray-200">dashboard</span>
                         <p class="text-sm font-medium leading-normal">Bảng điều khiển</p>
                     </a>
-                    <a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/20 text-primary" href="/Admin/Orders">
+                    <a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/20 text-primary" asp-controller="Admin" asp-action="Orders">
                         <span class="material-symbols-outlined font-bold" style="font-variation-settings: 'FILL' 1;">shopping_cart</span>
-                        <p class="text-sm font-bold leading-normal">Quản lý Đơn hàng</p>
+                        <p class="text-sm font-bold leading-normal">Đơn hàng</p>
                     </a>
                     <a class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg" href="#">
                         <span class="material-symbols-outlined text-gray-800 dark:text-gray-200">inventory_2</span>
@@ -175,10 +136,6 @@
                     <a class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg" href="#">
                         <span class="material-symbols-outlined text-gray-800 dark:text-gray-200">group</span>
                         <p class="text-sm font-medium leading-normal">Khách hàng</p>
-                    </a>
-                    <a class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg" href="#">
-                        <span class="material-symbols-outlined text-gray-800 dark:text-gray-200">bar_chart</span>
-                        <p class="text-sm font-medium leading-normal">Báo cáo</p>
                     </a>
                 </nav>
             </div>
@@ -201,9 +158,9 @@
             <div class="max-w-5xl mx-auto">
                 <!-- Breadcrumbs -->
                 <div class="flex flex-wrap gap-2 py-4 mb-6">
-                    <a class="text-gray-500 dark:text-gray-400 hover:text-primary text-sm font-medium" href="/Admin/Dashboard">Dashboard</a>
+                    <a class="text-gray-500 dark:text-gray-400 hover:text-primary text-sm font-medium" asp-controller="Admin" asp-action="Dashboard">Dashboard</a>
                     <span class="text-gray-500 dark:text-gray-400 text-sm">/</span>
-                    <a class="text-gray-500 dark:text-gray-400 hover:text-primary text-sm font-medium" href="/Admin/Orders">Quản lý Đơn hàng</a>
+                    <a class="text-gray-500 dark:text-gray-400 hover:text-primary text-sm font-medium" asp-controller="Admin" asp-action="Orders">Đơn hàng</a>
                     <span class="text-gray-500 dark:text-gray-400 text-sm">/</span>
                     <span class="text-gray-900 dark:text-white text-sm font-medium">Chi tiết đơn hàng @orderNumber</span>
                 </div>
@@ -217,7 +174,6 @@
                         </div>
                         <div class="flex flex-col items-end gap-2">
                             <span class="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-medium @orderStatusColor">@orderStatusText</span>
-                            <span class="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-medium @paymentStatusColor">@paymentStatusText</span>
                         </div>
                     </div>
                     
@@ -225,37 +181,38 @@
                     {
                         <div class="flex gap-2 mt-4">
                             <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Chuyển trạng thái:</label>
-                            <select class="text-sm border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary" onchange="updateOrderStatus(@Model.Id, this.value)" data-current-status="@Model.Status">
+                            <select class="status-select text-sm border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary" onchange="updateOrderStatus(@Model.Id, this.value)" data-current-status="@Model.Status">
+                                @* Hiển thị trạng thái hiện tại *@
+                                @if (Model.Status == OrderStatus.Unconfirmed)
+                                {
+                                    <option value="Unconfirmed" selected>Đang chờ xác nhận</option>
+                                }
                                 @if (Model.Status == OrderStatus.Pending)
                                 {
-                                    <option value="Pending" selected>Đang xử lý</option>
-                                }
-                                else
-                                {
-                                    <option value="Pending">Đang xử lý</option>
+                                    <option value="Pending" selected>Đã xác nhận</option>
                                 }
                                 @if (Model.Status == OrderStatus.Approved)
                                 {
-                                    <option value="Approved" selected>Đã duyệt</option>
+                                    <option value="Approved" selected>Đang giao hàng</option>
                                 }
-                                else
+                                
+                                @* Hiển thị các trạng thái có thể chuyển đổi dựa trên trạng thái hiện tại *@
+                                @if (Model.Status == OrderStatus.Unconfirmed)
                                 {
-                                    <option value="Approved">Đã duyệt</option>
+                                    @* Unconfirmed -> chỉ có thể chuyển sang Pending hoặc Cancelled *@
+                                    <option value="Pending">Đã xác nhận</option>
+                                    <option value="Cancelled">Đã hủy</option>
                                 }
-                                @if (Model.Status == OrderStatus.Completed)
+                                else if (Model.Status == OrderStatus.Pending)
                                 {
-                                    <option value="Completed" selected>Đã giao</option>
+                                    @* Pending -> chỉ có thể chuyển sang Approved hoặc Cancelled *@
+                                    <option value="Approved">Đang giao hàng</option>
+                                    <option value="Cancelled">Đã hủy</option>
                                 }
-                                else
+                                else if (Model.Status == OrderStatus.Approved)
                                 {
-                                    <option value="Completed">Đã giao</option>
-                                }
-                                @if (Model.Status == OrderStatus.Cancelled)
-                                {
-                                    <option value="Cancelled" selected>Đã hủy</option>
-                                }
-                                else
-                                {
+                                    @* Approved -> chỉ có thể chuyển sang Completed hoặc Cancelled *@
+                                    <option value="Completed">Đã giao hàng</option>
                                     <option value="Cancelled">Đã hủy</option>
                                 }
                             </select>
@@ -329,7 +286,7 @@
                 
                 <!-- Back Button -->
                 <div class="flex justify-start">
-                    <a href="/Admin/Orders" class="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                    <a asp-controller="Admin" asp-action="Orders" class="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
                         <span class="material-symbols-outlined text-base">arrow_back</span>
                         <span>Quay lại danh sách</span>
                     </a>
@@ -385,41 +342,85 @@
                 return;
             }
             
-            if (!confirm(`Bạn có chắc chắn muốn chuyển trạng thái đơn hàng sang "${newStatus}"?`)) {
+            // Map status value to display text
+            const statusTexts = {
+                'Unconfirmed': 'Đang chờ xác nhận',
+                'Pending': 'Đã xác nhận',
+                'Approved': 'Đang giao hàng',
+                'Completed': 'Đã giao hàng',
+                'Cancelled': 'Đã hủy'
+            };
+            
+            const statusText = statusTexts[newStatus] || newStatus;
+            const currentStatusText = statusTexts[currentStatus] || currentStatus;
+            
+            if (!confirm(`Bạn có chắc chắn muốn chuyển trạng thái đơn hàng từ "${currentStatusText}" sang "${statusText}"?`)) {
+                // Reset về trạng thái cũ
                 select.value = currentStatus;
                 return;
             }
             
+            // Disable select và hiển thị loading
+            select.disabled = true;
+            const originalBg = select.style.backgroundColor;
+            select.style.backgroundColor = '#f3f4f6';
+            select.style.opacity = '0.6';
+            
             const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
             
-            fetch('/Admin/Orders/UpdateStatus', {
+            // Gửi với PascalCase để match với DTO
+            const requestBody = {
+                OrderId: orderId,
+                NewStatusString: newStatus // Gửi string để backend parse
+            };
+            
+            console.log('Updating order status:', requestBody);
+            
+            fetch('/Admin/UpdateOrderStatus', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'RequestVerificationToken': token
                 },
-                body: JSON.stringify({
-                    orderId: orderId,
-                    newStatus: newStatus
-                })
+                body: JSON.stringify(requestBody)
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        console.error('Error response:', text);
+                        throw new Error(`HTTP ${response.status}: ${text}`);
+                    });
+                }
+                return response.json();
+            })
             .then(data => {
+                console.log('Response data:', data);
                 if (data.success) {
                     showNotification(data.message || 'Cập nhật trạng thái thành công', 'success');
-                    // Reload page to reflect changes
+                    // Cập nhật data-current-status để phản ánh trạng thái mới
+                    select.setAttribute('data-current-status', newStatus);
+                    // Reload page để hiển thị dropdown với các option mới
                     setTimeout(() => {
                         window.location.reload();
                     }, 1000);
                 } else {
                     showNotification(data.message || 'Có lỗi xảy ra khi cập nhật trạng thái', 'error');
+                    // Reset về trạng thái cũ
                     select.value = currentStatus;
+                    select.disabled = false;
+                    select.style.backgroundColor = originalBg;
+                    select.style.opacity = '1';
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                showNotification('Có lỗi xảy ra khi cập nhật trạng thái. Vui lòng thử lại.', 'error');
+                console.error('Error updating order status:', error);
+                showNotification('Có lỗi xảy ra khi cập nhật trạng thái: ' + error.message, 'error');
+                // Reset về trạng thái cũ
                 select.value = currentStatus;
+                select.disabled = false;
+                select.style.backgroundColor = originalBg;
+                select.style.opacity = '1';
             });
         }
     </script>
