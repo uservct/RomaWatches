@@ -1,0 +1,137 @@
+@{
+    ViewData["Title"] = "Hướng dẫn mua hàng - ROMA WATCHES";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html class="dark" lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>@ViewData["Title"]</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#ecb613",
+              "background-light": "#f8f8f6",
+              "background-dark": "#221d10",
+            },
+            fontFamily: {
+              "display": ["Noto Serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+    <style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
+    <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+        <!-- Header Partial -->
+        @await Html.PartialAsync("_Header")
+        <div class="h-[72px]"></div>
+        
+        <div class="layout-container flex h-full grow flex-col">
+            <main class="mx-auto flex w-full max-w-4xl flex-1 flex-col px-4 py-10 sm:px-6 lg:px-8">
+                <div class="mb-8">
+                    <h1 class="text-4xl font-black leading-tight tracking-[-0.033em] text-gray-900 dark:text-white mb-4">Hướng dẫn mua hàng chi tiết trên website ROMA WATCHES</h1>
+                </div>
+                
+                <div class="prose prose-lg dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
+                    <div class="markdown markdown-main-panel space-y-6" dir="ltr">
+                        <div>
+                            <p class="text-xl font-bold text-gray-900 dark:text-white mb-3">Bước 1: Tìm kiếm sản phẩm</p>
+                            <ul class="list-disc list-inside space-y-2 ml-4">
+                                <li>Truy cập website <a href="/" class="text-primary hover:underline">ROMA WATCHES</a></li>
+                                <li>Sử dụng thanh tìm kiếm để tìm kiếm sản phẩm theo tên, mã sản phẩm, thương hiệu hoặc kiểu dáng.</li>
+                                <li>Bạn cũng có thể tham khảo các danh mục sản phẩm như Đồng hồ nam, Đồng hồ nữ, Đồng hồ cơ, Đồng hồ quartz, v.v. để lựa chọn sản phẩm phù hợp.</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <p class="text-xl font-bold text-gray-900 dark:text-white mb-3">Bước 2: Xem chi tiết sản phẩm</p>
+                            <ul class="list-disc list-inside space-y-2 ml-4">
+                                <li>Nhấp vào ảnh hoặc tên sản phẩm để xem chi tiết sản phẩm.</li>
+                                <li>Xem kỹ thông tin sản phẩm như mô tả, giá bán, hình ảnh sản phẩm, thông số kỹ thuật, v.v.</li>
+                                <li>Đọc các đánh giá của khách hàng khác về sản phẩm để có thêm thông tin tham khảo.</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <p class="text-xl font-bold text-gray-900 dark:text-white mb-3">Bước 3: Thêm sản phẩm vào giỏ hàng</p>
+                            <ul class="list-disc list-inside space-y-2 ml-4">
+                                <li>Chọn số lượng sản phẩm bạn muốn mua.</li>
+                                <li>Nhấp vào nút "Thêm vào giỏ hàng".</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <p class="text-xl font-bold text-gray-900 dark:text-white mb-3">Bước 4: Xem giỏ hàng</p>
+                            <ul class="list-disc list-inside space-y-2 ml-4">
+                                <li>Nhấp vào biểu tượng giỏ hàng ở góc trên bên phải màn hình.</li>
+                                <li>Xem lại các sản phẩm đã thêm vào giỏ hàng, số lượng và giá bán.</li>
+                                <li>Bạn có thể thay đổi số lượng sản phẩm hoặc xóa sản phẩm khỏi giỏ hàng.</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <p class="text-xl font-bold text-gray-900 dark:text-white mb-3">Bước 5: Thanh toán</p>
+                            <ul class="list-disc list-inside space-y-2 ml-4">
+                                <li>Nhấp vào nút "Tiến hành thanh toán".</li>
+                                <li>Điền đầy đủ thông tin giao hàng, bao gồm tên, địa chỉ, số điện thoại, email, v.v.</li>
+                                <li>Chọn phương thức thanh toán phù hợp với bạn. <strong class="text-primary">ROMA WATCHES hỗ trợ nhiều phương thức thanh toán phổ biến hiện nay:</strong>
+                                    <ul class="list-disc list-inside space-y-1 ml-6 mt-2">
+                                        <li>Thanh toán trực tuyến qua cổng thanh toán VNPay, MoMo, Payoo, v.v.</li>
+                                        <li>Thanh toán khi nhận hàng (COD)</li>
+                                        <li>Chuyển khoản ngân hàng</li>
+                                    </ul>
+                                </li>
+                                <li>Nhập mã giảm giá (nếu có).</li>
+                                <li>Nhấp vào nút "Đặt hàng".</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <p class="text-xl font-bold text-gray-900 dark:text-white mb-3">Bước 6: Xác nhận đơn hàng</p>
+                            <ul class="list-disc list-inside space-y-2 ml-4">
+                                <li>Bạn sẽ nhận được email xác nhận đơn hàng từ ROMA WATCHES.</li>
+                                <li>Nhân viên ROMA WATCHES sẽ liên hệ với bạn để xác nhận thông tin đơn hàng và thời gian giao hàng.</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <p class="text-xl font-bold text-gray-900 dark:text-white mb-3">Lưu ý:</p>
+                            <ul class="list-disc list-inside space-y-2 ml-4">
+                                <li>Giá bán sản phẩm trên website ROMA WATCHES đã bao gồm thuế giá trị gia tăng (VAT).</li>
+                                <li>Chi phí vận chuyển sẽ được tính toán dựa vào địa chỉ giao hàng của bạn.</li>
+                                <li>ROMA WATCHES có chính sách đổi trả sản phẩm trong vòng 7 ngày nếu sản phẩm bị lỗi hoặc không đúng như mô tả.</li>
+                                <li>Để biết thêm thông tin chi tiết, vui lòng truy cập website ROMA WATCHES hoặc liên hệ với bộ phận chăm sóc khách hàng của ROMA WATCHES qua hotline (+84) 123 456 789.</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="mt-8 p-4 bg-primary/10 dark:bg-primary/20 rounded-lg">
+                            <p class="text-lg font-bold text-primary dark:text-primary text-center">Chúc bạn mua sắm vui vẻ tại ROMA WATCHES!</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+        <!-- Footer Partial -->
+        @await Html.PartialAsync("_Footer")
+    </div>
+    
+    <!-- Modal Login và Scripts chung -->
+    @await Html.PartialAsync("_LoginModal")
+    @await Html.PartialAsync("_CommonScripts")
+</body>
+</html>

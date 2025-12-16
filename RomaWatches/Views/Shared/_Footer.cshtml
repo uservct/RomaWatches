@@ -4,7 +4,7 @@
             <!-- Cột 1: Giới thiệu chung -->
             <div class="lg:col-span-1">
                 <h3 class="text-lg font-bold uppercase tracking-wider text-white">Về ROMA WATCHES</h3>
-                <p class="mt-4 text-sm leading-relaxed">
+                <p class="mt-4 text-sm leading-relaxed text-justify">
                     ROMA WATCHES mang đến những chiếc đồng hồ sang trọng, là sự kết hợp hoàn hảo giữa nghệ thuật chế tác truyền thống và thiết kế đương đại.
                 </p>
             </div>
@@ -17,6 +17,8 @@
                         <li><a class="transition hover:text-white" asp-controller="Home" asp-action="Index">Trang chủ</a></li>
                         <li><a class="transition hover:text-white" asp-controller="Product" asp-action="Index">Cửa hàng</a></li>
                         <li><a class="transition hover:text-white" asp-controller="About" asp-action="Index">Giới thiệu</a></li>
+                        <li><a class="transition hover:text-white" asp-controller="News" asp-action="Index">Tin tức</a></li>
+                        <li><a class="transition hover:text-white" asp-controller="Contact" asp-action="Index">Liên hệ</a></li>
                     </ul>
                 </div>
                 
@@ -24,9 +26,10 @@
                 <div>
                     <h4 class="text-base font-semibold uppercase tracking-wider text-white">Hỗ trợ</h4>
                     <ul class="mt-4 space-y-2 text-sm">
-                        <li><a class="transition hover:text-white" href="#">Câu hỏi thường gặp</a></li>
-                        <li><a class="transition hover:text-white" href="#">Chính sách vận chuyển</a></li>
-                        <li><a class="transition hover:text-white" href="#">Chính sách bảo hành</a></li>
+                        <li><a class="transition hover:text-white" asp-controller="Support" asp-action="Index">Hướng dẫn mua hàng</a></li>
+                        <li><a class="transition hover:text-white" asp-controller="Support" asp-action="Payment">Hướng dẫn thanh toán</a></li>
+                        <li><a class="transition hover:text-white" asp-controller="Support" asp-action="Shipping">Chính sách vận chuyển</a></li>
+                        <li><a class="transition hover:text-white" asp-controller="Support" asp-action="Warranty">Chính sách bảo hành</a></li>
                     </ul>
                 </div>
                 

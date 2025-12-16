@@ -1,0 +1,102 @@
+@{
+    ViewData["Title"] = "Hướng dẫn thanh toán - ROMA WATCHES";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html class="dark" lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>@ViewData["Title"]</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#ecb613",
+              "background-light": "#f8f8f6",
+              "background-dark": "#221d10",
+            },
+            fontFamily: {
+              "display": ["Noto Serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+    <style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
+    <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+        <!-- Header Partial -->
+        @await Html.PartialAsync("_Header")
+        <div class="h-[72px]"></div>
+        
+        <div class="layout-container flex h-full grow flex-col">
+            <main class="mx-auto flex w-full max-w-4xl flex-1 flex-col px-4 py-10 sm:px-6 lg:px-8">
+                <div class="mb-8">
+                    <h1 class="text-4xl font-black leading-tight tracking-[-0.033em] text-gray-900 dark:text-white mb-4">Hướng dẫn thanh toán</h1>
+                </div>
+                
+                <div class="prose prose-lg dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
+                    <div class="markdown markdown-main-panel space-y-6" dir="ltr">
+                        <p class="text-lg font-semibold text-gray-900 dark:text-white">ROMA WATCHES hỗ trợ nhiều phương thức thanh toán tiện lợi và an toàn:</p>
+                        
+                        <div>
+                            <p class="text-xl font-bold text-gray-900 dark:text-white mb-3">1. Thanh toán trực tuyến</p>
+                            <ul class="list-disc list-inside space-y-2 ml-4">
+                                <li>Thanh toán qua cổng VNPay</li>
+                                <li>Thanh toán qua MoMo</li>
+                                <li>Thanh toán qua Payoo</li>
+                                <li>Thanh toán qua thẻ tín dụng/ghi nợ quốc tế (Visa, Mastercard)</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <p class="text-xl font-bold text-gray-900 dark:text-white mb-3">2. Thanh toán khi nhận hàng (COD)</p>
+                            <ul class="list-disc list-inside space-y-2 ml-4">
+                                <li>Bạn có thể thanh toán bằng tiền mặt khi nhận hàng</li>
+                                <li>Phí vận chuyển sẽ được tính thêm vào đơn hàng</li>
+                                <li>Vui lòng kiểm tra hàng hóa trước khi thanh toán</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <p class="text-xl font-bold text-gray-900 dark:text-white mb-3">3. Chuyển khoản ngân hàng</p>
+                            <ul class="list-disc list-inside space-y-2 ml-4">
+                                <li>Chuyển khoản trực tiếp vào tài khoản ngân hàng của ROMA WATCHES</li>
+                                <li>Thông tin tài khoản sẽ được gửi qua email sau khi đặt hàng</li>
+                                <li>Vui lòng ghi rõ mã đơn hàng trong nội dung chuyển khoản</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <p class="text-xl font-bold text-gray-900 dark:text-white mb-3">Lưu ý:</p>
+                            <ul class="list-disc list-inside space-y-2 ml-4">
+                                <li>Tất cả các giao dịch thanh toán đều được bảo mật và mã hóa</li>
+                                <li>Đơn hàng sẽ được xử lý sau khi thanh toán được xác nhận</li>
+                                <li>Nếu có bất kỳ thắc mắc nào về thanh toán, vui lòng liên hệ hotline (+84) 123 456 789</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+        <!-- Footer Partial -->
+        @await Html.PartialAsync("_Footer")
+    </div>
+    
+    <!-- Modal Login và Scripts chung -->
+    @await Html.PartialAsync("_LoginModal")
+    @await Html.PartialAsync("_CommonScripts")
+</body>
+</html>

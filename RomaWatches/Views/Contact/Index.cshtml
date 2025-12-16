@@ -1,0 +1,180 @@
+@{
+    ViewData["Title"] = "Liên hệ - ROMA WATCHES";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html class="dark" lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>@ViewData["Title"]</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#ecb613",
+              "background-light": "#f8f8f6",
+              "background-dark": "#221d10",
+            },
+            fontFamily: {
+              "display": ["Noto Serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+    <style>
+        .material-symbols-outlined {
+          font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#2c2c2c] dark:text-white">
+    <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+        <!-- Header Partial -->
+        @await Html.PartialAsync("_Header")
+        <div class="h-[72px]"></div>
+        
+        <div class="layout-container flex h-full grow flex-col">
+            <main class="flex-1 px-4 sm:px-10 md:px-20 lg:px-40 py-10 md:py-20">
+                <div class="layout-content-container flex flex-col mx-auto max-w-6xl">
+                    <div class="flex flex-col gap-4 mb-10 text-center">
+                        <p class="text-4xl font-black leading-tight tracking-[-0.033em] md:text-5xl dark:text-white">Liên Hệ Với Chúng Tôi</p>
+                        <p class="text-base font-normal leading-normal text-slate-600 dark:text-[#b9b29d] max-w-2xl mx-auto">
+                            Chúng tôi rất mong được lắng nghe từ bạn. Dù bạn có câu hỏi về bộ sưu tập, giá cả hay bất cứ điều gì khác, đội ngũ của chúng tôi luôn sẵn sàng trả lời mọi thắc mắc của bạn.
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
+                        <div class="flex flex-col gap-8">
+                            <div class="flex items-start gap-4">
+                                <div class="text-primary flex items-center justify-center rounded-lg bg-primary/20 dark:bg-[#393528] shrink-0 size-12">
+                                    <span class="material-symbols-outlined">location_on</span>
+                                </div>
+                                <div class="flex flex-col justify-center">
+                                    <p class="text-base font-medium leading-normal dark:text-white">Địa chỉ</p>
+                                    <p class="text-sm font-normal leading-normal text-slate-600 dark:text-[#b9b29d]">Km 10, Đường Nguyễn Trãi, Quận Thanh Xuân, TP Hà Nội</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-4">
+                                <div class="text-primary flex items-center justify-center rounded-lg bg-primary/20 dark:bg-[#393528] shrink-0 size-12">
+                                    <span class="material-symbols-outlined">mail</span>
+                                </div>
+                                <div class="flex flex-col justify-center">
+                                    <p class="text-base font-medium leading-normal dark:text-white">Email</p>
+                                    <p class="text-sm font-normal leading-normal text-slate-600 dark:text-[#b9b29d]">contact@romawatches.com</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-4">
+                                <div class="text-primary flex items-center justify-center rounded-lg bg-primary/20 dark:bg-[#393528] shrink-0 size-12">
+                                    <span class="material-symbols-outlined">call</span>
+                                </div>
+                                <div class="flex flex-col justify-center">
+                                    <p class="text-base font-medium leading-normal dark:text-white">Điện thoại</p>
+                                    <p class="text-sm font-normal leading-normal text-slate-600 dark:text-[#b9b29d]">(+84) 123 456 789</p>
+                                </div>
+                            </div>
+                            <div class="aspect-video w-full mt-4 overflow-hidden rounded-xl border border-primary/20 dark:border-[#393528]">
+                                <iframe allowfullscreen="" height="100%" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=20.980791595397257,105.78916120691008&hl=vi&z=17&output=embed" style="border:0;" width="100%"></iframe>
+                            </div>
+                        </div>
+                        <div class="w-full">
+                            <form class="space-y-6" id="contactForm">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 dark:text-gray-300" for="name">Họ và tên</label>
+                                    <div class="mt-1">
+                                        <input class="block w-full rounded-lg border-gray-300 dark:border-[#393528] bg-background-light dark:bg-[#221d10] shadow-sm focus:border-primary focus:ring-primary sm:text-sm placeholder:text-slate-400 dark:placeholder:text-gray-500" id="name" name="name" placeholder="ví dụ: Nguyễn Văn A" type="text" required/>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 dark:text-gray-300" for="email">Địa chỉ Email</label>
+                                    <div class="mt-1">
+                                        <input class="block w-full rounded-lg border-gray-300 dark:border-[#393528] bg-background-light dark:bg-[#221d10] shadow-sm focus:border-primary focus:ring-primary sm:text-sm placeholder:text-slate-400 dark:placeholder:text-gray-500" id="email" name="email" placeholder="ban@email.com" type="email" required/>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 dark:text-gray-300" for="subject">Chủ đề</label>
+                                    <div class="mt-1">
+                                        <input class="block w-full rounded-lg border-gray-300 dark:border-[#393528] bg-background-light dark:bg-[#221d10] shadow-sm focus:border-primary focus:ring-primary sm:text-sm placeholder:text-slate-400 dark:placeholder:text-gray-500" id="subject" name="subject" placeholder="Câu hỏi về đơn hàng" type="text" required/>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 dark:text-gray-300" for="message">Nội dung</label>
+                                    <div class="mt-1">
+                                        <textarea class="block w-full rounded-lg border-gray-300 dark:border-[#393528] bg-background-light dark:bg-[#221d10] shadow-sm focus:border-primary focus:ring-primary sm:text-sm placeholder:text-slate-400 dark:placeholder:text-gray-500" id="message" name="message" placeholder="Vui lòng nhập nội dung tin nhắn của bạn ở đây..." rows="6" required></textarea>
+                                    </div>
+                                </div>
+                                <div>
+                                    <button class="flex w-full justify-center rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-background-dark shadow-sm hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary transition-colors" type="submit">Gửi liên hệ</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+        <!-- Footer Partial -->
+        @await Html.PartialAsync("_Footer")
+    </div>
+    
+    <!-- Modal Login và Scripts chung -->
+    @await Html.PartialAsync("_LoginModal")
+    @await Html.PartialAsync("_CommonScripts")
+    
+    <script>
+        // Hàm hiển thị thông báo thành công
+        function showSuccessNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-24 right-4 z-50 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full bg-green-500 text-white font-medium';
+            notification.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined">check_circle</span>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+                notification.classList.add('translate-x-0');
+            }, 10);
+            
+            setTimeout(() => {
+                notification.classList.remove('translate-x-0');
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        // Xử lý form liên hệ
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                subject: document.getElementById('subject').value,
+                message: document.getElementById('message').value
+            };
+            
+            // Hiển thị thông báo thành công màu xanh lá
+            showSuccessNotification('Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất có thể.');
+            
+            // Reset form
+            this.reset();
+        });
+    </script>
+</body>
+</html>

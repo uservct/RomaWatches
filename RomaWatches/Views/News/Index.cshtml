@@ -1,0 +1,164 @@
+@{
+    ViewData["Title"] = "Tin tức - ROMA WATCHES";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html class="dark" lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>@ViewData["Title"]</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#ecb613",
+              "background-light": "#f8f8f6",
+              "background-dark": "#221d10",
+            },
+            fontFamily: {
+              "display": ["Noto Serif"]
+            },
+            borderRadius: {
+              "DEFAULT": "0.25rem",
+              "lg": "0.5rem",
+              "xl": "0.75rem",
+              "full": "9999px"
+            },
+          },
+        },
+      }
+    </script>
+    <style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
+    <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+        <!-- Header Partial -->
+        @await Html.PartialAsync("_Header")
+        <div class="h-[72px]"></div>
+        
+        <div class="layout-container flex h-full grow flex-col">
+            <main class="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 py-10 sm:px-6 lg:px-8">
+                <div class="mb-10 flex flex-wrap justify-between gap-4 border-b border-white/10 pb-6">
+                    <div class="flex flex-col gap-2">
+                        <h1 class="text-4xl font-black leading-tight tracking-[-0.033em] text-gray-900 dark:text-white">Tin tức</h1>
+                        <p class="text-base font-normal leading-normal text-gray-500 dark:text-gray-400">Đắm chìm trong thế giới đồng hồ sang trọng với các bài viết và thông tin độc quyền của chúng tôi.</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 gap-12 lg:grid-cols-12">
+                    <aside class="lg:col-span-3">
+                        <div class="sticky top-28 flex flex-col gap-8">
+                            <div class="relative">
+                                <input class="w-full rounded-lg border-gray-300 bg-gray-200/50 py-2.5 pl-10 pr-4 text-sm text-gray-900 focus:border-primary focus:ring-primary dark:border-gray-700 dark:bg-white/10 dark:text-gray-200 dark:placeholder-gray-500" placeholder="Tìm kiếm bài viết..." type="text" id="searchInput"/>
+                                <span class="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
+                            </div>
+                            <div>
+                                <h3 class="mb-4 text-lg font-bold text-gray-900 dark:text-white">Danh mục</h3>
+                                <ul class="space-y-3">
+                                    <li><a class="text-sm font-medium text-primary dark:text-primary" href="#">Tất cả bài viết</a></li>
+                                    <li><a class="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary" href="#">Tin tức thương hiệu</a></li>
+                                    <li><a class="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary" href="#">Chế tác đồng hồ</a></li>
+                                    <li><a class="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary" href="#">Sự kiện</a></li>
+                                    <li><a class="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary" href="#">Phỏng vấn</a></li>
+                                    <li><a class="text-sm text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary" href="#">Hướng dẫn phong cách</a></li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h3 class="mb-4 text-lg font-bold text-gray-900 dark:text-white">Nổi bật</h3>
+                                <ul class="space-y-4">
+                                    <li class="flex items-center gap-4">
+                                        <div class="h-16 w-16 flex-shrink-0 rounded-lg bg-cover bg-center" data-alt="Close up of a tourbillon watch mechanism" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDHKey3iI8YtwuqyG6k65UnUKtnEOKtltkSpJo7B3idGbuo2rfoDU_w5kku0aTa3CIoCY--Hu_13bT88tc1k01xVplM50EHwgZK_3TaaNgD2Ob9sfGHPqUcqQc7yQ6VRRJ99_0K2WoH3FSVDXxpnI_pNSAIbDUiJhCjW3NqXaKeqnA0AVRby0SqMDgzwDT5MPCwfMhfifYJ6vREw9O0NLP0w6QNc3vyyEdV4Y9BkVgl5z-YankAOI6_JRPBQl12Xl9cSHdaZioB58Q")'></div>
+                                        <div>
+                                            <a class="text-sm font-semibold leading-tight text-gray-800 hover:text-primary dark:text-gray-200 dark:hover:text-primary" href="#">Nghệ thuật của Tourbillon</a>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">26 tháng 12, 2025</p>
+                                        </div>
+                                    </li>
+                                    <li class="flex items-center gap-4">
+                                        <div class="h-16 w-16 flex-shrink-0 rounded-lg bg-cover bg-center" data-alt="Luxury watch with a dark face on a wooden surface" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCbYlqg9jt_--od6IakUe3oXAK3qSaTXxZnUHVD6w1ie5cgC_TZG3tXIOFv52RFq-btk5HkQ8LlXUEXat9U1YD24L8DpG-SiNy-rqpeKzYNK1Kza5zQC5tsPJE3oaiBMbIFKCLupT8MBCUuaKqcslOdZqZ0pn-mVQsjfOpxrWAIYOKCe6nfgqhHpoXfVSEScNj8E3ugqmcves33O5NX5ChrpyYIil0cV5dtewINJTjjzL0WeNYWZDobUTjPsHT-8THOOWTzLaTE4-o")'></div>
+                                        <div>
+                                            <a class="text-sm font-semibold leading-tight text-gray-800 hover:text-primary dark:text-gray-200 dark:hover:text-primary" href="#">Điểm nhấn từ Watches &amp; Wonders 2024</a>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">19 tháng 12, 2025</p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </aside>
+                    <div class="lg:col-span-9">
+                        <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+                            <div class="group flex flex-col gap-4">
+                                <div class="w-full overflow-hidden rounded-xl bg-cover bg-center bg-no-repeat aspect-video" data-alt="A vintage Patek Philippe watch with leather strap" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDogkTpnmD1wJJDKNL8bWJjkCjbZw5fPD9Fj2GlzvLi7Tmq1pwV33eU_toKujfHUTWxFVQ9vcU6bEMuouyPvYR_WsSZh7ipHDbak7XH6LcHUJUrbHN_DPupCOlLpbQxlVgmyILdEVNnie1hcQ1GhQdH0cHL-gLi1Mmd_znTIuexEaBZY1f2AOMzBKcOoqwzsF6Ff-O8ZSKMti1neqnFIFpbKxb5ylAwTvjxYGI2tuITqsMSmP1c9gbl992hmQkz5mzYtBiUyt1vRXc");'>
+                                    <div class="h-full w-full bg-black/20 transition-opacity duration-300 group-hover:opacity-0"></div>
+                                </div>
+                                <div class="flex flex-col gap-1.5">
+                                    <p class="text-xl font-bold leading-normal text-gray-900 group-hover:text-primary dark:text-white dark:group-hover:text-primary">Khám phá bên trong nhà máy Patek Philippe</p>
+                                    <p class="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Một cái nhìn hiếm hoi phía sau hậu trường tại một trong những nhà chế tác đồng hồ danh tiếng nhất thế giới.</p>
+                                    <p class="mt-1 text-xs font-normal leading-normal text-gray-500 dark:text-gray-500">22 tháng 12, 2025</p>
+                                </div>
+                            </div>
+                            <div class="group flex flex-col gap-4">
+                                <div class="w-full overflow-hidden rounded-xl bg-cover bg-center bg-no-repeat aspect-video" data-alt="A master watchmaker carefully assembling a watch movement" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAac-_7qAMNiDwfwZeGfQj1QT6qho9JPDsiiKQffDlii_xeGVzWyDkAZhVK8NM3h0Dvop-nEqiPj3TuEyBMoJ2wfr5MleUUuJuLrq19XlnFtimK5FOCq2K0DxxmClZ13EwMs-a_-ED4kzd3GlPjUNmZucMufAHLtd9FKF_BOvQSwX88kqzZEBYfOMxL75Mo5CI8CTSSbpoA2dMdOctFkdub-HTR1nlsqt9t5PfF34DJqiXlTVS0u8TBIBOg4HZUfMiyooF3ylqNseE");'>
+                                    <div class="h-full w-full bg-black/20 transition-opacity duration-300 group-hover:opacity-0"></div>
+                                </div>
+                                <div class="flex flex-col gap-1.5">
+                                    <p class="text-xl font-bold leading-normal text-gray-900 group-hover:text-primary dark:text-white dark:group-hover:text-primary">Phỏng vấn một nghệ nhân chế tác đồng hồ bậc thầy</p>
+                                    <p class="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Chúng tôi đã có cuộc trò chuyện với Jean-Pierre Dubois để thảo luận về triết lý và tương lai của ngành chế tác đồng hồ cao cấp.</p>
+                                    <p class="mt-1 text-xs font-normal leading-normal text-gray-500 dark:text-gray-500">15 tháng 12, 2025</p>
+                                </div>
+                            </div>
+                            <div class="group flex flex-col gap-4">
+                                <div class="w-full overflow-hidden rounded-xl bg-cover bg-center bg-no-repeat aspect-video" data-alt="An elegant Calatrava dress watch on a person's wrist" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCYRil2TNiZSIaryGaFI5cWY-x5qrZqzoHOeVnUaVV6rJZAw5met2jhOPjhNR2lIwJnGUfrla4Q_GycywqPK32F6LRIY3fthjzYQLaqmwuqXRDwnFbVnQin420EkFlHznjIO9MqmphUKJQcQT8Q7-HgcwnIr5mcFTXis32QhQd7rJCRW6YGpHdwvjwJIqWeCw3P8p-jZgnhxhq7pgE9JGb-rIts-c-W3zLlGSHPrlnQNo3naY3ZKcm1lkd4o5FzZ2FXRnn5BeATyP4");'>
+                                    <div class="h-full w-full bg-black/20 transition-opacity duration-300 group-hover:opacity-0"></div>
+                                </div>
+                                <div class="flex flex-col gap-1.5">
+                                    <p class="text-xl font-bold leading-normal text-gray-900 group-hover:text-primary dark:text-white dark:group-hover:text-primary">Vẻ đẹp thanh lịch vượt thời gian của Calatrava</p>
+                                    <p class="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Khám phá lý do tại sao chiếc đồng hồ sang trọng mang tính biểu tượng này vẫn là một chuẩn mực phong cách trong hơn 90 năm.</p>
+                                    <p class="mt-1 text-xs font-normal leading-normal text-gray-500 dark:text-gray-500">11 tháng 12, 2025</p>
+                                </div>
+                            </div>
+                            <div class="group flex flex-col gap-4">
+                                <div class="w-full overflow-hidden rounded-xl bg-cover bg-center bg-no-repeat aspect-video" data-alt="A classic dive watch submerged partially in water" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBQbGUBHpR2ckyb805urlTi5DN1vyLord3T3-LT3rk9LnQLy8-mMbv72vxwwWPN3sCan32vMkurXmg9d4NcbROlulTpHMmRd1fzOsr8-6UmnoT3DJZH8IaEcJoBK1Ee0TYysvKTXkmE9Vbp0yJGVKEw365JUA-QyQ_aCh4De-UN9H8rRPINHQc2LFQeLqIy8yHnzBjEf6UWEIub9-GETbkk-4ybEQDWgsmALTZjOAGcpQGiKeTpqNJ71QShK2J_-w6F3mxqHrDOyvg");'>
+                                    <div class="h-full w-full bg-black/20 transition-opacity duration-300 group-hover:opacity-0"></div>
+                                </div>
+                                <div class="flex flex-col gap-1.5">
+                                    <p class="text-xl font-bold leading-normal text-gray-900 group-hover:text-primary dark:text-white dark:group-hover:text-primary">Khám phá lịch sử của đồng hồ lặn</p>
+                                    <p class="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Từ nguồn gốc quân sự đến sự sang trọng hiện đại, chúng tôi theo dõi sự phát triển của chiếc đồng hồ công cụ không thể thiếu này.</p>
+                                    <p class="mt-1 text-xs font-normal leading-normal text-gray-500 dark:text-gray-500">08 tháng 12, 2025</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-12 flex items-center justify-center">
+                            <a class="flex h-10 w-10 items-center justify-center text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary" href="#">
+                                <span class="material-symbols-outlined">chevron_left</span>
+                            </a>
+                            <a class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-sm font-bold text-primary dark:bg-primary/20 dark:text-primary" href="#">1</a>
+                            <a class="flex h-10 w-10 items-center justify-center rounded-full text-sm text-gray-600 hover:bg-primary/20 hover:text-primary dark:text-gray-400 dark:hover:bg-primary/20 dark:hover:text-primary" href="#">2</a>
+                            <a class="flex h-10 w-10 items-center justify-center rounded-full text-sm text-gray-600 hover:bg-primary/20 hover:text-primary dark:text-gray-400 dark:hover:bg-primary/20 dark:hover:text-primary" href="#">3</a>
+                            <span class="flex h-10 w-10 items-center justify-center rounded-full text-sm text-gray-500 dark:text-gray-400">...</span>
+                            <a class="flex h-10 w-10 items-center justify-center rounded-full text-sm text-gray-600 hover:bg-primary/20 hover:text-primary dark:text-gray-400 dark:hover:bg-primary/20 dark:hover:text-primary" href="#">8</a>
+                            <a class="flex h-10 w-10 items-center justify-center text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary" href="#">
+                                <span class="material-symbols-outlined">chevron_right</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+        <!-- Footer Partial -->
+        @await Html.PartialAsync("_Footer")
+    </div>
+    
+    <!-- Modal Login và Scripts chung -->
+    @await Html.PartialAsync("_LoginModal")
+    @await Html.PartialAsync("_CommonScripts")
+</body>
+</html>

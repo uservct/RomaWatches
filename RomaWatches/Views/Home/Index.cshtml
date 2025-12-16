@@ -300,16 +300,52 @@
         event.preventDefault();
         event.stopPropagation();
         
+        // Kiểm tra đăng nhập
+        if (!isUserLoggedIn()) {
+            showNotification('Vui lòng đăng nhập để mua hàng', 'error');
+            setTimeout(() => {
+                if (typeof openLoginModal === 'function') {
+                    openLoginModal();
+                }
+            }, 500);
+            return;
+        }
+        
         const button = event.target.closest('button');
         const originalText = button.innerHTML;
         
         button.disabled = true;
         button.innerHTML = '<span class="material-symbols-outlined text-base">hourglass_empty</span><span class="text-sm">Đang xử lý...</span>';
         
-        // Giả lập xử lý và chuyển hướng
-        setTimeout(() => {
-            window.location.href = `/Product/Details/${productId}`;
-        }, 1000);
+        // Lấy anti-forgery token
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+        
+        // Thêm vào giỏ hàng và chuyển đến trang thanh toán
+        fetch('/Cart/Add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': token
+            },
+            body: JSON.stringify({ productId: productId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Chuyển thẳng đến trang thanh toán
+                window.location.href = '/Checkout/Index';
+            } else {
+                button.disabled = false;
+                button.innerHTML = originalText;
+                showNotification(data.message || 'Có lỗi xảy ra', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            button.disabled = false;
+            button.innerHTML = originalText;
+            showNotification('Có lỗi xảy ra khi xử lý yêu cầu', 'error');
+        });
     }
 
     // Lưu ý: isUserLoggedIn() và showNotification() được định nghĩa trong _CommonScripts.cshtml

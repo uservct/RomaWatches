@@ -1,0 +1,111 @@
+@{
+    ViewData["Title"] = "Chính sách bảo hành - ROMA WATCHES";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html class="dark" lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>@ViewData["Title"]</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#ecb613",
+              "background-light": "#f8f8f6",
+              "background-dark": "#221d10",
+            },
+            fontFamily: {
+              "display": ["Noto Serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+    <style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
+    <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+        <!-- Header Partial -->
+        @await Html.PartialAsync("_Header")
+        <div class="h-[72px]"></div>
+        
+        <div class="layout-container flex h-full grow flex-col">
+            <main class="mx-auto flex w-full max-w-4xl flex-1 flex-col px-4 py-10 sm:px-6 lg:px-8">
+                <div class="mb-8">
+                    <h1 class="text-4xl font-black leading-tight tracking-[-0.033em] text-gray-900 dark:text-white mb-4">Chính sách bảo hành</h1>
+                </div>
+                
+                <div class="prose prose-lg dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
+                    <div class="markdown markdown-main-panel space-y-6" dir="ltr">
+                        <div>
+                            <p class="text-xl font-bold text-gray-900 dark:text-white mb-3">1. Thời gian bảo hành</p>
+                            <ul class="list-disc list-inside space-y-2 ml-4">
+                                <li>Tất cả sản phẩm đồng hồ tại ROMA WATCHES được bảo hành chính hãng từ 12-24 tháng (tùy theo thương hiệu)</li>
+                                <li>Thời gian bảo hành được tính từ ngày mua hàng</li>
+                                <li>Phiếu bảo hành và hóa đơn mua hàng là cần thiết khi yêu cầu bảo hành</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <p class="text-xl font-bold text-gray-900 dark:text-white mb-3">2. Phạm vi bảo hành</p>
+                            <ul class="list-disc list-inside space-y-2 ml-4">
+                                <li>Bảo hành các lỗi kỹ thuật do nhà sản xuất</li>
+                                <li>Bảo hành máy đồng hồ và các linh kiện bên trong</li>
+                                <li>Không bảo hành các hư hỏng do người dùng gây ra (rơi vỡ, va đập, nước vào, v.v.)</li>
+                                <li>Không bảo hành dây đeo, vỏ ngoài bị trầy xước do sử dụng</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <p class="text-xl font-bold text-gray-900 dark:text-white mb-3">3. Quy trình bảo hành</p>
+                            <ul class="list-disc list-inside space-y-2 ml-4">
+                                <li>Mang sản phẩm cùng phiếu bảo hành và hóa đơn đến cửa hàng ROMA WATCHES</li>
+                                <li>Nhân viên sẽ kiểm tra và xác nhận tình trạng sản phẩm</li>
+                                <li>Thời gian sửa chữa: 7-14 ngày làm việc (tùy theo mức độ hư hỏng)</li>
+                                <li>Bạn sẽ được thông báo khi sản phẩm đã được sửa xong</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <p class="text-xl font-bold text-gray-900 dark:text-white mb-3">4. Chính sách đổi trả</p>
+                            <ul class="list-disc list-inside space-y-2 ml-4">
+                                <li>Đổi trả trong vòng 7 ngày kể từ ngày mua hàng</li>
+                                <li>Sản phẩm phải còn nguyên vẹn, chưa sử dụng, còn đầy đủ phụ kiện và hộp</li>
+                                <li>Chỉ áp dụng đổi trả cho sản phẩm bị lỗi hoặc không đúng như mô tả</li>
+                                <li>Phí vận chuyển đổi trả do khách hàng chịu (trừ trường hợp sản phẩm bị lỗi)</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <p class="text-xl font-bold text-gray-900 dark:text-white mb-3">5. Lưu ý</p>
+                            <ul class="list-disc list-inside space-y-2 ml-4">
+                                <li>Vui lòng giữ gìn phiếu bảo hành và hóa đơn mua hàng cẩn thận</li>
+                                <li>Không tự ý mở máy hoặc sửa chữa sản phẩm tại các cơ sở không được ủy quyền</li>
+                                <li>Mọi thắc mắc về bảo hành, vui lòng liên hệ hotline (+84) 123 456 789</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+        <!-- Footer Partial -->
+        @await Html.PartialAsync("_Footer")
+    </div>
+    
+    <!-- Modal Login và Scripts chung -->
+    @await Html.PartialAsync("_LoginModal")
+    @await Html.PartialAsync("_CommonScripts")
+</body>
+</html>

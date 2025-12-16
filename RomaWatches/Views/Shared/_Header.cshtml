@@ -25,8 +25,8 @@
             <a class="text-white/80 hover:text-white text-sm font-medium uppercase tracking-wider transition-colors @(currentController == "Home" && currentAction == "Index" ? "!text-white" : "")" asp-controller="Home" asp-action="Index">Trang chủ</a>
             <a class="text-white/80 hover:text-white text-sm font-medium uppercase tracking-wider transition-colors @(currentController == "About" ? "!text-white" : "")" asp-controller="About" asp-action="Index">Giới thiệu</a>
             <a class="text-white/80 hover:text-white text-sm font-medium uppercase tracking-wider transition-colors @(currentController == "Product" ? "!text-white" : "")" asp-controller="Product" asp-action="Index">Cửa hàng</a>
-            <a class="text-white/80 hover:text-white text-sm font-medium uppercase tracking-wider transition-colors" href="#">Tin tức</a>
-            <a class="text-white/80 hover:text-white text-sm font-medium uppercase tracking-wider transition-colors" href="#">Liên hệ</a>
+            <a class="text-white/80 hover:text-white text-sm font-medium uppercase tracking-wider transition-colors @(currentController == "News" ? "!text-white" : "")" asp-controller="News" asp-action="Index">Tin tức</a>
+            <a class="text-white/80 hover:text-white text-sm font-medium uppercase tracking-wider transition-colors @(currentController == "Contact" ? "!text-white" : "")" asp-controller="Contact" asp-action="Index">Liên hệ</a>
         </nav>
     </div>
     
