@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RomaWatches.Data;
@@ -10,12 +11,14 @@ namespace RomaWatches.Controllers
     {
         private readonly ApplicationDbContext _context; // Context cơ sở dữ liệu.
         private readonly ILogger<ProductController> _logger; // Logger.
+        private readonly UserManager<ApplicationUser> _userManager; // User manager.
 
         // Constructor injection.
-        public ProductController(ApplicationDbContext context, ILogger<ProductController> logger)
+        public ProductController(ApplicationDbContext context, ILogger<ProductController> logger, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _logger = logger;
+            _userManager = userManager;
         }
 
         // Action hiển thị trang danh sách sản phẩm (có hỗ trợ lọc và tìm kiếm).
@@ -254,6 +257,47 @@ namespace RomaWatches.Controllers
             {
                 return NotFound();
             }
+
+            // Load reviews và tính toán thống kê
+            var reviews = await _context.Reviews
+                .Include(r => r.User)
+                .Where(r => r.ProductId == id)
+                .OrderByDescending(r => r.CreatedAt)
+                .ToListAsync();
+
+            var totalReviews = reviews.Count;
+            var averageRating = reviews.Any() ? reviews.Average(r => r.Rating) : 0;
+
+            // Kiểm tra user hiện tại có thể đánh giá không
+            bool canReview = false;
+            Review? userReview = null;
+
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user != null)
+                {
+                    // Kiểm tra user đã mua sản phẩm chưa
+                    var hasPurchased = await _context.Orders
+                        .Include(o => o.OrderItems)
+                        .AnyAsync(o =>
+                            o.UserId == user.Id &&
+                            o.Status == OrderStatus.Completed &&
+                            o.OrderItems.Any(oi => oi.ProductId == id));
+
+                    if (hasPurchased)
+                    {
+                        canReview = true;
+                        userReview = reviews.FirstOrDefault(r => r.UserId == user.Id);
+                    }
+                }
+            }
+
+            ViewBag.TotalReviews = totalReviews;
+            ViewBag.AverageRating = averageRating;
+            ViewBag.CanReview = canReview;
+            ViewBag.UserReview = userReview;
+            ViewBag.Reviews = reviews;
 
             return View(product);
         }

@@ -1,0 +1,58 @@
+@model List<RomaWatches.Models.Review>
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+
+<div id="reviewsList" class="space-y-6">
+    @if (Model != null && Model.Any())
+    {
+        @foreach (var review in Model)
+        {
+            <div class="p-6 bg-neutral-50 dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 review-item" data-review-id="@review.Id">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex items-center gap-3">
+                        <!-- Avatar/Initial -->
+                        <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-neutral-900 font-bold text-sm">
+                            @{
+                                var userName = (review.User?.FirstName ?? "") + " " + (review.User?.LastName ?? "");
+                                var initial = !string.IsNullOrEmpty(userName.Trim()) ? userName.Trim().Substring(0, 1).ToUpper() : "U";
+                            }
+                            @initial
+                        </div>
+                        <div>
+                            <p class="font-semibold text-neutral-800 dark:text-white">
+                                @(review.User?.FirstName ?? "") @(review.User?.LastName ?? "")
+                            </p>
+                            <p class="text-xs text-neutral-500 dark:text-neutral-400">
+                                @review.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                                @if (review.UpdatedAt.HasValue && review.UpdatedAt.Value != review.CreatedAt)
+                                {
+                                    <span>(Đã chỉnh sửa)</span>
+                                }
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Rating Stars -->
+                    <div class="flex items-center gap-1">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <span class="material-symbols-outlined text-lg @(i <= review.Rating ? "text-primary fill-primary" : "text-neutral-300 dark:text-neutral-600")">star</span>
+                        }
+                    </div>
+                </div>
+                
+                @if (!string.IsNullOrEmpty(review.Comment))
+                {
+                    <p class="text-neutral-700 dark:text-neutral-300 leading-relaxed mt-3">@review.Comment</p>
+                }
+            </div>
+        }
+    }
+    else
+    {
+        <div class="text-center py-12">
+            <p class="text-neutral-500 dark:text-neutral-400">Chưa có đánh giá nào cho sản phẩm này.</p>
+        </div>
+    }
+</div>
+

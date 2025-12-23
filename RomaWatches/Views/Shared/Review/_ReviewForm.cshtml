@@ -1,0 +1,119 @@
+@model RomaWatches.Models.Product
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@{
+    var canReview = ViewBag.CanReview as bool? ?? false;
+    var userReview = ViewBag.UserReview as RomaWatches.Models.Review;
+    var productId = Model.Id;
+}
+
+@if (SignInManager.IsSignedIn(User) && canReview)
+{
+    <div class="mb-8 p-6 bg-neutral-50 dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800" id="reviewFormContainer">
+        @if (userReview == null)
+        {
+            <h3 class="text-xl font-bold text-neutral-800 dark:text-white mb-4">Viết đánh giá của bạn</h3>
+            <form id="reviewForm" class="space-y-4">
+                <input type="hidden" name="productId" value="@productId" />
+                
+                <!-- Rating Stars -->
+                <div class="flex items-center gap-2">
+                    <span class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Đánh giá:</span>
+                    <div class="flex items-center gap-1" id="ratingStars">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <span class="material-symbols-outlined text-2xl cursor-pointer text-neutral-300 dark:text-neutral-600 hover:text-primary transition-colors star-rating" data-rating="@i">star</span>
+                        }
+                    </div>
+                    <span class="text-sm text-neutral-500 dark:text-neutral-400" id="ratingText">Chọn số sao</span>
+                </div>
+                <input type="hidden" name="rating" id="selectedRating" value="0" required />
+                
+                <!-- Comment -->
+                <div>
+                    <label for="reviewComment" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Nhận xét của bạn</label>
+                    <textarea id="reviewComment" name="comment" rows="4" class="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-800 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent resize-none" placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này..."></textarea>
+                </div>
+                
+                <!-- Submit Button -->
+                <div class="flex justify-end">
+                    <button type="submit" class="px-6 py-2 bg-primary hover:bg-primary/90 text-neutral-900 font-semibold rounded-lg transition-colors">
+                        Gửi đánh giá
+                    </button>
+                </div>
+                
+                <!-- Error Message -->
+                <div id="reviewFormError" class="hidden text-red-500 text-sm"></div>
+            </form>
+        }
+        else
+        {
+            <!-- Edit Review Form -->
+            <div class="mb-4">
+                <h3 class="text-xl font-bold text-neutral-800 dark:text-white mb-2">Đánh giá của bạn</h3>
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="flex items-center gap-1">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <span class="material-symbols-outlined text-xl @(i <= userReview.Rating ? "text-primary fill-primary" : "text-neutral-300 dark:text-neutral-600")">star</span>
+                        }
+                    </div>
+                    <span class="text-sm text-neutral-500 dark:text-neutral-400">@userReview.CreatedAt.ToString("dd/MM/yyyy")</span>
+                </div>
+                @if (!string.IsNullOrEmpty(userReview.Comment))
+                {
+                    <p class="text-neutral-700 dark:text-neutral-300 mb-4">@userReview.Comment</p>
+                }
+                <div class="flex gap-2">
+                    <button onclick="editReview(@userReview.Id)" class="px-4 py-2 bg-neutral-700 dark:bg-neutral-600 hover:bg-neutral-800 dark:hover:bg-neutral-700 text-white text-sm font-medium rounded-lg transition-colors">
+                        Chỉnh sửa
+                    </button>
+                    <button onclick="deleteReview(@userReview.Id)" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition-colors">
+                        Xóa
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Edit Form (hidden by default) -->
+            <div id="editReviewFormContainer" class="hidden">
+                <h4 class="text-lg font-semibold text-neutral-800 dark:text-white mb-4">Chỉnh sửa đánh giá</h4>
+                <form id="editReviewForm" class="space-y-4">
+                    <input type="hidden" name="reviewId" value="@userReview.Id" />
+                    
+                    <!-- Rating Stars -->
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Đánh giá:</span>
+                        <div class="flex items-center gap-1" id="editRatingStars">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <span class="material-symbols-outlined text-2xl cursor-pointer @(i <= userReview.Rating ? "text-primary fill-primary" : "text-neutral-300 dark:text-neutral-600") hover:text-primary transition-colors edit-star-rating" data-rating="@i">star</span>
+                            }
+                        </div>
+                        <span class="text-sm text-neutral-500 dark:text-neutral-400" id="editRatingText">@userReview.Rating sao</span>
+                    </div>
+                    <input type="hidden" name="rating" id="editSelectedRating" value="@userReview.Rating" required />
+                    
+                    <!-- Comment -->
+                    <div>
+                        <label for="editReviewComment" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Nhận xét của bạn</label>
+                        <textarea id="editReviewComment" name="comment" rows="4" class="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-800 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent resize-none" placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này...">@userReview.Comment</textarea>
+                    </div>
+                    
+                    <!-- Submit/Cancel Buttons -->
+                    <div class="flex justify-end gap-2">
+                        <button type="button" onclick="cancelEditReview()" class="px-4 py-2 bg-neutral-300 dark:bg-neutral-700 hover:bg-neutral-400 dark:hover:bg-neutral-600 text-neutral-800 dark:text-white font-medium rounded-lg transition-colors">
+                            Hủy
+                        </button>
+                        <button type="submit" class="px-6 py-2 bg-primary hover:bg-primary/90 text-neutral-900 font-semibold rounded-lg transition-colors">
+                            Cập nhật
+                        </button>
+                    </div>
+                    
+                    <!-- Error Message -->
+                    <div id="editReviewFormError" class="hidden text-red-500 text-sm"></div>
+                </form>
+            </div>
+        }
+    </div>
+}
+

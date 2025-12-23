@@ -111,14 +111,32 @@
                         <h1 class="text-neutral-800 dark:text-white text-4xl lg:text-5xl font-black leading-tight tracking-[-0.033em] font-display mt-1">@Model.Name</h1>
                     </div>
                     <div class="flex items-center gap-4">
+                        @{
+                            var averageRating = ViewBag.AverageRating as double? ?? 0;
+                            var totalReviews = ViewBag.TotalReviews as int? ?? 0;
+                            var fullStars = (int)Math.Floor(averageRating);
+                            var hasHalfStar = averageRating - fullStars >= 0.5;
+                        }
                         <div class="flex items-center gap-1 text-primary">
-                            <span class="material-symbols-outlined text-xl">star</span>
-                            <span class="material-symbols-outlined text-xl">star</span>
-                            <span class="material-symbols-outlined text-xl">star</span>
-                            <span class="material-symbols-outlined text-xl">star</span>
-                            <span class="material-symbols-outlined text-xl fill-transparent" style="-webkit-text-stroke: 1px;">star</span>
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                if (i <= fullStars)
+                                {
+                                    <span class="material-symbols-outlined text-xl fill-primary">star</span>
+                                }
+                                else if (i == fullStars + 1 && hasHalfStar)
+                                {
+                                    <span class="material-symbols-outlined text-xl fill-primary">star_half</span>
+                                }
+                                else
+                                {
+                                    <span class="material-symbols-outlined text-xl fill-transparent" style="-webkit-text-stroke: 1px;">star</span>
+                                }
+                            }
                         </div>
-                        <a class="text-sm font-medium text-neutral-600 dark:text-[#b9b29d] hover:text-primary" href="#reviews">(0 Đánh giá)</a>
+                        <a class="text-sm font-medium text-neutral-600 dark:text-[#b9b29d] hover:text-primary" href="#reviews">
+                            (@totalReviews Đánh giá@(averageRating > 0 ? $" - {averageRating:F1}" : ""))
+                        </a>
                     </div>
                     <p class="text-4xl font-bold font-display text-neutral-800 dark:text-white">@Model.Price.ToString("N0") ₫</p>
                     @if (!string.IsNullOrEmpty(Model.Description))
@@ -265,7 +283,14 @@
                     }
                 </div>
                 <div class="py-10 font-sans hidden" id="reviews">
-                    <p class="text-neutral-600 dark:text-[#b9b29d] text-base">Chưa có đánh giá nào cho sản phẩm này.</p>
+                    @await Html.PartialAsync("Review/_ReviewForm", Model)
+                    <h3 class="text-2xl font-bold text-neutral-800 dark:text-white mb-6">Đánh giá khách hàng</h3>
+                    <div id="reviewsListContainer">
+                        @{
+                            var reviews = ViewBag.Reviews as List<RomaWatches.Models.Review> ?? new List<RomaWatches.Models.Review>();
+                        }
+                        @await Html.PartialAsync("Review/_ReviewList", reviews)
+                    </div>
                 </div>
             </div>
         </main>
@@ -517,6 +542,270 @@
                 button.innerHTML = originalText;
                 showNotification('Có lỗi xảy ra khi xử lý đơn hàng. Vui lòng thử lại.', 'error');
             });
+        }
+
+        // ========== REVIEW FUNCTIONALITY ==========
+        const productId = @Model.Id;
+
+        // Xử lý chọn sao đánh giá
+        document.addEventListener('DOMContentLoaded', function() {
+            // Star rating cho form tạo mới
+            const ratingStars = document.querySelectorAll('.star-rating');
+            ratingStars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const rating = parseInt(this.getAttribute('data-rating'));
+                    setRating(rating, 'ratingStars', 'selectedRating', 'ratingText');
+                });
+            });
+
+            // Star rating cho form chỉnh sửa
+            const editRatingStars = document.querySelectorAll('.edit-star-rating');
+            editRatingStars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const rating = parseInt(this.getAttribute('data-rating'));
+                    setRating(rating, 'editRatingStars', 'editSelectedRating', 'editRatingText');
+                });
+            });
+
+            // Submit form đánh giá
+            const reviewForm = document.getElementById('reviewForm');
+            if (reviewForm) {
+                reviewForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    submitReview();
+                });
+            }
+
+            // Submit form chỉnh sửa đánh giá
+            const editReviewForm = document.getElementById('editReviewForm');
+            if (editReviewForm) {
+                editReviewForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    updateReview();
+                });
+            }
+        });
+
+        function setRating(rating, starsContainerId, hiddenInputId, textElementId) {
+            const stars = document.querySelectorAll(`#${starsContainerId} .star-rating, #${starsContainerId} .edit-star-rating`);
+            const hiddenInput = document.getElementById(hiddenInputId);
+            const textElement = document.getElementById(textElementId);
+
+            stars.forEach((star, index) => {
+                const starRating = parseInt(star.getAttribute('data-rating'));
+                if (starRating <= rating) {
+                    star.classList.add('text-primary', 'fill-primary');
+                    star.classList.remove('text-neutral-300', 'dark:text-neutral-600');
+                } else {
+                    star.classList.remove('text-primary', 'fill-primary');
+                    star.classList.add('text-neutral-300', 'dark:text-neutral-600');
+                }
+            });
+
+            if (hiddenInput) {
+                hiddenInput.value = rating;
+            }
+
+            if (textElement) {
+                textElement.textContent = rating + ' sao';
+            }
+        }
+
+        // Gửi đánh giá mới
+        function submitReview() {
+            const rating = document.getElementById('selectedRating')?.value;
+            const comment = document.getElementById('reviewComment')?.value || '';
+
+            if (!rating || rating === '0') {
+                showNotification('Vui lòng chọn số sao đánh giá', 'error');
+                return;
+            }
+
+            const formData = {
+                productId: productId,
+                rating: parseInt(rating),
+                comment: comment.trim()
+            };
+
+            fetch('/Review/Create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message || 'Đánh giá đã được gửi thành công', 'success');
+                    document.getElementById('reviewForm').reset();
+                    document.getElementById('selectedRating').value = '0';
+                    setRating(0, 'ratingStars', 'selectedRating', 'ratingText');
+                    loadReviews();
+                    // Reload page để cập nhật form và thống kê
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    showNotification(data.message || 'Có lỗi xảy ra khi gửi đánh giá', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Có lỗi xảy ra khi gửi đánh giá', 'error');
+            });
+        }
+
+        // Chỉnh sửa đánh giá
+        function editReview(reviewId) {
+            const editContainer = document.getElementById('editReviewFormContainer');
+            if (editContainer) {
+                editContainer.classList.remove('hidden');
+                // Load dữ liệu đánh giá hiện tại
+                fetch(`/Review/CanReview?productId=${productId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.existingReview) {
+                            setRating(data.existingReview.rating, 'editRatingStars', 'editSelectedRating', 'editRatingText');
+                            document.getElementById('editReviewComment').value = data.existingReview.comment || '';
+                        }
+                    });
+            }
+        }
+
+        function cancelEditReview() {
+            const editContainer = document.getElementById('editReviewFormContainer');
+            if (editContainer) {
+                editContainer.classList.add('hidden');
+            }
+        }
+
+        // Cập nhật đánh giá
+        function updateReview() {
+            const reviewId = document.getElementById('editReviewForm')?.querySelector('input[name="reviewId"]')?.value;
+            const rating = document.getElementById('editSelectedRating')?.value;
+            const comment = document.getElementById('editReviewComment')?.value || '';
+
+            if (!rating || rating === '0') {
+                showNotification('Vui lòng chọn số sao đánh giá', 'error');
+                return;
+            }
+
+            const formData = {
+                rating: parseInt(rating),
+                comment: comment.trim()
+            };
+
+            fetch(`/Review/Update/${reviewId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message || 'Đánh giá đã được cập nhật', 'success');
+                    cancelEditReview();
+                    loadReviews();
+                    // Reload page để cập nhật form và thống kê
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    showNotification(data.message || 'Có lỗi xảy ra khi cập nhật đánh giá', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Có lỗi xảy ra khi cập nhật đánh giá', 'error');
+            });
+        }
+
+        // Xóa đánh giá
+        function deleteReview(reviewId) {
+            if (!confirm('Bạn có chắc chắn muốn xóa đánh giá này?')) {
+                return;
+            }
+
+            fetch(`/Review/Delete/${reviewId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message || 'Đánh giá đã được xóa', 'success');
+                    loadReviews();
+                    // Reload page để cập nhật form và thống kê
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    showNotification(data.message || 'Có lỗi xảy ra khi xóa đánh giá', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Có lỗi xảy ra khi xóa đánh giá', 'error');
+            });
+        }
+
+        // Tải danh sách đánh giá
+        function loadReviews() {
+            fetch(`/Review/GetReviews?productId=${productId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.reviews) {
+                        const container = document.getElementById('reviewsListContainer');
+                        if (container) {
+                            // Render reviews
+                            if (data.reviews.length === 0) {
+                                container.innerHTML = '<div class="text-center py-12"><p class="text-neutral-500 dark:text-neutral-400">Chưa có đánh giá nào cho sản phẩm này.</p></div>';
+                            } else {
+                                container.innerHTML = data.reviews.map(review => {
+                                    const stars = Array.from({ length: 5 }, (_, i) => 
+                                        i < review.rating 
+                                            ? '<span class="material-symbols-outlined text-lg text-primary fill-primary">star</span>'
+                                            : '<span class="material-symbols-outlined text-lg text-neutral-300 dark:text-neutral-600">star</span>'
+                                    ).join('');
+                                    
+                                    const date = new Date(review.createdAt).toLocaleDateString('vi-VN', {
+                                        day: '2-digit',
+                                        month: '2-digit',
+                                        year: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    });
+
+                                    const initial = review.userName ? review.userName.trim().substring(0, 1).toUpperCase() : 'U';
+
+                                    return `
+                                        <div class="p-6 bg-neutral-50 dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 review-item" data-review-id="${review.id}">
+                                            <div class="flex items-start justify-between mb-3">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-neutral-900 font-bold text-sm">${initial}</div>
+                                                    <div>
+                                                        <p class="font-semibold text-neutral-800 dark:text-white">${review.userName || 'Người dùng'}</p>
+                                                        <p class="text-xs text-neutral-500 dark:text-neutral-400">${date}${review.updatedAt ? ' (Đã chỉnh sửa)' : ''}</p>
+                                                    </div>
+                                                </div>
+                                                <div class="flex items-center gap-1">${stars}</div>
+                                            </div>
+                                            ${review.comment ? `<p class="text-neutral-700 dark:text-neutral-300 leading-relaxed mt-3">${review.comment}</p>` : ''}
+                                        </div>
+                                    `;
+                                }).join('');
+                            }
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading reviews:', error);
+                });
         }
     </script>
 </body>

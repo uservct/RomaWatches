@@ -16,6 +16,7 @@ namespace RomaWatches.Data
         public DbSet<CartItem> CartItems { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<Review> Reviews { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -79,6 +80,23 @@ namespace RomaWatches.Data
                     .WithMany()
                     .HasForeignKey(oi => oi.ProductId)
                     .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Configure Review entity
+            modelBuilder.Entity<Review>(entity =>
+            {
+                entity.HasIndex(e => e.ProductId);
+                entity.HasIndex(e => e.UserId);
+                entity.HasIndex(e => new { e.ProductId, e.UserId })
+                      .IsUnique();
+                entity.HasOne(r => r.Product)
+                    .WithMany()
+                    .HasForeignKey(r => r.ProductId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(r => r.User)
+                    .WithMany()
+                    .HasForeignKey(r => r.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }
