@@ -34,6 +34,10 @@ namespace RomaWatches.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
+            // Kiểm tra xem người dùng có đơn hàng nào không.
+            var hasAnyOrders = await _context.Orders.AnyAsync(o => o.UserId == user.Id);
+            ViewBag.HasAnyOrders = hasAnyOrders;
+
             // Truy vấn đơn hàng của người dùng.
             var query = _context.Orders
                 .Include(o => o.OrderItems)
@@ -46,9 +50,17 @@ namespace RomaWatches.Controllers
             {
                 switch (status.ToLower())
                 {
-                    case "processing":
-                        // Đang xử lý: Bao gồm Unconfirmed (Chờ xác nhận), Pending (Đã xác nhận) và Approved (Đang giao hàng).
-                        query = query.Where(o => o.Status == OrderStatus.Unconfirmed || o.Status == OrderStatus.Pending || o.Status == OrderStatus.Approved);
+                    case "unconfirmed":
+                        // Đang chờ xác nhận.
+                        query = query.Where(o => o.Status == OrderStatus.Unconfirmed);
+                        break;
+                    case "pending":
+                        // Đã xác nhận.
+                        query = query.Where(o => o.Status == OrderStatus.Pending);
+                        break;
+                    case "approved":
+                        // Đang giao hàng.
+                        query = query.Where(o => o.Status == OrderStatus.Approved);
                         break;
                     case "completed":
                         // Đã hoàn thành.
